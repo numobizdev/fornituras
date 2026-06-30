@@ -1,0 +1,23 @@
+---
+description: Reglas base del proyecto para Cursor. La fuente de verdad es AGENTS.md.
+globs:
+alwaysApply: true
+---
+
+# Reglas para Cursor
+
+La **fuente única de verdad** de este proyecto es [`AGENTS.md`](../../AGENTS.md) en la raíz.
+Léela y respétala íntegramente. Estas reglas no la duplican; solo la refuerzan.
+
+## Imprescindible
+
+- **Seguridad primero.** Este sistema maneja datos personales de elementos policiales en
+  México (alta sensibilidad). Lee `docs/02-seguridad.md` antes de tocar datos,
+  autenticación o QR.
+- **El QR nunca contiene datos personales**: solo un identificador opaco y firmado. Los
+  datos se resuelven en el servidor tras autenticación.
+- **Nunca commitees secretos** (cadenas de conexión, llaves, contraseñas, certificados).
+- **Stack fijo:** Spring Boot · SQL Server 2022 · Ionic 8 + Angular + Capacitor. No
+  cambiarlo sin un ADR en `docs/04-decisiones/`.
+- **Documentación y comentarios en español**; identificadores de código en inglés.
+- **Fase actual:** inicialización. No generes código de producción sin que se pida.
