@@ -8,12 +8,19 @@
 
 **Input**: `Requerimientos.MD` §11 (Almacenes) — ubicaciones de resguardo de fornituras.
 
+> **Nota de diseño (2026-06-30):** el almacén **no** es un catálogo plano (tipo `sexo`/`motivo_baja`),
+> sino una **entidad operativa / dato maestro**: un lugar físico real con clave de negocio,
+> clasificación, ubicación, responsable y cupo. Su estructura completa vive en
+> [`data-model.md`](./data-model.md).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Administrar almacenes (CRUD) (Priority: P1)
 
 Un usuario autorizado registra, consulta, edita y desactiva almacenes (ubicaciones físicas
-donde se resguardan las fornituras). Cada fornitura pertenece a un almacén.
+donde se resguardan las fornituras). Cada almacén tiene una **clave de negocio única**, un
+**tipo**, una **ubicación** (municipio + dirección) y un **responsable**. Cada fornitura
+pertenece a un almacén.
 
 **Why this priority**: El almacén es un atributo obligatorio del alta de fornituras (**001**) y
 el origen/destino de los traslados (**007**); debe existir antes que ellos.
@@ -32,8 +39,13 @@ con fornituras no puede eliminarse (solo desactivarse).
 
 ### Edge Cases
 
-- Nombre/identificador de almacén duplicado: rechazar.
-- Existencias por almacén: el conteo de fornituras por almacén alimenta reportes (**011**).
+- **Clave (`codigo`)** o **nombre** de almacén duplicado: rechazar (unicidad independiente de
+  mayúsculas/espacios).
+- Existencias por almacén: el conteo de fornituras por almacén alimenta reportes (**011**) y la
+  **ocupación** frente a la `capacidad` declarada (no se almacena: se deriva por conteo).
+- Capacidad excedida: si el almacén declara `capacidad`, intentar ubicar más fornituras de las que
+  caben se **advierte** (no bloquea en MVP; ver Assumptions).
+- Cambio de responsable: queda auditado (campo sensible).
 
 ## Requirements *(mandatory)*
 
@@ -41,18 +53,36 @@ con fornituras no puede eliminarse (solo desactivarse).
 
 - **FR-001**: El sistema MUST permitir crear, consultar (paginado), editar y **desactivar**
   almacenes.
-- **FR-002**: El nombre/identificador de almacén MUST ser único.
+- **FR-002**: La **clave de negocio** (`codigo`) y el **nombre** del almacén MUST ser únicos
+  (unicidad normalizada: trim + colapso de espacios + casefold).
 - **FR-003**: El sistema MUST impedir eliminar un almacén con fornituras o traslados asociados;
   en su lugar permite desactivarlo.
 - **FR-004**: Solo almacenes **activos** MUST ofrecerse como ubicación en alta de fornituras y
   como origen/destino de traslados.
 - **FR-005**: Las operaciones de alta/edición/baja de almacén MUST requerir autorización por rol
   y quedar auditadas.
+- **FR-006**: El almacén MUST registrar **clasificación** (`tipo`), **ubicación** (municipio +
+  dirección) y **responsable** (usuario a cargo), además de datos operativos opcionales (cupo,
+  contacto institucional, geolocalización).
+- **FR-007**: Los campos **sensibles del almacén** (dirección, geolocalización, responsable,
+  contacto) MUST exponerse solo a roles autorizados (ADMIN/almacén); los roles operativos básicos
+  ven únicamente identidad y estado. Toda lectura de estos campos queda sujeta a autorización.
+- **FR-008**: El contacto del almacén MUST ser **institucional** (no datos personales de un
+  individuo); el sistema NO almacena PII de elementos ni del responsable más allá de su `user_id`.
 
 ### Key Entities
 
-- **Almacén** (`warehouse`): nombre/identificador (único), ubicación/descripción, estado
-  (activo/inactivo). Se relaciona con fornituras (**001**) y traslados (**007**).
+- **Almacén** (`warehouse`): **entidad operativa** (no catálogo). Atributos:
+  - *Identidad*: `codigo` (clave de negocio única, estable), `nombre` (único, normalizado).
+  - *Clasificación*: `tipo` (CENTRAL/REGIONAL/MOVIL/TEMPORAL).
+  - *Ubicación*: `municipio_id` (FK → `municipio`, reutiliza el catálogo geográfico de `officer`),
+    `direccion`, `cp`, `latitud`/`longitud` (sensibles, opcionales).
+  - *Responsable y contacto*: `responsable_id` (FK → `user`), `telefono`, `email_contacto`
+    (institucionales, opcionales).
+  - *Operativo*: `capacidad` (cupo), `observaciones`.
+  - *Estado*: `active` (+ `createdAt`/`updatedAt`).
+  - Se relaciona con fornituras (**001**), traslados (**007**), `municipio` y `user`. Detalle en
+    [`data-model.md`](./data-model.md).
 
 ## Success Criteria *(mandatory)*
 
@@ -60,8 +90,20 @@ con fornituras no puede eliminarse (solo desactivarse).
 - **SC-002**: El 100% de intentos de eliminar un almacén en uso son bloqueados.
 - **SC-003**: El listado de almacenes carga paginado en menos de 2 segundos.
 
+## Assumptions
+
+- **Capacidad**: en MVP el cupo (`capacidad`) es informativo y se compara contra la ocupación
+  derivada; exceder el cupo **advierte**, no bloquea. El bloqueo duro se evalúa como mejora.
+- **Municipio**: la ubicación reutiliza el catálogo `municipio` (compartido con `officer`, spec
+  **003**). Mientras ese catálogo no exista, `municipio_id` queda **nullable** y su FK se cablea al
+  implementarse 003 (mismo criterio que el conteo de uso de 001/007).
+- **Geolocalización** (`latitud`/`longitud`): opcional y desaconsejada salvo necesidad operativa;
+  por ser ubicación de una armería, se trata como dato sensible.
+
 ## Dependencies
 
-- Constitución (Principios IV, V).
-- Features: **001-inventario-equipos**, **007-traslados**, **011-reportes**.
-- Modelo de datos: [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).
+- Constitución (Principios I, IV, V).
+- Features: **001-inventario-equipos**, **003-elementos-padron** (catálogo `municipio`),
+  **007-traslados**, **011-reportes**, **012-auditoria**.
+- Entidad `user` (responsable) — **implementada**.
+- Modelo de datos: [`data-model.md`](./data-model.md) y [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).

@@ -79,9 +79,33 @@ Tablas de catálogo controladas (activo/inactivo, no se eliminan si están en us
 
 - **`equipment_type`** (spec 006): `id`, `nombre` (único), `descripcion`, `foto_url`, `activo`.
 - **`size`** (talla): `id`, `nombre`, `equipment_type_id` (null = global), `activo`.
-- **`warehouse`** (spec 005): `id`, `nombre` (único), `ubicacion`, `activo`.
 - **`sexo`**, **`tipo_sangre`**, **`municipio`**: `id`, `nombre`.
 - **`motivo_baja`**: `id`, `nombre`.
+
+> **`warehouse` (almacén) NO es un catálogo plano.** Es una **entidad operativa** (lugar físico con
+> responsable y cupo); ver su tabla propia abajo y `specs/005-almacenes/data-model.md`.
+
+### Almacén (`warehouse`) — spec 005 — **entidad operativa (no catálogo)**
+Ubicación física de resguardo de fornituras. Origen/destino de traslados (007), guarda existencias
+(001) y alimenta reportes de ocupación (011). Sin PII de elementos, pero ubicación/responsable de una
+armería es **sensible** (RBAC por campo).
+
+| Campo            | Tipo               | Notas                                                |
+|------------------|--------------------|------------------------------------------------------|
+| id               | Long (PK)          | IDENTITY.                                             |
+| codigo           | string (único)     | Clave de negocio estable (`ALM-01`); traslados/etiquetas. |
+| nombre           | string             | Legible (con `nombre_normalizado` único).            |
+| tipo             | enum               | CENTRAL, REGIONAL, MOVIL, TEMPORAL.                  |
+| municipio_id     | FK → municipio (null) | Reutiliza el catálogo geográfico de `officer`.    |
+| direccion        | string (null)      | **Sensible** (ubicación de armería).                 |
+| cp               | string (null)      |                                                      |
+| latitud/longitud | decimal (null)     | **Sensible**; opcional, desaconsejada salvo necesidad. |
+| responsable_id   | FK → user (null)   | Usuario a cargo. **Sensible.**                       |
+| telefono         | string (null)      | Contacto **institucional** (no PII).                 |
+| email_contacto   | string (null)      | Contacto **institucional**.                          |
+| capacidad        | int (null)         | Cupo; la ocupación se **deriva** por conteo.         |
+| observaciones    | string (null)      |                                                      |
+| active           | bool               | Solo activos seleccionables en 001/007.              |
 
 ### Traslado (`transfer`) — spec 007
 Movimiento de fornituras entre almacenes.
@@ -172,7 +196,8 @@ Quién accedió/modificó qué y cuándo.
 
 ## Relaciones
 
-- `equipment` N—1 `equipment_type`, `size`, `warehouse` (catálogos).
+- `equipment` N—1 `equipment_type`, `size` (catálogos), `warehouse` (entidad operativa).
+- `warehouse` N—1 `municipio` (catálogo); `warehouse` N—1 `user` (responsable).
 - `equipment` 1—N `assignment` N—1 `officer` (historial de asignaciones / resguardos).
 - `equipment` 1—N `incident`; `equipment` 1—N `decommission` (baja definitiva).
 - `transfer` 1—N `transfer_item` N—1 `equipment`; `transfer` N—1 `warehouse` (origen/destino).
