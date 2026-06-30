@@ -36,6 +36,7 @@
         <th>Descripción</th>
         <th>Fecha</th>
         <th>Cantidad</th>
+        <th>Rango</th>
         <th>Tamaño QR (cm)</th>
         <th>Padding (cm)</th>
         <th>Etiqueta</th>
@@ -48,6 +49,7 @@
         <td th:text="${lote.descripcion}"></td>
         <td th:text="${#temporals.format(lote.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
         <td th:text="${lote.cantidad}"></td>
+        <td th:text="|FOR-${#numbers.formatInteger(lote.consecutivoInicial, 6)} – FOR-${#numbers.formatInteger(lote.consecutivoFinal, 6)}|"></td>
         <td th:text="${lote.qrSizeCm}"></td>
         <td th:text="${lote.paddingCm}"></td>
         <td th:text="${lote.labelPosition.displayName}"></td>

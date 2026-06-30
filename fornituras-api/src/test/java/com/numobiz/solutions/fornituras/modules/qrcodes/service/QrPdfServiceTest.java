@@ -1,6 +1,5 @@
 package com.numobiz.solutions.fornituras.modules.qrcodes.service;
 
-import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
 import org.junit.jupiter.api.Test;
@@ -35,6 +34,8 @@ class QrPdfServiceTest {
 				.thenReturn(new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB));
 
 		LoteQR lote = new LoteQR();
+		lote.setConsecutivoInicial(1);
+		lote.setConsecutivoFinal(2);
 		lote.setDescripcion("Códigos prendas Chiapas");
 		lote.setCantidad(2);
 		lote.setQrSizeCm(new BigDecimal("3.0"));
@@ -42,12 +43,7 @@ class QrPdfServiceTest {
 		lote.setLabelPosition(LabelPosition.BOTTOM);
 		lote.setMostrarBordes(true);
 
-		CodigoQR codigo1 = new CodigoQR();
-		codigo1.setCodigo("FOR-ABC12");
-		CodigoQR codigo2 = new CodigoQR();
-		codigo2.setCodigo("FOR-XYZ99");
-
-		byte[] pdf = qrPdfService.generatePdf(lote, List.of(codigo1, codigo2));
+		byte[] pdf = qrPdfService.generatePdf(lote, List.of("FOR-000001", "FOR-000002"));
 
 		assertNotNull(pdf);
 		assertTrue(pdf.length > 0);

@@ -6,7 +6,7 @@ import com.numobiz.solutions.fornituras.modules.warehouses.entity.Warehouse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface WarehouseMapper {
 
 	WarehouseSummary toSummary(Warehouse warehouse);

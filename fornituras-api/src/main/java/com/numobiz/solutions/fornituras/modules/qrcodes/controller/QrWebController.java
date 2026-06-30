@@ -3,8 +3,8 @@ package com.numobiz.solutions.fornituras.modules.qrcodes.controller;
 import com.numobiz.solutions.fornituras.config.QrProperties;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.GenerateQrForm;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.ReprintQrForm;
-import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
+import com.numobiz.solutions.fornituras.modules.qrcodes.entity.QrExportFormat;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.LoteQrService;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrPdfService;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrZipService;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -45,20 +46,31 @@ public class QrWebController {
 		return qrProperties.maxBatchSize();
 	}
 
+	@ModelAttribute("exportFormats")
+	public QrExportFormat[] exportFormats() {
+		return QrExportFormat.values();
+	}
+
 	@GetMapping("/generar")
 	public String showForm(Model model) {
 		model.addAttribute("form", GenerateQrForm.defaults());
+		model.addAttribute("exportFormat", QrExportFormat.PDF);
 		return "qr/generar";
 	}
 
 	@PostMapping("/generar")
-	public String generate(@Valid @ModelAttribute("form") GenerateQrForm form, BindingResult bindingResult) {
+	public String generate(
+			@Valid @ModelAttribute("form") GenerateQrForm form,
+			BindingResult bindingResult,
+			@RequestParam(defaultValue = "PDF") QrExportFormat exportFormat,
+			Model model) {
 		if (bindingResult.hasErrors()) {
+			model.addAttribute("exportFormat", exportFormat);
 			return "qr/generar";
 		}
 
 		LoteQR lote = loteQrService.generate(form);
-		return "redirect:/qr/lotes/" + lote.getId() + "/exito";
+		return "redirect:/qr/lotes/" + lote.getId() + "/exito?format=" + exportFormat.name();
 	}
 
 	@GetMapping("/lotes")
@@ -76,16 +88,20 @@ public class QrWebController {
 	}
 
 	@GetMapping("/lotes/{id}/exito")
-	public String success(@PathVariable Long id, Model model) {
+	public String success(
+			@PathVariable Long id,
+			@RequestParam(defaultValue = "PDF") QrExportFormat format,
+			Model model) {
 		LoteQR lote = loteQrService.findById(id);
 		model.addAttribute("lote", lote);
+		model.addAttribute("selectedFormat", format);
 		return "qr/exito";
 	}
 
 	@GetMapping("/lotes/{id}/pdf")
 	public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
 		LoteQR lote = loteQrService.findById(id);
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos);
 		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
 	}
@@ -93,7 +109,7 @@ public class QrWebController {
 	@GetMapping("/lotes/{id}/zip")
 	public ResponseEntity<byte[]> downloadZip(@PathVariable Long id) {
 		LoteQR lote = loteQrService.findById(id);
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] zip = qrZipService.generateZip(lote, codigos);
 		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));
 	}
@@ -110,7 +126,7 @@ public class QrWebController {
 			return "qr/lote-detalle";
 		}
 
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
 		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
@@ -128,7 +144,7 @@ public class QrWebController {
 			return "qr/lote-detalle";
 		}
 
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] zip = qrZipService.generateZip(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
 		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));

@@ -5,15 +5,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +18,12 @@ import java.util.List;
 @Entity
 @Table(name = "lote_qr")
 public class LoteQR extends BaseEntity {
+
+	@Column(name = "consecutivo_inicial", nullable = false)
+	private int consecutivoInicial;
+
+	@Column(name = "consecutivo_final", nullable = false)
+	private int consecutivoFinal;
 
 	@Column(nullable = false)
 	private int cantidad;
@@ -40,7 +43,4 @@ public class LoteQR extends BaseEntity {
 
 	@Column(name = "mostrar_bordes", nullable = false)
 	private boolean mostrarBordes = true;
-
-	@OneToMany(mappedBy = "loteQr")
-	private List<CodigoQR> codigos = new ArrayList<>();
 }

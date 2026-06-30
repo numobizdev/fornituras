@@ -12,6 +12,12 @@ public record LoteQrResponseDTO(
 		@Schema(description = "Batch ID", example = "42")
 		Long id,
 
+		@Schema(description = "First consecutive number in the batch", example = "1")
+		int consecutivoInicial,
+
+		@Schema(description = "Last consecutive number in the batch", example = "100")
+		int consecutivoFinal,
+
 		@Schema(description = "Batch description", example = "Códigos prendas Chiapas")
 		String descripcion,
 
@@ -39,6 +45,8 @@ public record LoteQrResponseDTO(
 	public static LoteQrResponseDTO from(LoteQR lote) {
 		return new LoteQrResponseDTO(
 				lote.getId(),
+				lote.getConsecutivoInicial(),
+				lote.getConsecutivoFinal(),
 				lote.getDescripcion(),
 				lote.getCantidad(),
 				lote.getQrSizeCm(),
