@@ -1,16 +1,38 @@
-.page-placeholder {
-  padding: 24px;
-  text-align: center;
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0 1rem 0.5rem;
 
-  h2 {
-    margin: 0 0 12px;
-    font-family: 'Patria', 'Noto Sans', sans-serif;
-    color: var(--gobmx-guinda);
+  ion-select {
+    flex: 1 1 160px;
   }
+}
 
-  p {
-    margin: 0;
-    color: var(--gobmx-texto);
-    line-height: 1.5;
+.state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--ion-color-medium);
+  text-align: center;
+}
+
+.avatar-fallback {
+  font-size: 40px;
+  color: var(--ion-color-medium);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+
+  .pager-info {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
   }
 }
