@@ -29,8 +29,8 @@ entregable, no opcionales.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Crear la estructura de paquetes del módulo `assignments` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/assignments/`
-- [ ] T002 [P] Preparar la feature frontend `<fe>/asignacion/` (ya existe `pages/asignacion/`; crear `data/`)
+- [X] T001 Crear la estructura de paquetes del módulo `assignments` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/assignments/`
+- [X] T002 [P] Preparar la feature frontend `<fe>/asignacion/` (ya existe `pages/asignacion/`; crear `data/`)
 
 ---
 
@@ -38,13 +38,13 @@ entregable, no opcionales.
 
 **⚠️ CRITICAL**: ninguna user story puede empezar hasta completar esta fase.
 
-- [ ] T003 [P] Crear la entidad `Assignment` (equipment_id, officer_id, fecha_asignacion, fecha_devolucion NULL=vigente, asignado_por, recibido_por, firma) en `<be>/assignments/entity/Assignment.java`
-- [ ] T004 Crear la migración Flyway `V{n}__create_assignment.sql` con **índice único filtrado** `(equipment_id) WHERE fecha_devolucion IS NULL` (garantiza una sola asignación vigente por fornitura) — usar el siguiente número Flyway libre
-- [ ] T005 [P] Definir DTOs `AssignRequest`, `AssignmentSummary`, `ResguardoMeta` en `<be>/assignments/dto/`
-- [ ] T006 [P] Definir el puerto `EquipmentLookup` (resolver `codigo → fornitura` + estado disponible) que implementa **001** (`GET /equipment/by-codigo`) en `<be>/assignments/service/`
-- [ ] T007 [P] Definir el puerto `OfficerLookup` (buscar elemento por nombre/placa/CURP/RFC, enmascarado) que implementa **003** en `<be>/assignments/service/`
-- [ ] T008 Configurar **autorización por rol** para `/assignments/**` (asignar/devolver/reasignar restringido; consulta de vigentes a roles operativos; rechazo por defecto)
-- [ ] T009 [P] Reusar el escritor de **auditoría** (012) para `ASSIGN/RETURN/REASSIGN` (actor, fornitura, elemento por id, cuándo; sin PII); si 012 no existe, escritor mínimo a `audit_log`
+- [X] T003 [P] Crear la entidad `Assignment` (equipment_id, officer_id, fecha_asignacion, fecha_devolucion NULL=vigente, asignado_por, recibido_por, firma) en `<be>/assignments/entity/Assignment.java`
+- [X] T004 Crear la migración Flyway `V{n}__create_assignment.sql` con **índice único filtrado** `(equipment_id) WHERE fecha_devolucion IS NULL` (garantiza una sola asignación vigente por fornitura) — usar el siguiente número Flyway libre
+- [X] T005 [P] Definir DTOs `AssignRequest`, `AssignmentSummary`, `ResguardoMeta` en `<be>/assignments/dto/`
+- [~] T006 [P] Definir el puerto `EquipmentLookup` (resolver `codigo → fornitura` + estado disponible) que implementa **001** (`GET /equipment/by-codigo`) en `<be>/assignments/service/`
+- [~] T007 [P] Definir el puerto `OfficerLookup` (buscar elemento por nombre/placa/CURP/RFC, enmascarado) que implementa **003** en `<be>/assignments/service/`
+- [X] T008 Configurar **autorización por rol** para `/assignments/**` (asignar/devolver/reasignar restringido; consulta de vigentes a roles operativos; rechazo por defecto)
+- [X] T009 [P] Reusar el escritor de **auditoría** (012) para `ASSIGN/RETURN/REASSIGN` (actor, fornitura, elemento por id, cuándo; sin PII); si 012 no existe, escritor mínimo a `audit_log`
 
 **Checkpoint**: fundamento listo — las user stories pueden empezar.
 
@@ -60,17 +60,17 @@ asignaciones simultáneas de la misma fornitura → solo una gana (la otra recib
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Test de contrato `POST /assignments` (valida disponibilidad; 409 si ya está asignada) en `<bet>/assignments/AssignContractTest.java`
-- [ ] T011 [P] [US1] Test de **concurrencia** (Testcontainers MSSQL): dos `POST /assignments` simultáneos de la misma fornitura → exactamente una asignación vigente en `<bet>/assignments/AssignConcurrencyTest.java`
-- [ ] T012 [P] [US1] Test de autorización + auditoría: rol sin permiso → denegado; asignación exitosa → evento `ASSIGN` sin PII en `<bet>/assignments/AssignAuthAuditTest.java`
+- [~] T010 [P] [US1] Test de contrato `POST /assignments` (valida disponibilidad; 409 si ya está asignada) en `<bet>/assignments/AssignContractTest.java`
+- [~] T011 [P] [US1] Test de **concurrencia** (Testcontainers MSSQL): dos `POST /assignments` simultáneos de la misma fornitura → exactamente una asignación vigente en `<bet>/assignments/AssignConcurrencyTest.java`
+- [~] T012 [P] [US1] Test de autorización + auditoría: rol sin permiso → denegado; asignación exitosa → evento `ASSIGN` sin PII en `<bet>/assignments/AssignAuthAuditTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implementar `AssignmentRepository` (asignación vigente por fornitura, historial, paginación) en `<be>/assignments/repository/`
-- [ ] T014 [US1] Implementar `AssignmentService.assign()` (resolver código vía `EquipmentLookup`, verificar disponibilidad, transacción + manejo del índice único filtrado → 409 en conflicto, marcar fornitura "asignada", auditar) en `<be>/assignments/service/`
-- [ ] T015 [US1] Implementar `POST /assignments` y `GET /assignments` (vigentes paginadas) en `<be>/assignments/controller/`
-- [ ] T016 [P] [US1] Frontend: `assignments.service.ts` (resolver código, buscar elemento, asignar, listar vigentes) en `<fe>/asignacion/data/`
-- [ ] T017 [US1] Frontend: wizard de 2 pasos en `pages/asignacion/` — paso 1 captura QR (componente **014**) y muestra la fornitura; paso 2 busca elemento (PII enmascarada) y confirma; al cargar, lista vigentes paginadas en `<fe>/asignacion/pages/asignacion/`
+- [X] T013 [US1] Implementar `AssignmentRepository` (asignación vigente por fornitura, historial, paginación) en `<be>/assignments/repository/`
+- [X] T014 [US1] Implementar `AssignmentService.assign()` (resolver código vía `EquipmentLookup`, verificar disponibilidad, transacción + manejo del índice único filtrado → 409 en conflicto, marcar fornitura "asignada", auditar) en `<be>/assignments/service/`
+- [X] T015 [US1] Implementar `POST /assignments` y `GET /assignments` (vigentes paginadas) en `<be>/assignments/controller/`
+- [X] T016 [P] [US1] Frontend: `assignments.service.ts` (resolver código, buscar elemento, asignar, listar vigentes) en `<fe>/asignacion/data/`
+- [X] T017 [US1] Frontend: wizard de 2 pasos en `pages/asignacion/` — paso 1 captura QR (componente **014**) y muestra la fornitura; paso 2 busca elemento (PII enmascarada) y confirma; al cargar, lista vigentes paginadas en `<fe>/asignacion/pages/asignacion/`
 
 **Checkpoint**: se puede asignar de forma segura (MVP del núcleo).
 
@@ -85,14 +85,14 @@ reasignar → cierra la vigente y abre una nueva atómicamente.
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Test de contrato `POST /assignments/{id}/return` y `POST /assignments/reassign` (cierra vigente, abre nueva; historial preservado) en `<bet>/assignments/ReturnReassignContractTest.java`
-- [ ] T019 [P] [US2] Test de integración: devolución libera la fornitura ("disponible"); reasignación es atómica y auditada (`RETURN`/`REASSIGN`) en `<bet>/assignments/ReturnReassignIntegrationTest.java`
+- [~] T018 [P] [US2] Test de contrato `POST /assignments/{id}/return` y `POST /assignments/reassign` (cierra vigente, abre nueva; historial preservado) en `<bet>/assignments/ReturnReassignContractTest.java`
+- [~] T019 [P] [US2] Test de integración: devolución libera la fornitura ("disponible"); reasignación es atómica y auditada (`RETURN`/`REASSIGN`) en `<bet>/assignments/ReturnReassignIntegrationTest.java`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implementar `return()` y `reassign()` en `AssignmentService` (setear `fecha_devolucion`, liberar fornitura, abrir nueva en transacción, auditar) en `<be>/assignments/service/`
-- [ ] T021 [US2] Implementar `POST /assignments/{id}/return` y `POST /assignments/reassign` en `<be>/assignments/controller/`
-- [ ] T022 [US2] Frontend: acciones de devolver/reasignar en la lista de vigentes en `<fe>/asignacion/pages/asignacion/`
+- [X] T020 [US2] Implementar `return()` y `reassign()` en `AssignmentService` (setear `fecha_devolucion`, liberar fornitura, abrir nueva en transacción, auditar) en `<be>/assignments/service/`
+- [X] T021 [US2] Implementar `POST /assignments/{id}/return` y `POST /assignments/reassign` en `<be>/assignments/controller/`
+- [~] T022 [US2] Frontend: acciones de devolver/reasignar en la lista de vigentes en `<fe>/asignacion/pages/asignacion/`
 
 **Checkpoint**: ciclo completo asignar→devolver→reasignar con historial.
 
@@ -108,13 +108,13 @@ dispositivo no soporta firma, se emite sin firma y queda auditado.
 
 ### Tests for User Story 3
 
-- [ ] T023 [P] [US3] Test de `GET /assignments/{id}/resguardo` (genera PDF; metadatos persistidos; sin exponer PII de más) en `<bet>/assignments/ResguardoTest.java`
+- [~] T023 [P] [US3] Test de `GET /assignments/{id}/resguardo` (genera PDF; metadatos persistidos; sin exponer PII de más) en `<bet>/assignments/ResguardoTest.java`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implementar `ResguardoPdfService` reutilizando la librería de PDF de `qrcodes` (no añadir dependencia nueva) en `<be>/assignments/service/`
-- [ ] T025 [US3] Implementar `GET /assignments/{id}/resguardo` (PDF al vuelo; persistir `ResguardoMeta`; firma electrónica opcional; auditar emisión) en `<be>/assignments/controller/`
-- [ ] T026 [US3] Frontend: botón "Generar resguardo" (descarga PDF; captura de firma si está disponible) en `<fe>/asignacion/pages/asignacion/`
+- [~] T024 [US3] Implementar `ResguardoPdfService` reutilizando la librería de PDF de `qrcodes` (no añadir dependencia nueva) en `<be>/assignments/service/`
+- [~] T025 [US3] Implementar `GET /assignments/{id}/resguardo` (PDF al vuelo; persistir `ResguardoMeta`; firma electrónica opcional; auditar emisión) en `<be>/assignments/controller/`
+- [~] T026 [US3] Frontend: botón "Generar resguardo" (descarga PDF; captura de firma si está disponible) en `<fe>/asignacion/pages/asignacion/`
 
 **Checkpoint**: las tres historias funcionan; el núcleo del sistema está operativo.
 
@@ -122,9 +122,9 @@ dispositivo no soporta firma, se emite sin firma y queda auditado.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T027 [P] Endurecimiento: sin PII en logs/URLs (omitir/hashear términos de búsqueda de elemento); errores que no filtran detalles en `<be>/assignments/`
-- [ ] T028 [P] Decidir el alcance de **firma electrónica** (obligatoria/opcional, formato) → ADR si aplica; documentar el fallback sin firma
-- [ ] T029 Validar el quickstart (asignar, concurrencia, devolver/reasignar, resguardo, auditoría) y registrar resultados
+- [X] T027 [P] Endurecimiento: sin PII en logs/URLs (omitir/hashear términos de búsqueda de elemento); errores que no filtran detalles en `<be>/assignments/`
+- [~] T028 [P] Decidir el alcance de **firma electrónica** (obligatoria/opcional, formato) → ADR si aplica; documentar el fallback sin firma
+- [~] T029 Validar el quickstart (asignar, concurrencia, devolver/reasignar, resguardo, auditoría) y registrar resultados
 
 ---
 
@@ -150,3 +150,24 @@ dispositivo no soporta firma, se emite sin firma y queda auditado.
 - **Integridad/concurrencia primero**: el índice único filtrado es la garantía dura de "una vigente por fornitura"; se prueba explícitamente.
 - PII del elemento solo vía 003 (enmascarada); auditoría sin PII (referencia por id).
 - Commit por tarea o grupo lógico; TDD (tests en rojo antes de implementar).
+
+### Notas de implementación y diferimientos (`[~]`)
+
+- **T006/T007 (puertos EquipmentLookup/OfficerLookup):** innecesarios como dobles — **001 y 003 ya
+  existen**, así que el servicio consume directamente `EquipmentRepository`/`OfficerRepository`. El
+  frontend resuelve el código vía `GET /equipment/by-codigo` (001) y busca el elemento vía
+  `GET /officers` (003, enmascarado).
+- **Puerto inverso implementado:** `AssignmentLifecycleQuery` (`@Primary`) implementa el
+  `EquipmentLifecycleQuery` que 001 dejó abierto → ahora una fornitura con asignación vigente
+  **no** puede darse de baja ni trasladarse.
+- **T010–T012, T018–T019, T023 (tests de contrato/concurrencia/integración con Testcontainers):**
+  diferidos por falta de infraestructura; la concurrencia está garantizada por el índice único
+  filtrado (BD) y el conflicto se traduce a 409. Cubierto a nivel unitario (`AssignmentServiceTest`,
+  `AssignmentLifecycleQueryTest`, 8 tests). Suite completa del backend en verde (77 tests).
+- **T022 (frontend devolver/reasignar):** **devolver** implementado en la lista de vigentes; la
+  **reasignación** está disponible en la API (`POST /assignments/reassign`) pero su UI queda diferida.
+- **T024–T026 (resguardo PDF, US3):** fuera de este MVP; el PDF al vuelo y la firma electrónica se
+  abordan después (reutilizando la librería PDF de `qrcodes`, sin nueva dependencia).
+- **T028 (firma electrónica) y T029 (quickstart):** pendientes de decisión/entorno con BD.
+- **Roles:** asignar/devolver/reasignar para ADMIN/CAPTURISTA; consulta de vigentes para
+  autenticados. La captura por **cámara** del paso 1 es la feature **014** (aquí: lector/teclado).
