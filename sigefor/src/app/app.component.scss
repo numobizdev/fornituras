@@ -1,0 +1,128 @@
+.menu-brand {
+  background: var(--gobmx-guinda);
+  color: #ffffff;
+  padding: 28px 20px 20px;
+  margin-bottom: 8px;
+}
+
+.menu-brand-title {
+  margin: 0;
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.menu-brand-accent {
+  height: 4px;
+  width: 48px;
+  margin-top: 14px;
+  background: var(--gobmx-dorado);
+  border-radius: 2px;
+}
+
+ion-menu ion-content {
+  --background: var(--gobmx-fondo-suave);
+}
+
+ion-menu.md ion-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 20px;
+}
+
+ion-menu.md ion-list {
+  padding: 12px 8px 20px;
+}
+
+ion-menu.md ion-note {
+  margin-bottom: 20px;
+}
+
+ion-menu.md ion-list-header,
+ion-menu.md ion-note {
+  padding-left: 16px;
+}
+
+ion-menu.md ion-list#nav-list {
+  border-bottom: none;
+}
+
+ion-menu.md ion-list#nav-list ion-list-header {
+  font-size: 18px;
+  font-weight: 600;
+  min-height: 20px;
+}
+
+ion-menu.md ion-item {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-radius: 4px;
+}
+
+ion-menu.md ion-item.selected {
+  --background: rgba(var(--ion-color-primary-rgb), 0.1);
+  --color: var(--gobmx-guinda);
+}
+
+ion-menu.md ion-item.selected ion-icon {
+  color: var(--gobmx-dorado);
+}
+
+ion-menu.md ion-item ion-icon {
+  color: var(--gobmx-gris);
+}
+
+ion-menu.md ion-item ion-label {
+  font-weight: 500;
+}
+
+ion-menu.ios ion-content {
+  --padding-bottom: 20px;
+}
+
+ion-menu.ios ion-list {
+  padding: 12px 8px 0;
+}
+
+ion-menu.ios ion-note {
+  line-height: 24px;
+  margin-bottom: 16px;
+}
+
+ion-menu.ios ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 50px;
+}
+
+ion-menu.ios ion-item.selected ion-icon {
+  color: var(--gobmx-dorado);
+}
+
+ion-menu.ios ion-item ion-icon {
+  font-size: 24px;
+  color: var(--gobmx-gris);
+}
+
+ion-menu.ios ion-list-header,
+ion-menu.ios ion-note {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+ion-menu.ios ion-note {
+  margin-bottom: 8px;
+}
+
+ion-note {
+  display: inline-block;
+  font-size: 14px;
+  color: var(--gobmx-gris);
+}
+
+ion-item.selected {
+  --color: var(--gobmx-guinda);
+}

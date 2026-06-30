@@ -1,0 +1,98 @@
+// Gobierno de México institutional palette
+// https://www.gob.mx/guias/grafica/v3/
+
+:root {
+  --gobmx-guinda: #611232;
+  --gobmx-guinda-light: #9d2449;
+  --gobmx-dorado: #a57f2c;
+  --gobmx-dorado-claro: #ddc9a3;
+  --gobmx-dorado-medio: #bc955c;
+  --gobmx-verde: #13322e;
+  --gobmx-texto: #545454;
+  --gobmx-gris: #98989a;
+  --gobmx-fondo: #ffffff;
+  --gobmx-fondo-suave: #faf8f5;
+
+  --ion-font-family: 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --ion-color-primary: #611232;
+  --ion-color-primary-rgb: 97, 18, 50;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #55102c;
+  --ion-color-primary-tint: #712a47;
+
+  --ion-color-secondary: #a57f2c;
+  --ion-color-secondary-rgb: 165, 127, 44;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #917027;
+  --ion-color-secondary-tint: #ae8c41;
+
+  --ion-color-tertiary: #13322e;
+  --ion-color-tertiary-rgb: 19, 50, 46;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #112c28;
+  --ion-color-tertiary-tint: #2b4743;
+
+  --ion-color-success: #13322e;
+  --ion-color-success-rgb: 19, 50, 46;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #112c28;
+  --ion-color-success-tint: #2b4743;
+
+  --ion-color-warning: #bc955c;
+  --ion-color-warning-rgb: 188, 149, 92;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #a58351;
+  --ion-color-warning-tint: #c3a06c;
+
+  --ion-color-danger: #9d2449;
+  --ion-color-danger-rgb: 157, 36, 73;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #8a2040;
+  --ion-color-danger-tint: #a73a5b;
+
+  --ion-color-medium: #98989a;
+  --ion-color-medium-rgb: 152, 152, 154;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #868687;
+  --ion-color-medium-tint: #a2a2a4;
+
+  --ion-color-light: #faf8f5;
+  --ion-color-light-rgb: 250, 248, 245;
+  --ion-color-light-contrast: #545454;
+  --ion-color-light-contrast-rgb: 84, 84, 84;
+  --ion-color-light-shade: #dcdad8;
+  --ion-color-light-tint: #fbf9f6;
+
+  --ion-color-dark: #545454;
+  --ion-color-dark-rgb: 84, 84, 84;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #4a4a4a;
+  --ion-color-dark-tint: #656565;
+
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+
+  --ion-text-color: #545454;
+  --ion-text-color-rgb: 84, 84, 84;
+
+  --ion-item-background: #ffffff;
+  --ion-card-background: #ffffff;
+
+  --ion-toolbar-background: #611232;
+  --ion-toolbar-color: #ffffff;
+
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-color: #98989a;
+  --ion-tab-bar-color-selected: #611232;
+
+  --ion-border-color: #ddc9a3;
+}

@@ -1,0 +1,59 @@
+// Gob.mx component styling aligned with framework-gb.cdn.gob.mx
+
+h1,
+h2,
+h3,
+ion-title {
+  font-family: 'Patria', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+a {
+  color: var(--gobmx-guinda);
+  text-decoration: underline;
+
+  &:active {
+    color: var(--gobmx-guinda-light);
+  }
+}
+
+ion-toolbar {
+  --border-width: 0;
+  --min-height: 56px;
+}
+
+ion-header ion-toolbar:last-of-type {
+  --border-width: 0 0 3px 0;
+  --border-color: var(--gobmx-dorado);
+}
+
+ion-button {
+  --border-radius: 3px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+ion-button[color='primary'] {
+  --background: #ffffff;
+  --background-activated: var(--gobmx-fondo-suave);
+  --background-focused: var(--gobmx-fondo-suave);
+  --background-hover: var(--gobmx-fondo-suave);
+  --color: var(--gobmx-guinda);
+  --border-color: var(--gobmx-guinda);
+  --border-style: solid;
+  --border-width: 2px;
+  --box-shadow: 0 2px 0 0 rgba(97, 18, 50, 0.15);
+}
+
+ion-button[color='secondary'] {
+  --box-shadow: 0 2px 0 0 rgba(165, 127, 44, 0.25);
+}
+
+ion-list-header {
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  color: var(--gobmx-guinda);
+}
+
+ion-note {
+  color: var(--gobmx-gris);
+}

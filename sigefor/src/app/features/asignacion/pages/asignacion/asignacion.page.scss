@@ -1,0 +1,16 @@
+.page-placeholder {
+  padding: 24px;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 12px;
+    font-family: 'Patria', 'Noto Sans', sans-serif;
+    color: var(--gobmx-guinda);
+  }
+
+  p {
+    margin: 0;
+    color: var(--gobmx-texto);
+    line-height: 1.5;
+  }
+}
