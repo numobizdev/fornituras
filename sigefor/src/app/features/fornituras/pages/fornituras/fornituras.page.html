@@ -14,8 +14,107 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="page-placeholder">
-    <h2>Inventario de fornituras</h2>
-    <p>Administración del inventario de fornituras. El contenido se implementará próximamente.</p>
+  <ion-searchbar
+    placeholder="Buscar por código QR o descripción"
+    [debounce]="400"
+    (ionInput)="onSearchChange($any($event.target).value)"></ion-searchbar>
+
+  <div class="filters">
+    <ion-select
+      label="Estado"
+      labelPlacement="stacked"
+      [value]="status()"
+      placeholder="Todos"
+      (ionChange)="onStatusChange($event.detail.value)">
+      <ion-select-option [value]="null">Todos</ion-select-option>
+      @for (s of statuses; track s.value) {
+        <ion-select-option [value]="s.value">{{ s.label }}</ion-select-option>
+      }
+    </ion-select>
+
+    <ion-select
+      label="Tipo"
+      labelPlacement="stacked"
+      [value]="equipmentTypeId()"
+      placeholder="Todos"
+      (ionChange)="onTypeChange($event.detail.value)">
+      <ion-select-option [value]="null">Todos</ion-select-option>
+      @for (type of types(); track type.id) {
+        <ion-select-option [value]="type.id">{{ type.nombre }}</ion-select-option>
+      }
+    </ion-select>
+
+    <ion-select
+      label="Almacén"
+      labelPlacement="stacked"
+      [value]="warehouseId()"
+      placeholder="Todos"
+      (ionChange)="onWarehouseChange($event.detail.value)">
+      <ion-select-option [value]="null">Todos</ion-select-option>
+      @for (warehouse of warehouses(); track warehouse.id) {
+        <ion-select-option [value]="warehouse.id">{{ warehouse.nombre }}</ion-select-option>
+      }
+    </ion-select>
   </div>
+
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="state-message">
+      <p>No hay fornituras que coincidan con los filtros.</p>
+    </div>
+  } @else {
+    <ion-list>
+      @for (item of items(); track item.id) {
+        <ion-item button (click)="goToEdit(item)" [detail]="false">
+          <ion-label>
+            <h2>{{ item.codigoQr }}</h2>
+            <p>
+              {{ item.tipoNombre }}@if (item.tallaEtiqueta) { · Talla {{ item.tallaEtiqueta }} }
+              @if (item.almacenNombre) { · {{ item.almacenNombre }} }
+            </p>
+            @if (item.descripcion) {
+              <ion-note color="medium">{{ item.descripcion }}</ion-note>
+            }
+          </ion-label>
+          <div slot="end" class="badges">
+            <ion-badge [color]="statusColor(item.status)">{{ statusLabel(item.status) }}</ion-badge>
+            @if (item.vigencia) {
+              <ion-badge [color]="expiryColor(item.vigencia)">{{ expiryLabel(item.vigencia) }}</ion-badge>
+            }
+          </div>
+        </ion-item>
+      }
+    </ion-list>
+
+    <div class="pager">
+      <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">
+        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+      <span class="pager-info">
+        Página {{ page() + 1 }} de {{ totalPages() }} · {{ totalElements() }} fornituras
+      </span>
+      <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">
+        <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+      </ion-button>
+    </div>
+  }
+
+  @if (canWrite) {
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button aria-label="Acciones de fornitura">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button aria-label="Nueva fornitura" (click)="goToNew()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button aria-label="Alta por lote" (click)="goToBatch()">
+          <ion-icon name="layers-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
+    </ion-fab>
+  }
 </ion-content>

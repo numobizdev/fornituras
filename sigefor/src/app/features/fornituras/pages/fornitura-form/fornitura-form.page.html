@@ -1,0 +1,157 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/fornituras"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditing ? 'Editar fornitura' : 'Nueva fornitura' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Identificación</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input
+            label="Código QR / serie"
+            labelPlacement="stacked"
+            formControlName="codigoQr"
+            maxlength="60"
+            placeholder="Escanee con el lector o teclee el código"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-select
+            label="Tipo"
+            labelPlacement="stacked"
+            formControlName="equipmentTypeId"
+            placeholder="Seleccione un tipo"
+            (ionChange)="onTypeSelected($event.detail.value)">
+            @for (type of types(); track type.id) {
+              <ion-select-option [value]="type.id.toString()">{{ type.nombre }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-select label="Talla" labelPlacement="stacked" formControlName="sizeId" placeholder="Sin talla">
+            <ion-select-option [value]="''">Sin talla</ion-select-option>
+            @for (size of sizes(); track size.id) {
+              <ion-select-option [value]="size.id.toString()">{{ size.etiqueta }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-select
+            label="Almacén"
+            labelPlacement="stacked"
+            formControlName="warehouseId"
+            placeholder="Seleccione un almacén">
+            @for (warehouse of warehouses(); track warehouse.id) {
+              <ion-select-option [value]="warehouse.id.toString()">{{ warehouse.nombre }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Descripción</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input label="Descripción" labelPlacement="stacked" formControlName="descripcion" maxlength="255"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Marca" labelPlacement="stacked" formControlName="marca" maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Modelo" labelPlacement="stacked" formControlName="modelo" maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Nivel balístico" labelPlacement="stacked" formControlName="nivelBalistico" maxlength="60"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Número de inventario" labelPlacement="stacked" formControlName="numeroInventario" maxlength="60"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Vida útil</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input type="date" label="Fecha de fabricación" labelPlacement="stacked" formControlName="fechaFabricacion"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input type="date" label="Fecha de adquisición" labelPlacement="stacked" formControlName="fechaAdquisicion"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="number"
+            label="Vida útil (meses)"
+            labelPlacement="stacked"
+            formControlName="vidaUtilMeses"
+            placeholder="Se deriva la fecha de vencimiento si no la captura"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input type="date" label="Fecha de vencimiento" labelPlacement="stacked" formControlName="fechaVencimiento"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Otros</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
+        </ion-item>
+        <ion-item>
+          <ion-input label="URL de foto" labelPlacement="stacked" formControlName="fotoUrl" maxlength="500" placeholder="https://..."></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <div class="form-actions">
+        <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <ion-spinner name="dots"></ion-spinner>
+          } @else {
+            {{ isEditing ? 'Guardar cambios' : 'Registrar fornitura' }}
+          }
+        </ion-button>
+      </div>
+    </form>
+
+    @if (isEditing) {
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Estado operativo</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-select
+            label="Estado"
+            labelPlacement="stacked"
+            [value]="statusToApply()"
+            (ionChange)="statusToApply.set($event.detail.value)">
+            @for (s of statuses; track s.value) {
+              <ion-select-option [value]="s.value">{{ s.label }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <div class="form-actions">
+          <ion-button
+            expand="block"
+            fill="outline"
+            [disabled]="statusToApply() === currentStatus()"
+            (click)="applyStatus()">
+            Cambiar estado
+          </ion-button>
+        </div>
+      </ion-list>
+    }
+  }
+</ion-content>
