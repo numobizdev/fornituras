@@ -34,6 +34,13 @@ public class GlobalExceptionHandler {
 				.body(ApiResponse.error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(ConflictException.class)
+	public ResponseEntity<ApiResponse<Void>> handleConflict(ConflictException ex) {
+		log.warn("Conflict: {}", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.error(ex.getMessage()));
+	}
+
 	@ExceptionHandler({UnauthorizedException.class, BadCredentialsException.class})
 	public ResponseEntity<ApiResponse<Void>> handleUnauthorized(RuntimeException ex) {
 		log.warn("Unauthorized: {}", ex.getMessage());
