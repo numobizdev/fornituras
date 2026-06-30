@@ -2,12 +2,14 @@ package com.numobiz.solutions.fornituras.modules.qrcodes.dto;
 
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
+@Schema(description = "Custom print/export settings for an existing QR batch")
 public record ReprintQrForm(
 		@NotNull(message = "QR size is required")
 		@DecimalMin(value = "1.0", message = "QR size must be at least 1.0 cm")

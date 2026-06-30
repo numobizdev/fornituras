@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,5 +30,13 @@ public class OpenApiConfig {
 								.name("Numobiz Solutions")
 								.email("support@numobiz.com")))
 				.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"));
+	}
+
+	@Bean
+	public GroupedOpenApi forniturasApi() {
+		return GroupedOpenApi.builder()
+				.group("fornituras")
+				.pathsToMatch("/api/v1/**")
+				.build();
 	}
 }

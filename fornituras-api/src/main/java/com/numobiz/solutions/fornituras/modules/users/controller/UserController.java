@@ -4,6 +4,7 @@ import com.numobiz.solutions.fornituras.common.dto.ApiResponse;
 import com.numobiz.solutions.fornituras.modules.users.dto.UserRequestDTO;
 import com.numobiz.solutions.fornituras.modules.users.dto.UserResponseDTO;
 import com.numobiz.solutions.fornituras.modules.users.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -32,6 +33,7 @@ public class UserController {
 	}
 
 	@GetMapping("/{id}")
+	@Operation(summary = "Get user by ID", description = "Returns a user. Admins can access any user; others only their own profile.")
 	@PreAuthorize("hasRole('ADMIN') or @userService.isCurrentUser(#id)")
 	public ResponseEntity<ApiResponse<UserResponseDTO>> getById(@PathVariable Long id) {
 		UserResponseDTO user = userService.findById(id);
@@ -39,6 +41,7 @@ public class UserController {
 	}
 
 	@GetMapping
+	@Operation(summary = "List users", description = "Returns all users. Admin only.")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getAll() {
 		List<UserResponseDTO> users = userService.findAll();
@@ -46,6 +49,7 @@ public class UserController {
 	}
 
 	@PostMapping
+	@Operation(summary = "Create user", description = "Creates a user and sends an activation code by email. Admin only.")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ApiResponse<UserResponseDTO>> create(@Valid @RequestBody UserRequestDTO request) {
 		UserResponseDTO user = userService.create(request);

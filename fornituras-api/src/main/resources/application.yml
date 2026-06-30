@@ -67,6 +67,9 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  paths-to-match: /api/v1/**
 
 logging:
   level:

@@ -1,6 +1,7 @@
 package com.numobiz.solutions.fornituras.modules.qrcodes.dto;
 
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
@@ -11,7 +12,9 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+@Schema(description = "Request to generate a new QR code batch")
 public record GenerateQrForm(
+		@Schema(description = "Batch description", example = "Códigos prendas Chiapas")
 		@NotBlank(message = "La descripción es obligatoria")
 		@Size(max = 255, message = "La descripción no puede exceder 255 caracteres")
 		String descripcion,
