@@ -22,6 +22,8 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { MunicipioSummary } from '../../../municipios/data/municipio.model';
+import { MunicipiosService } from '../../../municipios/data/municipios.service';
 import { WarehousesService } from '../../data/warehouses.service';
 import {
   WAREHOUSE_TYPES,
@@ -55,6 +57,7 @@ import {
 })
 export class AlmacenFormPage implements OnInit {
   private readonly service = inject(WarehousesService);
+  private readonly municipiosService = inject(MunicipiosService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -64,6 +67,7 @@ export class AlmacenFormPage implements OnInit {
   readonly isLoading = signal(false);
   readonly isSubmitting = signal(false);
   readonly types = WAREHOUSE_TYPES;
+  readonly municipios = signal<MunicipioSummary[]>([]);
 
   readonly form = this.formBuilder.nonNullable.group({
     codigo: ['', [Validators.required, Validators.maxLength(40)]],
@@ -86,10 +90,20 @@ export class AlmacenFormPage implements OnInit {
   }
 
   ngOnInit(): void {
+    void this.loadMunicipios();
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.warehouseId.set(Number(idParam));
       void this.loadDetail(Number(idParam));
+    }
+  }
+
+  private async loadMunicipios(): Promise<void> {
+    try {
+      this.municipios.set(await firstValueFrom(this.municipiosService.list()));
+    } catch {
+      // El selector queda vacío; el almacén puede guardarse sin municipio (FK nullable).
+      this.municipios.set([]);
     }
   }
 
