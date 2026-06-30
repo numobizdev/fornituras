@@ -24,8 +24,8 @@ de unicidad e integridad referencial (no eliminar en uso).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Crear la estructura de paquetes del módulo `equipmenttypes` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/equipmenttypes/`
-- [ ] T002 [P] Preparar la carpeta de la feature frontend en `<fe>/tipos/` (`pages/tipos/`, `pages/tipo-form/`, `data/`)
+- [x] T001 Crear la estructura de paquetes del módulo `equipmenttypes` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/equipmenttypes/`
+- [x] T002 [P] Preparar la carpeta de la feature frontend en `<fe>/tipos/` (`pages/tipos/`, `pages/tipo-form/`, `data/`)
 
 ---
 
@@ -33,12 +33,12 @@ de unicidad e integridad referencial (no eliminar en uso).
 
 **⚠️ CRITICAL**: ninguna user story puede empezar hasta completar esta fase.
 
-- [ ] T003 [P] Crear entidades `EquipmentType` (nombre único, descripción, foto_url, active) y `Size` (etiqueta, equipment_type_id NULL, active) en `<be>/equipmenttypes/entity/`
-- [ ] T004 Crear la migración Flyway `V8__create_equipment_type_and_size.sql` (`equipment_type` con `UNIQUE(nombre)` normalizado; `size` con FK nullable a `equipment_type`; índices por `active`) en `fornituras-api/src/main/resources/db/migration/`
-- [ ] T005 [P] Definir DTOs `EquipmentTypeCreateRequest`/`Summary`/`Detail` y `SizeCreateRequest`/`Summary` en `<be>/equipmenttypes/dto/`
-- [ ] T006 [P] Implementar utilidad de **normalización** (trim/colapsar espacios/casefold) del nombre para comparar unicidad en `<be>/equipmenttypes/service/`
-- [ ] T007 Configurar **autorización por rol** para `/equipment-types/**` y `/sizes/**` (CRUD restringido; consulta a roles operativos; rechazo por defecto) en la config de Spring Security
-- [ ] T008 [P] Reusar el escritor de **auditoría** (feature 012) para `CREATE/UPDATE/DEACTIVATE_EQUIPMENT_TYPE`; si 012 aún no existe, escribir a `audit_log` con un escritor mínimo
+- [x] T003 [P] Crear entidades `EquipmentType` (nombre único, descripción, foto_url, active) y `Size` (etiqueta, equipment_type_id NULL, active) en `<be>/equipmenttypes/entity/`
+- [x] T004 Crear la migración Flyway `V8__create_equipment_type_and_size.sql` (`equipment_type` con `UNIQUE(nombre)` normalizado; `size` con FK nullable a `equipment_type`; índices por `active`) en `fornituras-api/src/main/resources/db/migration/`
+- [x] T005 [P] Definir DTOs `EquipmentTypeCreateRequest`/`Summary`/`Detail` y `SizeCreateRequest`/`Summary` en `<be>/equipmenttypes/dto/`
+- [x] T006 [P] Implementar utilidad de **normalización** (trim/colapsar espacios/casefold) del nombre para comparar unicidad en `<be>/equipmenttypes/service/`
+- [x] T007 Configurar **autorización por rol** para `/equipment-types/**` y `/sizes/**` (CRUD restringido; consulta a roles operativos; rechazo por defecto) en la config de Spring Security
+- [x] T008 [P] Reusar el escritor de **auditoría** (feature 012) para `CREATE/UPDATE/DEACTIVATE_EQUIPMENT_TYPE`; si 012 aún no existe, escribir a `audit_log` con un escritor mínimo
 
 **Checkpoint**: fundamento listo.
 
@@ -58,14 +58,14 @@ de unicidad e integridad referencial (no eliminar en uso).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implementar `EquipmentTypeRepository`/`SizeRepository` (paginación, filtro `active`, existsByNombre normalizado, conteo de uso) en `<be>/equipmenttypes/repository/`
-- [ ] T013 [US1] Implementar `EquipmentTypeService` (alta con unicidad, edición, **desactivar en vez de borrar** si está en uso, auditoría) en `<be>/equipmenttypes/service/`
-- [ ] T014 [P] [US1] Implementar `SizeService` (CRUD de tallas, asociación opcional por tipo) en `<be>/equipmenttypes/service/`
-- [ ] T015 [US1] Implementar `EquipmentTypeController` y `SizeController` (`GET` paginado + `active`, `POST`, `PUT`, `PATCH /deactivate`) en `<be>/equipmenttypes/controller/`
-- [ ] T016 [US1] Añadir **Bean Validation** a los `*CreateRequest` (nombre requerido/único, límites de descripción; foto: MIME y tamaño) en `<be>/equipmenttypes/dto/`
-- [ ] T017 [P] [US1] Frontend: `equipment-types.service.ts` (list/create/update/deactivate + tallas) en `<fe>/tipos/data/`
-- [ ] T018 [US1] Frontend: página de listado de tipos/tallas (paginada, filtro activo/inactivo) en `<fe>/tipos/pages/tipos/`
-- [ ] T019 [US1] Frontend: página `tipo-form` (nombre, descripción, foto, tallas) en `<fe>/tipos/pages/tipo-form/`
+- [x] T012 [US1] Implementar `EquipmentTypeRepository`/`SizeRepository` (paginación, filtro `active`, existsByNombre normalizado, conteo de uso) en `<be>/equipmenttypes/repository/`
+- [x] T013 [US1] Implementar `EquipmentTypeService` (alta con unicidad, edición, **desactivar en vez de borrar** si está en uso, auditoría) en `<be>/equipmenttypes/service/`
+- [x] T014 [P] [US1] Implementar `SizeService` (CRUD de tallas, asociación opcional por tipo) en `<be>/equipmenttypes/service/`
+- [x] T015 [US1] Implementar `EquipmentTypeController` y `SizeController` (`GET` paginado + `active`, `POST`, `PUT`, `PATCH /deactivate`) en `<be>/equipmenttypes/controller/`
+- [x] T016 [US1] Añadir **Bean Validation** a los `*CreateRequest` (nombre requerido/único, límites de descripción; foto: MIME y tamaño) en `<be>/equipmenttypes/dto/`
+- [x] T017 [P] [US1] Frontend: `equipment-types.service.ts` (list/create/update/deactivate + tallas) en `<fe>/tipos/data/`
+- [x] T018 [US1] Frontend: página de listado de tipos/tallas (paginada, filtro activo/inactivo) en `<fe>/tipos/pages/tipos/`
+- [x] T019 [US1] Frontend: página `tipo-form` (nombre, descripción, foto, tallas) en `<fe>/tipos/pages/tipo-form/`
 
 **Checkpoint**: catálogo operativo; 001 puede consumir tipos/tallas activos.
 
@@ -74,7 +74,7 @@ de unicidad e integridad referencial (no eliminar en uso).
 ## Phase 4: Polish & Cross-Cutting Concerns
 
 - [ ] T020 [P] Endurecimiento: validación estricta de imagen (MIME real, tamaño máx.), errores que no filtran detalles internos, en `<be>/equipmenttypes/`
-- [ ] T021 [P] Tests unitarios de normalización de nombre y regla de desactivación en `<bet>/equipmenttypes/`
+- [x] T021 [P] Tests unitarios de normalización de nombre y regla de desactivación en `<bet>/equipmenttypes/`
 - [ ] T022 Validar el quickstart (sembrar tipos, bloquear borrado en uso, desactivar) y registrar resultados
 
 ---

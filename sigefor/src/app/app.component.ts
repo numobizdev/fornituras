@@ -30,6 +30,8 @@ import {
   logOutSharp,
   peopleOutline,
   peopleSharp,
+  pricetagsOutline,
+  pricetagsSharp,
 } from 'ionicons/icons';
 import { APP_NAV_ITEMS } from './core/constants/app-navigation';
 import { NavItem } from './core/models/nav-item.model';
@@ -92,6 +94,8 @@ export class AppComponent {
       linkSharp,
       logOutOutline,
       logOutSharp,
+      pricetagsOutline,
+      pricetagsSharp,
     });
   }
 

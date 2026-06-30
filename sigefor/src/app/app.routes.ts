@@ -36,6 +36,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/asignacion/asignacion.routes').then((m) => m.ASIGNACION_ROUTES),
       },
+      {
+        path: 'tipos',
+        loadChildren: () =>
+          import('./features/tipos/tipos.routes').then((m) => m.TIPOS_ROUTES),
+      },
     ],
   },
   {
