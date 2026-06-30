@@ -38,6 +38,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0001](./0001-monorepo-y-gobernanza-ia.md) — Monorepo y gobernanza agnóstica de IA.
 - [0002](./0002-formato-del-qr.md) — Formato del QR: identificador opaco UUID + firma HMAC.
 - [0003](./0003-pii-elementos.md) — Alcance de PII del elemento (CURP/RFC/foto). **Propuesto.**
+- [0004](./0004-busqueda-pii-cifrada.md) — Búsqueda sobre PII cifrada (enclaves + blind index). **Propuesto.**
 
 ## Decisiones pendientes de registrar
 
