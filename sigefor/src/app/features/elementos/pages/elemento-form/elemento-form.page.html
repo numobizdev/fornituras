@@ -1,0 +1,96 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/elementos"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isViewMode ? 'Ficha del elemento' : 'Nuevo elemento' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Identidad</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input label="Nombre" labelPlacement="stacked" formControlName="nombre" maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Apellido paterno" labelPlacement="stacked" formControlName="apellidoPaterno" maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Apellido materno" labelPlacement="stacked" formControlName="apellidoMaterno" maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Placa (identificador)" labelPlacement="stacked" formControlName="placa" maxlength="40"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Clasificación</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-select label="Sexo" labelPlacement="stacked" formControlName="sexoId" placeholder="Seleccione">
+            @for (sexo of sexos(); track sexo.id) {
+              <ion-select-option [value]="sexo.id.toString()">{{ sexo.etiqueta }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-select label="Tipo de sangre" labelPlacement="stacked" formControlName="tipoSangreId" placeholder="Sin especificar">
+            <ion-select-option [value]="''">Sin especificar</ion-select-option>
+            @for (tipo of tiposSangre(); track tipo.id) {
+              <ion-select-option [value]="tipo.id.toString()">{{ tipo.etiqueta }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-select label="Municipio" labelPlacement="stacked" formControlName="municipioId" placeholder="Seleccione">
+            @for (municipio of municipios(); track municipio.id) {
+              <ion-select-option [value]="municipio.id.toString()">{{ municipio.nombre }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Documentos</ion-label>
+        </ion-list-header>
+        @if (isViewMode && piiEnmascarada()) {
+          <ion-item lines="none">
+            <ion-note color="medium">CURP/RFC enmascarados: tu rol no tiene permiso para verlos completos.</ion-note>
+          </ion-item>
+        }
+        <ion-item>
+          <ion-input label="CURP" labelPlacement="stacked" formControlName="curp" maxlength="18" placeholder="18 caracteres"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="RFC" labelPlacement="stacked" formControlName="rfc" maxlength="13" placeholder="12 o 13 caracteres"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="URL de foto" labelPlacement="stacked" formControlName="fotoUrl" maxlength="500" placeholder="https://..."></ion-input>
+        </ion-item>
+      </ion-list>
+
+      @if (!isViewMode) {
+        <div class="form-actions">
+          <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <ion-spinner name="dots"></ion-spinner>
+            } @else {
+              Registrar elemento
+            }
+          </ion-button>
+        </div>
+      }
+    </form>
+  }
+</ion-content>

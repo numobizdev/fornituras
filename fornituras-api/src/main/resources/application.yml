@@ -41,6 +41,10 @@ app:
     suffix-length: 5
     max-batch-size: 10000
     max-generation-retries: 100
+  pii:
+    # Cifrado de PII a nivel de aplicación (ADR 0006). Valores SOLO por entorno; nunca en el repo.
+    encryption-key: ${PII_ENCRYPTION_KEY:}
+    blind-index-key: ${OFFICER_BLIND_INDEX_KEY:}
   seed:
     admin:
       enabled: true

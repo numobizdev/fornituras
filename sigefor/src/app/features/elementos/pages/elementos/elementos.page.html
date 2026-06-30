@@ -14,8 +14,88 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="page-placeholder">
-    <h2>Gestión de elementos</h2>
-    <p>Administración de elementos policiales. El contenido se implementará próximamente.</p>
+  <ion-searchbar
+    placeholder="Buscar por placa, CURP o RFC"
+    [debounce]="400"
+    (ionInput)="onSearchChange($any($event.target).value)"></ion-searchbar>
+
+  <div class="filters">
+    <ion-select
+      label="Municipio"
+      labelPlacement="stacked"
+      [value]="municipioId()"
+      placeholder="Todos"
+      (ionChange)="onMunicipioChange($event.detail.value)">
+      <ion-select-option [value]="null">Todos</ion-select-option>
+      @for (municipio of municipios(); track municipio.id) {
+        <ion-select-option [value]="municipio.id">{{ municipio.nombre }}</ion-select-option>
+      }
+    </ion-select>
+
+    <ion-select
+      label="Sexo"
+      labelPlacement="stacked"
+      [value]="sexoId()"
+      placeholder="Todos"
+      (ionChange)="onSexoChange($event.detail.value)">
+      <ion-select-option [value]="null">Todos</ion-select-option>
+      @for (sexo of sexos(); track sexo.id) {
+        <ion-select-option [value]="sexo.id">{{ sexo.etiqueta }}</ion-select-option>
+      }
+    </ion-select>
   </div>
+
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="state-message">
+      <p>No hay elementos que coincidan con los filtros.</p>
+    </div>
+  } @else {
+    <ion-list>
+      @for (item of items(); track item.id) {
+        <ion-item button (click)="goToDetail(item)" [detail]="false">
+          <ion-avatar slot="start">
+            @if (item.fotoUrl) {
+              <img [src]="item.fotoUrl" alt="Foto" />
+            } @else {
+              <ion-icon name="person-circle-outline" class="avatar-fallback"></ion-icon>
+            }
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ item.nombreCompleto }}</h2>
+            <p>Placa {{ item.placa }}@if (item.municipioNombre) { · {{ item.municipioNombre }} }</p>
+            @if (item.tipoSangreEtiqueta) {
+              <ion-note color="medium">Tipo de sangre: {{ item.tipoSangreEtiqueta }}</ion-note>
+            }
+          </ion-label>
+          @if (!item.active) {
+            <ion-badge slot="end" color="medium">Inactivo</ion-badge>
+          }
+        </ion-item>
+      }
+    </ion-list>
+
+    <div class="pager">
+      <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">
+        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+      <span class="pager-info">
+        Página {{ page() + 1 }} de {{ totalPages() }} · {{ totalElements() }} elementos
+      </span>
+      <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">
+        <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+      </ion-button>
+    </div>
+  }
+
+  @if (canWrite) {
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button (click)="goToNew()" aria-label="Nuevo elemento">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
 </ion-content>
