@@ -1,85 +1,68 @@
-# Phase 1 — Contrato REST: API de QR
+# Contrato REST — QR (módulo `qrcodes`, IMPLEMENTADO)
 
-> Todos los endpoints requieren **autenticación (JWT)** y **autorización por rol**
-> (constitución, Principio IV). Errores con cuerpo **genérico**, sin filtrar detalles internos
-> (FR-005). Ninguna respuesta incluye PII ni la llave HMAC.
+> **Actualizado 2026-06-30** para reflejar el `QrController` real (ADR 0005). Sustituye el
+> contrato anterior basado en UUID+HMAC (`POST /equipment/{id}/qr`, `qr:verify`), que **no** se
+> implementó. Los códigos son `FOR-XXXXX` opacos, **sin firma**.
 
-Base path: `/api/v1`
+Base: **`/api/v1/qr`**. Todos requieren `Authorization: Bearer <jwt>`. Datos en `ApiResponse<T>`;
+las descargas devuelven binarios con `Content-Disposition: attachment`.
 
-## 1. Generar QR de un equipo
+## Generar lote
 
-`POST /equipment/{equipmentId}/qr`
+`POST /api/v1/qr/lotes` → **201** `ApiResponse<LoteQrResponseDTO>`
 
-- **Rol:** SUPERVISOR o ADMIN.
-- **Comportamiento:** si el equipo no tiene QR, emite `opaqueId` (UUID v4) + firma con la
-  versión de llave activa, persiste `qr_*` y audita `QR_GENERATE`. Si ya tiene QR, es
-  **idempotente**: devuelve el existente (no genera otro) — usar reissue para reemitir.
-- **201 Created** (o 200 si ya existía):
+Body `GenerateQrForm`:
 
-```json
+```jsonc
 {
-  "equipmentId": "f1a2...",
-  "payload": "v1.MWZhMi4uLg.QmFzZTY0dXJsSG1hYw",
-  "keyVersion": 1,
-  "issuedAt": "2026-06-29T18:20:00Z"
+  "descripcion": "Códigos prendas Chiapas",  // requerido, ≤ 255
+  "cantidad": 100,                            // requerido, 1..10000 (y ≤ app.qr.maxBatchSize)
+  "qrSizeCm": 3.0,                            // requerido, 1.0..15.0
+  "paddingCm": 0.5,                           // requerido, 0.0..5.0
+  "labelPosition": "BOTTOM",                  // NONE | TOP | BOTTOM
+  "mostrarBordes": true                        // requerido
 }
 ```
 
-- **404** equipo inexistente · **409** equipo en estado no emisible (p. ej. baja) ·
-  **403** sin rol · **401** sin sesión.
+Efecto: crea el lote y `cantidad` códigos únicos `FOR-XXXXX`.
 
-## 2. Obtener la imagen del QR
+## Listar lotes
 
-`GET /equipment/{equipmentId}/qr?format=png|svg&ecc=Q|H`
+`GET /api/v1/qr/lotes` → **200** `ApiResponse<List<LoteQrResponseDTO>>` (más recientes primero).
 
-- **Rol:** SUPERVISOR o ADMIN (export es operación administrativa).
-- **200 OK:** binario de la imagen (`image/png` o `image/svg+xml`) que codifica el `payload`.
-- El contenido visual codifica **solo** el payload opaco+firmado.
-- **404** si el equipo no tiene QR generado.
+## Detalle de lote
 
-## 3. Reemitir QR (rotación / compromiso)
+`GET /api/v1/qr/lotes/{id}` → **200** `ApiResponse<LoteQrResponseDTO>`.
 
-`POST /equipment/{equipmentId}/qr:reissue`
+## Códigos de un lote
 
-- **Rol:** ADMIN.
-- **Comportamiento:** genera un **nuevo** `opaqueId` con la versión de llave activa, invalida
-  el anterior y audita `QR_REISSUE`. Acción explícita (FR-006).
-- **200 OK:** mismo cuerpo que (1) con el nuevo payload · **404** inexistente · **403** sin rol.
+`GET /api/v1/qr/lotes/{id}/codigos` → **200** `ApiResponse<List<CodigoQrResponseDTO>>`
+(cada `CodigoQrResponseDTO` lleva el `codigo` y el id del lote).
 
-## 4. Verificar un QR
+## Descargas con los ajustes del lote
 
-`POST /qr:verify`
+- `GET /api/v1/qr/lotes/{id}/pdf` → **200** `application/pdf` (un QR por código).
+- `GET /api/v1/qr/lotes/{id}/zip` → **200** `application/zip` (un PNG por código).
 
-- **Rol:** cualquier usuario autenticado (la resolución de datos del equipo es un endpoint
-  aparte que aplica authz de lectura).
-- **Request:**
+## Exportación con ajustes personalizados (no cambia los códigos)
 
-```json
-{ "payload": "v1.MWZhMi4uLg.QmFzZTY0dXJsSG1hYw" }
+- `POST /api/v1/qr/lotes/{id}/export/pdf` → **200** `application/pdf`
+- `POST /api/v1/qr/lotes/{id}/export/zip` → **200** `application/zip`
+
+Body `ReprintQrForm` (mismos rangos que `GenerateQrForm`, sin `descripcion`/`cantidad`):
+
+```jsonc
+{ "qrSizeCm": 4.0, "paddingCm": 0.5, "labelPosition": "TOP", "mostrarBordes": false }
 ```
 
-- **200 OK** (firma válida y opaqueId conocido):
+## Notas
 
-```json
-{ "valid": true, "equipmentId": "f1a2..." }
-```
-
-- **200 OK** (firma inválida, payload alterado o desconocido) — **respuesta uniforme** para no
-  filtrar la causa (FR-005):
-
-```json
-{ "valid": false }
-```
-
-- **400** payload con formato ilegible.
-
-> Nota: la **resolución completa** `QR → ficha de equipo/asignación` (con datos sujetos a rol)
-> pertenece a la feature de **escaneo** y reutiliza la verificación de firma de aquí.
-
-## Reglas transversales
-
-- **Auditoría:** generate/reissue/export registran actor + timestamp + `equipmentId` (sin PII).
-- **Rate limiting** en `qr:verify` para evitar sondeo por fuerza bruta.
-- **Sin secretos en logs:** nunca se registran payloads firmados ni la llave.
-- **Versionado de llave:** `verify` selecciona la llave por la `version` del payload, de modo
-  que QR grabados con una versión anterior siguen verificando tras rotar (SC-004).
+- **Autenticación:** JWT obligatorio (`Bearer`). **Autorización por rol fino:** pendiente
+  (depende de la expansión de roles, spec 013; hoy `ADMIN`/`CAPTURISTA`).
+- **Sin verificación de firma:** no existe `qr:verify`; los códigos no se firman (ADR 0005,
+  divergencia de seguridad conocida respecto al Principio II).
+- **Auditoría:** recomendada para generación/export (feature 012) — verificar si ya se registra.
+- **Resolución `código → fornitura`:** NO vive aquí; ocurre al dar de alta/asignar la fornitura
+  (specs 001/004) y al escanear (014), siempre server-side tras authn+authz.
+- También existe una **UI web Thymeleaf** (`QrWebController`, plantillas `templates/qr/`) para
+  generar/listar lotes fuera de la API REST; el frontend `sigefor/` puede consumir la API REST.

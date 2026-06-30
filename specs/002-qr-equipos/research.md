@@ -1,3 +1,7 @@
+> ⚠️ **OBSOLETO (2026-06-30).** Research del enfoque UUID+HMAC, no implementado. La realidad
+> (código `FOR-XXXXX` por lotes, sin firma) está en [spec.md](./spec.md) y el
+> [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md). Histórico.
+
 # Phase 0 — Research: QR opaco y firmado
 
 ## Decisiones cerradas

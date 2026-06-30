@@ -1,3 +1,9 @@
+> ⚠️ **OBSOLETO (2026-06-30).** Este plan describía el enfoque **UUID + HMAC + ZXing**, que **no**
+> se implementó. La implementación real (código corto `FOR-XXXXX` por lotes, sin firma, export
+> PDF/ZIP) está en el módulo `qrcodes` y descrita en [spec.md](./spec.md),
+> [contracts/qr-api.md](./contracts/qr-api.md) y el
+> [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md). Se conserva como histórico.
+
 # Implementation Plan: QR opaco y firmado por equipo
 
 **Branch**: `002-qr-equipos` | **Date**: 2026-06-29 | **Spec**: [spec.md](./spec.md)

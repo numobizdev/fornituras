@@ -16,7 +16,7 @@ El equipo de dotación controlado (chaleco antibala, cinturón táctico, casco, 
 |------------------|-----------------|----------------------------------------------------|
 | id               | UUID (PK)        | Identificador interno.                             |
 | serial_number    | string (único)   | Número de serie/QR único de la fornitura.          |
-| qr_opaque_id     | UUID (único)     | Identificador opaco que va en el QR.               |
+| codigo_qr        | string (FK/único)| Código `FOR-XXXXX` escaneado (→ `codigo_qr.codigo`); se liga en el alta. |
 | numero_inventario| string           | Número de inventario institucional.                |
 | type_id          | FK → equipment_type | Tipo (cinturón, chaleco, casco…).               |
 | size_id          | FK → size (null) | Talla (catálogo).                                  |
@@ -36,6 +36,19 @@ El equipo de dotación controlado (chaleco antibala, cinturón táctico, casco, 
 
 > **Estados de vigencia** (próxima a vencer ≤ 90 días / caducada) se **derivan** de
 > `fecha_vencimiento`; no son columnas de `status`.
+
+### QR — `lote_qr` y `codigo_qr` (**IMPLEMENTADO**, ver ADR 0005)
+Los códigos QR se generan **por lotes** e independientes de la fornitura; el enlace ocurre al dar
+de alta/asignar (la fornitura guarda el `codigo`). El código es opaco `FOR-XXXXX`, **sin firma**.
+
+**`lote_qr`**: `id`, `cantidad`, `descripcion`, `qr_size_cm` (DECIMAL), `padding_cm` (DECIMAL),
+`label_position` (NONE/TOP/BOTTOM), `mostrar_bordes` (bool), timestamps.
+
+**`codigo_qr`**: `id`, `codigo` (`FOR-XXXXX`, **único**), `lote_qr_id` (FK → `lote_qr`),
+timestamps. Índice por `lote_qr_id`.
+
+> El ADR 0002 (UUID + HMAC) fue **reemplazado** por el 0005; ya no aplican columnas
+> `qr_opaque_id`/`qr_key_version`.
 
 ### Elemento (`officer`) — **contiene PII (alta sensibilidad)**
 El personal policial.

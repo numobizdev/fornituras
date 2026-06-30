@@ -1,7 +1,13 @@
 # 0002. Formato del QR: identificador opaco UUID + firma HMAC
 
-- **Estado:** Aceptado
+- **Estado:** **Reemplazado por [0005](./0005-formato-qr-implementado.md)**
 - **Fecha:** 2026-06-29
+
+> **Nota (2026-06-30):** la implementación real del módulo `qrcodes` usó un **código corto
+> opaco `FOR-XXXXX` sin firma**, generado por lotes para impresión, en vez del UUID+HMAC que
+> proponía este ADR. La decisión vigente es la [0005](./0005-formato-qr-implementado.md), que
+> también documenta la divergencia de firma respecto al Principio II. Este ADR se conserva como
+> registro histórico.
 
 ## Contexto
 

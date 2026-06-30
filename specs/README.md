@@ -8,7 +8,7 @@ controlada es la **fornitura** (chaleco, cinturón, casco…).
 | # | Feature | Pantalla (`Requerimientos.MD`) | Nombre de menú |
 |---|---------|-------------------------------|----------------|
 | 001 | [inventario-equipos](./001-inventario-equipos/spec.md) — inventario de fornituras (alta individual, por lote, consulta, estados) | §3 Fornituras | Inventario de Fornituras |
-| 002 | [qr-equipos](./002-qr-equipos/spec.md) — QR opaco firmado (generación, verificación, exportación) | §1/§3/§5 (QR) | — (transversal) |
+| 002 | [qr-equipos](./002-qr-equipos/spec.md) — **QR implementado**: código `FOR-XXXXX` por lotes + export PDF/ZIP | §1/§3/§5 (QR) | — (transversal) |
 | 003 | [elementos-padron](./003-elementos-padron/spec.md) — padrón de elementos policiales (PII) | §2 Elementos | Padrón de Elementos |
 | 004 | [asignacion-resguardos](./004-asignacion-resguardos/spec.md) — asignación en 2 pasos, resguardos | §1 Captura y asignación | Asignación y Resguardos |
 | 005 | [almacenes](./005-almacenes/spec.md) — CRUD de almacenes | §11 Almacenes | Almacenes |
@@ -42,3 +42,7 @@ controlada es la **fornitura** (chaleco, cinturón, casco…).
 - **Autenticación ya implementada** (backend + `sigefor/`): login por **email**, JWT, guards,
   interceptor y recuperación de contraseña por código. Roles actuales: **`ADMIN`** y
   **`CAPTURISTA`** (la spec **013** detalla el estado y la expansión propuesta de roles).
+- **QR ya implementado** (módulo `qrcodes`): código corto opaco **`FOR-XXXXX`** generado **por
+  lotes** con parámetros de impresión y export **PDF/ZIP** (`/api/v1/qr/lotes...`). **Sin firma**
+  (diverge del Principio II) → [ADR 0005](../docs/04-decisiones/0005-formato-qr-implementado.md),
+  que reemplaza al 0002. La spec **002** se ajustó a esta realidad.

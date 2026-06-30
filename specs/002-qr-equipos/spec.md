@@ -1,183 +1,179 @@
-# Feature Specification: QR opaco y firmado por fornitura
+# Feature Specification: Generación e impresión de QR por lotes
 
 **Feature Branch**: `002-qr-equipos`
 
 **Created**: 2026-06-29
 
-**Updated**: 2026-06-30 (merge SIGEFOR: "equipo" → "fornitura"; lectura/escaneo movida a **014**)
+**Updated**: 2026-06-30 (alineado a la **implementación real** del módulo `qrcodes`)
 
-**Status**: Draft
+**Status**: **Implementado (parcial)** — generación, lotes y export PDF/ZIP existen; ver estado abajo
 
-**Input**: User description: "Generación de QR opaco y firmado por fornitura para grabado o impresión"
+**Input**: User description: "Generación de QR para grabado/impresión de fornituras"
 
-> **Vocabulario (SIGEFOR).** "Equipo" se renombra a **fornitura** (chaleco, cinturón, casco…).
-> La **lectura/escaneo** del QR (cámara Capacitor, lector HID, tecleo manual) y la pantalla de
-> ficha al escanear se especifican en la feature **014-escaneo-qr**; aquí solo se cubren
-> generación, verificación de firma y exportación para grabado.
-
-> **Nota de prioridad operativa:** el cliente necesita comenzar a **generar QR cuanto antes**
-> porque se graban/imprimen sobre el equipo físico. Por eso el formato del payload del QR es
-> una decisión **bloqueante** (ver Assumptions y la pregunta de clarificación): un QR grabado
-> con un formato provisional sería irreversible y costoso de rehacer.
+> **ESTADO DE IMPLEMENTACIÓN (2026-06-30).** El módulo `fornituras-api/.../modules/qrcodes/` ya
+> está implementado y es la base sobre la que se trabaja. Esta spec se **ajusta a lo que existe**:
+> el QR es un **código corto opaco `FOR-XXXXX`** (sin UUID ni firma HMAC), generado **por lotes**
+> con parámetros de impresión y exportable a **PDF/ZIP**. La decisión vigente es el
+> [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md) (reemplaza al 0002).
+> **Divergencia de seguridad conocida:** no hay firma criptográfica (ver §Seguridad y ADR 0005).
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Generar el QR de un equipo (Priority: P1)
+### User Story 1 - Generar un lote de QR (Priority: P1) — **IMPLEMENTADO**
 
-Un supervisor genera el QR de un equipo ya registrado en el inventario. El sistema produce un
-código imprimible/grabable, único para ese equipo, que **no contiene ningún dato personal ni
-explotable**: solo un identificador opaco acompañado de una firma que prueba que lo emitió el
-sistema.
+Un usuario autorizado genera un **lote** de N códigos QR únicos indicando la descripción, la
+cantidad y los parámetros de impresión (tamaño en cm, padding, posición de la etiqueta, bordes).
+El sistema crea N códigos opacos `FOR-XXXXX` únicos, listos para imprimir/grabar y pegar sobre
+las fornituras físicas.
 
-**Why this priority**: Es la funcionalidad urgente y el habilitador de la trazabilidad física
-del equipo. Una vez fijado el formato, los QR pueden grabarse de forma definitiva.
+**Why this priority**: Es el habilitador del flujo físico: primero se imprimen las etiquetas y
+luego se asocian a las fornituras al darlas de alta/escanear.
 
-**Independent Test**: Generar el QR de un equipo y verificar que (a) el contenido no incluye
-número de serie, nombre ni datos del elemento; (b) dos equipos distintos producen QR
-distintos; (c) el mismo equipo produce un QR estable/reproducible.
+**Independent Test**: Generar un lote de 10 con tamaño 3 cm → se crean 10 códigos `FOR-XXXXX`
+únicos asociados al lote; ningún código contiene PII; dos lotes no comparten códigos.
 
 **Acceptance Scenarios**:
 
-1. **Given** un equipo registrado sin QR, **When** un usuario autorizado solicita generar su
-   QR, **Then** el sistema crea un identificador opaco firmado, lo liga al equipo y entrega el
-   código en un formato apto para impresión/grabado.
-2. **Given** un equipo que ya tiene QR, **When** se solicita generarlo de nuevo, **Then** el
-   sistema reutiliza el QR existente (no genera un identificador nuevo) salvo una acción
-   explícita de reemisión autorizada y auditada.
-3. **Given** el contenido de cualquier QR generado, **When** se inspecciona sin estar
-   autenticado, **Then** no revela número de serie, nombre, adscripción ni dato alguno del
-   elemento (Principio II de la constitución).
+1. **Given** un usuario autenticado, **When** genera un lote con cantidad y parámetros válidos,
+   **Then** el sistema crea ese número de códigos únicos `FOR-XXXXX` ligados al lote.
+2. **Given** una cantidad fuera de rango (≤ 0 o > límite `app.qr.maxBatchSize`/10000), **When**
+   se intenta generar, **Then** el sistema lo rechaza con un mensaje claro.
+3. **Given** el contenido de cualquier código generado, **When** se inspecciona, **Then** no
+   incluye número de serie, nombre ni dato alguno del elemento o de la fornitura (Principio II —
+   opacidad).
 
 ---
 
-### User Story 2 - Verificar la autenticidad de un QR (Priority: P2)
+### User Story 2 - Exportar el lote para grabado/impresión (Priority: P1) — **IMPLEMENTADO**
 
-Cuando un QR se presenta al sistema (escaneado por cámara o lector manual en una feature
-posterior), el sistema **verifica su firma** antes de resolver cualquier información, de modo
-que un QR inventado o alterado se rechaza.
+Un usuario descarga el lote como **PDF** imprimible o como **ZIP** con un PNG por código, usando
+los ajustes guardados del lote o ajustes personalizados (tamaño, padding, etiqueta, bordes) sin
+alterar los códigos.
 
-**Why this priority**: La firma es lo que hace al QR confiable; sin verificación, el opaco-id
-sería falsificable. Es necesaria, pero la UX de escaneo se aborda en otra feature.
+**Why this priority**: Cierra el ciclo físico (llevar el QR a la fornitura). Depende de US1.
 
-**Independent Test**: Tomar un QR válido y verificar que el sistema lo acepta; alterar un
-carácter del contenido y verificar que el sistema lo rechaza por firma inválida.
+**Independent Test**: Descargar el PDF/ZIP de un lote → el archivo contiene un QR por código,
+escaneable, con la disposición elegida; re-exportar con otro tamaño no cambia los códigos.
 
 **Acceptance Scenarios**:
 
-1. **Given** un QR emitido por el sistema, **When** se valida su contenido, **Then** la firma
-   verifica correctamente y el identificador se reconoce como auténtico.
-2. **Given** un QR con el contenido alterado o una firma incorrecta, **When** se valida,
-   **Then** el sistema lo rechaza sin revelar información.
-3. **Given** un QR cuyo identificador no corresponde a ningún equipo, **When** se valida,
-   **Then** el sistema responde "no encontrado" sin filtrar detalles internos.
+1. **Given** un lote generado, **When** el usuario descarga el PDF, **Then** obtiene un documento
+   imprimible con los códigos del lote y su disposición.
+2. **Given** un lote generado, **When** descarga el ZIP, **Then** obtiene un PNG por código.
+3. **Given** un lote, **When** exporta con ajustes personalizados (`ReprintQrForm`), **Then** el
+   archivo usa esos ajustes pero **los códigos permanecen iguales**.
 
 ---
 
-### User Story 3 - Exportar QR para grabado/impresión (Priority: P3)
+### User Story 3 - Consultar lotes y sus códigos (Priority: P2) — **IMPLEMENTADO**
 
-Un supervisor exporta el/los QR en un formato listo para enviar a grabado láser o impresión
-de etiquetas, individualmente o por lote.
+Un usuario lista los lotes (más recientes primero), ve el detalle de un lote y enumera los
+códigos que contiene.
 
-**Why this priority**: Cierra el ciclo físico (llevar el QR al equipo). Depende de P1.
-
-**Independent Test**: Exportar el QR de un equipo y verificar que el archivo resultante es
-escaneable y corresponde al identificador opaco de ese equipo.
+**Why this priority**: Permite reimprimir, auditar y localizar lotes ya generados.
 
 **Acceptance Scenarios**:
 
-1. **Given** equipos con QR generado, **When** el usuario exporta un lote, **Then** obtiene un
-   archivo por equipo (o un consolidado) escaneable y correctamente asociado.
-2. **Given** un QR exportado, **When** se escanea con un lector estándar, **Then** entrega
-   exactamente el contenido opaco firmado, sin pérdida.
+1. **Given** lotes existentes, **When** el usuario los lista, **Then** los ve ordenados por fecha
+   de creación (más nuevos primero).
+2. **Given** un lote, **When** consulta sus códigos, **Then** obtiene la lista de `FOR-XXXXX` del
+   lote.
+
+---
+
+### User Story 4 - Verificar autenticidad del QR (Priority: P3) — **NO IMPLEMENTADO / abierto**
+
+*Objetivo deseable, hoy ausente.* Probar criptográficamente que un código lo emitió el sistema
+(firma) para rechazar códigos fabricados. La implementación actual **no** firma los códigos; un
+código solo "existe o no" en BD. Ver §Seguridad y [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md)
+para la decisión abierta (aceptar el riesgo + mitigaciones, o añadir firma).
+
+**Why this priority**: Mejora la confianza del QR, pero el daño está acotado por la resolución
+server-side autenticada; se trata como deuda de seguridad, no bloqueante.
 
 ### Edge Cases
 
-- ¿Qué pasa si se intenta generar un QR para un equipo inexistente o dado de baja? Debe
-  rechazarse.
-- ¿Qué pasa si se rota la llave de firma después de haber grabado QR? Los QR ya grabados deben
-  seguir verificando (estrategia de versionado/rotación de llaves — ver Assumptions).
-- ¿Qué pasa si dos solicitudes concurrentes intentan generar el QR del mismo equipo? Debe
-  resultar en un único identificador opaco, no dos.
-- ¿Qué densidad/tamaño mínimo de QR resiste el grabado sobre tela/placa sin perder lectura?
+- Colisión de códigos: el generador reintenta y verifica unicidad contra BD y contra el lote en
+  curso; si no logra suficientes únicos, falla con mensaje claro.
+- Densidad/tamaño físico del QR para grabado sobre tela/placa: el lote captura `qrSizeCm` y
+  `paddingCm`; el tamaño mínimo legible se valida con prueba real (SC-006).
+- Reimpresión: se re-exporta el mismo lote (mismos códigos) con ajustes nuevos sin regenerar.
+- Código escaneado que no existe en BD: se resuelve como "no encontrado" sin filtrar detalles
+  (la resolución vive en specs 001/004/014).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: El sistema MUST generar, para un equipo registrado, un **identificador opaco
-  único** (sin significado ni datos derivables) y ligarlo a ese equipo.
-- **FR-002**: El sistema MUST firmar el contenido del QR de forma que pueda verificarse su
-  autenticidad e integridad posteriormente.
-- **FR-003**: El contenido del QR MUST NOT incluir número de serie, nombre, adscripción ni
-  ningún dato personal o explotable del elemento o del equipo (Principio II).
-- **FR-004**: El sistema MUST verificar la firma de un QR presentado **antes** de resolver o
-  devolver cualquier información asociada.
-- **FR-005**: Ante un QR con firma inválida, alterado o desconocido, el sistema MUST rechazarlo
-  sin filtrar detalles internos ni datos.
-- **FR-006**: El sistema MUST garantizar que cada equipo tenga a lo sumo **un** identificador
-  opaco vigente; la reemisión MUST ser una acción explícita, autorizada y auditada.
-- **FR-007**: El sistema MUST entregar el QR en un formato apto para impresión y grabado
-  (imagen escaneable por cámara y por lector manual estándar).
-- **FR-008**: La generación, reemisión y exportación de QR MUST requerir autorización por rol
-  y quedar registradas en auditoría (Principios IV y V).
-- **FR-009**: El esquema de firma MUST soportar **rotación de llaves** de modo que los QR ya
-  grabados sigan verificando tras rotar (identificación de versión de llave).
-- **FR-010**: La resolución `QR → equipo/asignación` MUST ocurrir solo en el servidor y solo
-  tras autenticación + autorización (la UX de escaneo se especifica en una feature posterior).
+- **FR-001**: El sistema MUST generar, por lote, N **códigos opacos únicos** con formato
+  `FOR-XXXXX` (prefijo/sufijo configurables) sin significado ni datos derivables. *(Implementado.)*
+- **FR-002**: El sistema MUST garantizar unicidad de cada código (verificación contra BD y contra
+  el lote en curso) usando aleatoriedad segura (`SecureRandom`). *(Implementado.)*
+- **FR-003**: El contenido del QR MUST NOT incluir número de serie, nombre, adscripción ni ningún
+  dato personal o explotable (Principio II — **opacidad**). *(Implementado.)*
+- **FR-004**: El sistema MUST permitir **exportar** el lote a **PDF** y a **ZIP (PNG)**, con los
+  ajustes del lote o personalizados, sin alterar los códigos. *(Implementado.)*
+- **FR-005**: El sistema MUST capturar parámetros de impresión por lote: `cantidad`,
+  `descripcion`, `qrSizeCm`, `paddingCm`, `labelPosition` (`NONE`/`TOP`/`BOTTOM`), `mostrarBordes`,
+  con validación de rangos. *(Implementado.)*
+- **FR-006**: El sistema MUST permitir **listar** lotes y **enumerar** los códigos de un lote.
+  *(Implementado.)*
+- **FR-007**: Los endpoints de QR MUST requerir autenticación (JWT) y, idealmente, autorización
+  por rol. *(Autenticación implementada; autorización por rol fino → pendiente con la expansión
+  de roles, spec 013.)*
+- **FR-008**: La resolución `código → fornitura/asignación` MUST ocurrir solo en el servidor tras
+  authn + authz (la asociación y el escaneo se especifican en **001**/**004**/**014**).
+- **FR-009** *(abierto)*: El sistema SHOULD poder **verificar la autenticidad** de un código
+  (firma) — **no implementado**; decisión en [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md).
+- **FR-010** *(recomendado)*: La generación y exportación de lotes SHOULD quedar **auditadas**
+  (actor, lote, cantidad, cuándo) — verificar/añadir según feature **012**.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Identificador opaco del QR**: valor único sin significado, ligado 1:1 a un equipo. Es lo
-  único (junto con la firma) que viaja en el QR.
-- **Firma del QR**: prueba criptográfica de que el sistema emitió el identificador; incluye
-  referencia a la versión de llave usada (para rotación).
-- **Equipo**: definido en la feature **001-inventario-equipos**; el QR cuelga de su
-  identificador interno. Ver [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).
+- **Lote de QR** (`lote_qr`): `cantidad`, `descripcion`, `qrSizeCm`, `paddingCm`, `labelPosition`,
+  `mostrarBordes`, y la colección de códigos. Parámetros de impresión física.
+- **Código QR** (`codigo_qr`): `codigo` (`FOR-XXXXX`, único) + FK al lote. Es el valor opaco que
+  viaja en el QR. **No** está ligado a una fornitura al generarse; el enlace ocurre en el alta de
+  fornitura (**001**). Ver [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).
+
+## Seguridad (divergencia conocida)
+
+La implementación **preserva la opacidad** (sin PII en el código) pero **omite la firma HMAC**
+que pedía el Principio II. Sin firma no hay prueba criptográfica de emisión; el riesgo está
+acotado por la **resolución server-side autenticada**, la unicidad y el espacio de códigos, pero
+existe riesgo de **enumeración** por un usuario autenticado. Mitigaciones recomendadas: rate
+limiting y auditoría de resoluciones. La decisión (aceptar el riesgo y enmendar el Principio II, o
+añadir firma) está abierta en [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md).
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: El 100% de los QR generados son únicos por equipo (cero colisiones).
-- **SC-002**: El 100% del contenido de los QR está libre de datos personales o explotables,
-  verificable inspeccionando el contenido crudo.
-- **SC-003**: Un QR alterado en un solo carácter es rechazado el 100% de las veces.
-- **SC-004**: Tras una rotación de llave, el 100% de los QR previamente grabados siguen
-  verificando correctamente.
-- **SC-005**: Un usuario autorizado puede generar y exportar el QR de un equipo en menos de 1
-  minuto.
-- **SC-006**: Un QR grabado/impreso con el tamaño definido se lee correctamente por cámara y
-  por lector manual en el primer intento en condiciones normales.
+- **SC-001**: El 100% de los códigos generados son únicos (cero colisiones).
+- **SC-002**: El 100% del contenido de los códigos está libre de PII (verificable inspeccionando
+  el contenido crudo).
+- **SC-003**: La exportación PDF/ZIP de un lote produce un QR escaneable por código.
+- **SC-004**: Re-exportar un lote con otros ajustes **no** cambia los códigos.
+- **SC-005**: Un usuario autorizado genera y exporta un lote en menos de 1 minuto.
+- **SC-006**: Un QR grabado/impreso con el tamaño definido se lee por cámara y por lector manual
+  en el primer intento en condiciones normales.
 
 ## Assumptions
 
-- **Formato del QR (bloqueante, a fijar por ADR antes de grabar en serie):** propuesta por
-  defecto = identificador opaco **UUID v4** + **firma HMAC-SHA256** con llave desde gestor de
-  secretos, codificados de forma compacta (p. ej. `base64url(uuid).base64url(firma).version`).
-  Esta es la decisión que el cliente necesita confirmar para empezar a grabar sin retrabajo.
-- El equipo debe existir en el inventario (feature 001) antes de generar su QR.
-- La lectura del QR por cámara (Capacitor) y por escáner manual (HID), y la pantalla de ficha
-  al escanear, se especifican en una **feature de escaneo** aparte.
-- La llave de firma nunca se versiona en el repositorio (Principio III) y se rota
-  periódicamente (Principio I / `docs/02-seguridad.md`).
-- El tamaño/densidad físico del QR para grabado se validará con una prueba de lectura real.
-
-## Clarifications
-
-### Question 1: Estrategia del contenido del QR — RESUELTA
-
-**Context**: FR-001/FR-002/FR-003 y la nota de prioridad: el QR se graba de forma permanente.
-
-**Decisión**: **Opción A — UUID opaco (v4) + firma HMAC-SHA256 con versión de llave**, payload
-`v<version>.<base64url(uuid)>.<base64url(hmac)>`. Resolución solo en servidor. Registrada en
-[`docs/04-decisiones/0002-formato-del-qr.md`](../../docs/04-decisiones/0002-formato-del-qr.md).
-La opción B (token autocontenido) se descartó por exponer más superficie y contradecir la
-minimización (Principio II).
+- El formato y los parámetros se rigen por el ADR 0005 y por `app.qr.*` (prefijo, longitud de
+  sufijo, tamaño máximo de lote, reintentos).
+- La lectura/escaneo del código (cámara Capacitor, lector HID, manual) y la pantalla de ficha al
+  escanear se especifican en **014-escaneo-qr**.
+- La asociación `código → fornitura` se realiza al dar de alta/asignar la fornitura (**001**/**004**).
+- Existe una UI web (Thymeleaf, `QrWebController`) además de la API REST; el frontend `sigefor/`
+  puede consumir la API REST para integrarlo en la app.
 
 ## Dependencies
 
-- Constitución: [`.specify/memory/constitution.md`](../../.specify/memory/constitution.md)
-  (Principio II es el eje de esta feature; III, IV, V aplican).
-- Seguridad: [`docs/02-seguridad.md`](../../docs/02-seguridad.md) §2 (Principio rector del QR).
-- Arquitectura — flujo del QR: [`docs/01-arquitectura.md`](../../docs/01-arquitectura.md).
-- Feature **001-inventario-equipos** (el QR cuelga de un equipo existente).
+- Constitución (Principio II — opacidad cumplida; firma divergente, ver ADR 0005);
+  [`docs/02-seguridad.md`](../../docs/02-seguridad.md) §2.
+- ADR vigente: [`0005-formato-qr-implementado.md`](../../docs/04-decisiones/0005-formato-qr-implementado.md)
+  (reemplaza al 0002).
+- Features: **001-inventario-equipos** (asociación), **014-escaneo-qr** (lectura),
+  **012-auditoria** (auditoría de generación/export).
+- Contrato REST: [contracts/qr-api.md](./contracts/qr-api.md).

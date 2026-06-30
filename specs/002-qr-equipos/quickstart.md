@@ -1,3 +1,7 @@
+> ⚠️ **OBSOLETO (2026-06-30).** Quickstart del enfoque UUID+HMAC, no implementado. Para el QR real
+> usa los endpoints de [contracts/qr-api.md](./contracts/qr-api.md) (`/api/v1/qr/lotes...`).
+> Histórico.
+
 # Phase 1 — Quickstart: QR opaco y firmado
 
 > Cómo configurar, ejecutar y **validar** la feature una vez implementada. El backend aún no

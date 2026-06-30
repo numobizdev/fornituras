@@ -40,8 +40,9 @@ verificar que los tres entregan exactamente el mismo valor al consumidor.
    cámara reconoce el QR y entrega el código.
 3. **Given** ningún lector ni cámara, **When** el usuario teclea el código y pulsa el botón,
    **Then** el código se entrega igual que por los otros medios.
-4. **Given** un código capturado, **When** se entrega al consumidor, **Then** este resuelve
-   `QR → fornitura` **solo en el servidor**, tras verificar firma + sesión + rol (Principio II).
+4. **Given** un código capturado (`FOR-XXXXX`), **When** se entrega al consumidor, **Then** este
+   resuelve `código → fornitura` **solo en el servidor**, tras verificar sesión + rol y la
+   existencia del código (Principio II — opacidad; los códigos **no** llevan firma, ver ADR 0005).
 
 ### Edge Cases
 
@@ -64,16 +65,17 @@ verificar que los tres entregan exactamente el mismo valor al consumidor.
 - **FR-003**: El componente MUST entregar al consumidor el **mismo valor** independientemente del
   medio de captura.
 - **FR-004**: El componente MUST NOT resolver datos por sí mismo en el cliente: la relación
-  `QR → fornitura/elemento` se resuelve en el servidor tras verificar firma + autorización
-  (Principios II, IV; ver **002**).
+  `código → fornitura/elemento` se resuelve en el servidor tras verificar sesión + autorización y
+  la existencia del código (Principios II, IV). Los códigos `FOR-XXXXX` **no** llevan firma
+  (ADR 0005); validar el **formato** localmente (`^FOR-[0-9A-Z]{5}$`) es opcional antes de enviar.
 - **FR-005**: Ante denegación de permisos de cámara o ausencia de hardware, el componente MUST
   degradar a lector/manual con un mensaje claro, sin bloquear el flujo.
 - **FR-006**: El componente MUST NOT registrar PII; el código QR es un identificador opaco.
 
 ### Key Entities
 
-- No introduce entidades; produce un **valor de QR** (payload opaco firmado, formato definido en
-  **002** / ADR `0002-formato-del-qr`).
+- No introduce entidades; produce un **valor de código QR** opaco `FOR-XXXXX` (formato definido en
+  **002** / [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md); sin firma).
 
 ## Success Criteria *(mandatory)*
 
@@ -93,4 +95,4 @@ verificar que los tres entregan exactamente el mismo valor al consumidor.
 
 - Constitución (Principios II, IV, VI); `docs/02-seguridad.md` §2.
 - Features consumidoras: **001**, **004**, **007**, **009**; verificación: **002-qr-equipos**.
-- ADR formato QR: `docs/04-decisiones/0002-formato-del-qr.md`.
+- ADR formato QR: [`docs/04-decisiones/0005-formato-qr-implementado.md`](../../docs/04-decisiones/0005-formato-qr-implementado.md) (reemplaza al 0002).

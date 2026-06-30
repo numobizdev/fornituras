@@ -208,8 +208,10 @@ verificar que la consulta refleja el nuevo estado y que el cambio queda auditado
   unicidad física; el identificador interno es opaco y solo del sistema.
 - Los catálogos de tipo, talla y estado se definen como tablas de catálogo
   (features **006-tipos-fornitura** y `docs/03-modelo-datos.md`).
-- La generación y vinculación del QR se especifica en **002-qr-equipos**; la lectura/escaneo en
-  **014-escaneo-qr**.
+- Los códigos QR se **pregeneran por lotes** (código opaco `FOR-XXXXX`, sin firma; ver
+  **002-qr-equipos** y [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md)) y se
+  imprimen/graban antes; el alta de fornitura **liga** un código ya existente al escanearlo. La
+  lectura/escaneo se especifica en **014-escaneo-qr**.
 - La asignación fornitura↔elemento se especifica en **004-asignacion-resguardos**; aquí solo se
   necesita conocer si una fornitura tiene asignación vigente para validar baja/traslado.
 - Roles iniciales: ADMIN, SUPERVISOR (alta/edición/baja), ALMACEN (administración de

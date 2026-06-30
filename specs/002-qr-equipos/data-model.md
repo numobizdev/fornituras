@@ -1,3 +1,7 @@
+> ⚠️ **OBSOLETO (2026-06-30).** Modelo del enfoque UUID+HMAC. El real es `lote_qr` + `codigo_qr`
+> (`FOR-XXXXX`) — ver [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md) y
+> [ADR 0005](../../docs/04-decisiones/0005-formato-qr-implementado.md). Histórico.
+
 # Phase 1 — Data Model: QR opaco y firmado
 
 > Esta feature **no** crea entidades nuevas: extiende `equipment` (definida en
