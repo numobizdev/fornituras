@@ -4,16 +4,13 @@ import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.NotFoundException;
 import com.numobiz.solutions.fornituras.config.QrProperties;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.GenerateQrForm;
-import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
-import com.numobiz.solutions.fornituras.modules.qrcodes.repository.CodigoQrRepository;
 import com.numobiz.solutions.fornituras.modules.qrcodes.repository.LoteQrRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,17 +19,14 @@ public class LoteQrService {
 	private static final Logger log = LoggerFactory.getLogger(LoteQrService.class);
 
 	private final LoteQrRepository loteQrRepository;
-	private final CodigoQrRepository codigoQrRepository;
 	private final QrCodeGeneratorService qrCodeGeneratorService;
 	private final QrProperties qrProperties;
 
 	public LoteQrService(
 			LoteQrRepository loteQrRepository,
-			CodigoQrRepository codigoQrRepository,
 			QrCodeGeneratorService qrCodeGeneratorService,
 			QrProperties qrProperties) {
 		this.loteQrRepository = loteQrRepository;
-		this.codigoQrRepository = codigoQrRepository;
 		this.qrCodeGeneratorService = qrCodeGeneratorService;
 		this.qrProperties = qrProperties;
 	}
@@ -46,7 +40,15 @@ public class LoteQrService {
 		log.info("Generating QR lote with {} codes", form.cantidad());
 		long totalStart = System.nanoTime();
 
+		int consecutivoInicial = loteQrRepository.findMaxConsecutivoFinalForUpdate() + 1;
+		int consecutivoFinal = consecutivoInicial + form.cantidad() - 1;
+		if (consecutivoFinal > qrCodeGeneratorService.maxConsecutivo()) {
+			throw new BadRequestException("Maximum consecutive number exceeded. Reduce batch size.");
+		}
+
 		LoteQR lote = new LoteQR();
+		lote.setConsecutivoInicial(consecutivoInicial);
+		lote.setConsecutivoFinal(consecutivoFinal);
 		lote.setDescripcion(form.descripcion().trim());
 		lote.setCantidad(form.cantidad());
 		lote.setQrSizeCm(form.qrSizeCm());
@@ -55,26 +57,14 @@ public class LoteQrService {
 		lote.setMostrarBordes(form.mostrarBordes());
 		lote = loteQrRepository.save(lote);
 
-		long codesStart = System.nanoTime();
-		List<String> codigosGenerados = qrCodeGeneratorService.generateUniqueCodes(form.cantidad());
-		long codesDurationMs = (System.nanoTime() - codesStart) / 1_000_000;
-		log.info("QR codes generated in {} ms ({} codes)", codesDurationMs, codigosGenerados.size());
-
-		List<CodigoQR> codigos = new ArrayList<>(codigosGenerados.size());
-
-		for (String codigo : codigosGenerados) {
-			CodigoQR codigoQR = new CodigoQR();
-			codigoQR.setCodigo(codigo);
-			codigoQR.setLoteQr(lote);
-			codigos.add(codigoQR);
-		}
-
-		long persistStart = System.nanoTime();
-		codigoQrRepository.saveAll(codigos);
-		long persistDurationMs = (System.nanoTime() - persistStart) / 1_000_000;
 		long totalDurationMs = (System.nanoTime() - totalStart) / 1_000_000;
-		log.info("QR codes persisted in {} ms", persistDurationMs);
-		log.info("QR lote {} generated in {} ms ({} codes)", lote.getId(), totalDurationMs, codigos.size());
+		log.info(
+				"QR lote {} generated in {} ms ({} codes, FOR-{}..FOR-{})",
+				lote.getId(),
+				totalDurationMs,
+				form.cantidad(),
+				String.format("%0" + qrProperties.sequenceLength() + "d", consecutivoInicial),
+				String.format("%0" + qrProperties.sequenceLength() + "d", consecutivoFinal));
 		return lote;
 	}
 
@@ -90,8 +80,8 @@ public class LoteQrService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CodigoQR> listCodigos(Long loteId) {
-		findById(loteId);
-		return codigoQrRepository.findByLoteQrIdOrderByCodigoAsc(loteId);
+	public List<String> listCodigos(Long loteId) {
+		LoteQR lote = findById(loteId);
+		return qrCodeGeneratorService.formatRange(lote.getConsecutivoInicial(), lote.getConsecutivoFinal());
 	}
 }

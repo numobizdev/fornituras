@@ -38,9 +38,8 @@ app:
     expiration-ms: 86400000
   qr:
     prefix: FOR-
-    suffix-length: 5
+    sequence-length: 6
     max-batch-size: 10000
-    max-generation-retries: 100
   seed:
     admin:
       enabled: true

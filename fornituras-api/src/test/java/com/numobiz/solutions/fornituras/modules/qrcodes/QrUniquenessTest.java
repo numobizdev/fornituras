@@ -1,83 +1,51 @@
 package com.numobiz.solutions.fornituras.modules.qrcodes;
 
 import com.numobiz.solutions.fornituras.config.QrProperties;
-import com.numobiz.solutions.fornituras.modules.qrcodes.repository.CodigoQrRepository;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrCodeGeneratorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
- * Caracterización de la UNICIDAD del código QR (FR-002 / SC-001).
- *
- * <p>Congela las tres garantías del generador actual: cero colisiones dentro del lote,
- * cero colisiones contra los códigos ya existentes en BD y cero colisiones contra los
- * códigos reservados del lote en curso.
+ * Caracterización de la UNICIDAD del código QR por consecutivo (FR-002 / SC-001).
  */
-@ExtendWith(MockitoExtension.class)
 class QrUniquenessTest {
-
-	@Mock
-	private CodigoQrRepository codigoQrRepository;
 
 	private QrCodeGeneratorService qrCodeGeneratorService;
 
 	@BeforeEach
 	void setUp() {
-		QrProperties properties = new QrProperties("FOR-", 5, 10000, 100);
-		qrCodeGeneratorService = new QrCodeGeneratorService(properties, codigoQrRepository);
+		QrProperties properties = new QrProperties("FOR-", 6, 10000);
+		qrCodeGeneratorService = new QrCodeGeneratorService(properties);
 	}
 
 	@Test
 	void batch_hasNoInternalCollisions() {
-		when(codigoQrRepository.findExistingCodigosIn(any())).thenReturn(Set.of());
-
-		List<String> codes = qrCodeGeneratorService.generateUniqueCodes(1000);
+		List<String> codes = qrCodeGeneratorService.formatRange(1, 1000);
 
 		assertEquals(1000, codes.size());
 		assertEquals(1000, Set.copyOf(codes).size(), "No debe haber códigos repetidos dentro del lote");
 	}
 
 	@Test
-	void batch_neverReusesCodesAlreadyInDatabase() {
-		Set<String> alreadyInDatabase = new HashSet<>();
-		when(codigoQrRepository.findExistingCodigosIn(any())).thenAnswer(invocation -> {
-			Collection<String> candidates = invocation.getArgument(0);
-			// Simula que el primer candidato de cada lote ya existe en BD.
-			Set<String> existing = candidates.stream().limit(1).collect(Collectors.toSet());
-			alreadyInDatabase.addAll(existing);
-			return existing;
-		});
+	void consecutiveRanges_doNotOverlap() {
+		List<String> firstBatch = qrCodeGeneratorService.formatRange(1, 100);
+		List<String> secondBatch = qrCodeGeneratorService.formatRange(101, 200);
 
-		List<String> codes = qrCodeGeneratorService.generateUniqueCodes(50);
-
-		assertEquals(50, codes.size());
-		assertTrue(codes.stream().noneMatch(alreadyInDatabase::contains),
-				"Ningún código generado debe coincidir con uno ya presente en BD");
+		assertTrue(firstBatch.stream().noneMatch(secondBatch::contains),
+				"Los rangos consecutivos no deben solaparse");
 	}
 
 	@Test
-	void batch_neverReusesReservedCodesFromOngoingLote() {
-		when(codigoQrRepository.findExistingCodigosIn(any())).thenReturn(Set.of());
-		Set<String> reserved = new HashSet<>(qrCodeGeneratorService.generateUniqueCodes(100));
+	void consecutiveRanges_areMonotonic() {
+		List<String> codes = qrCodeGeneratorService.formatRange(50, 55);
 
-		List<String> codes = qrCodeGeneratorService.generateUniqueCodes(100, reserved);
-
-		assertEquals(100, codes.size());
-		assertTrue(codes.stream().noneMatch(reserved::contains),
-				"Ningún código nuevo debe coincidir con los reservados del lote en curso");
+		assertEquals(List.of("FOR-000050", "FOR-000051", "FOR-000052", "FOR-000053", "FOR-000054", "FOR-000055"),
+				codes);
 	}
 }

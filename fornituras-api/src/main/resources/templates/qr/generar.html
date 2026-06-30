@@ -26,7 +26,7 @@
 </div>
 
 <h1>Generar lote de QR Codes</h1>
-<p>Los códigos tendrán formato <strong>FOR-XXXXX</strong> y serán únicos en todo el sistema.</p>
+<p>Los códigos tendrán formato secuencial <strong>FOR-000001</strong>, <strong>FOR-000002</strong>, etc.</p>
 
 <form th:action="@{/qr/generar}" th:object="${form}" method="post">
     <label for="descripcion">Descripción del lote</label>
@@ -56,6 +56,15 @@
     </select>
     <div class="error" th:if="${#fields.hasErrors('labelPosition')}" th:errors="*{labelPosition}"></div>
 
+    <label for="exportFormat">Formato de descarga</label>
+    <select id="exportFormat" name="exportFormat" required>
+        <option th:each="format : ${exportFormats}"
+                th:value="${format.name()}"
+                th:text="${format.displayName}"
+                th:selected="${format.name() == exportFormat.name()}"></option>
+    </select>
+    <div class="hint">Al finalizar, se descargará automáticamente el archivo en el formato elegido.</div>
+
     <label for="mostrarBordes">Imprimir bordes del código</label>
     <select id="mostrarBordes" th:field="*{mostrarBordes}" required>
         <option th:value="true">Sí</option>
@@ -65,14 +74,31 @@
     <div class="error" th:if="${#fields.hasErrors('mostrarBordes')}" th:errors="*{mostrarBordes}"></div>
 
     <div class="actions">
-        <button type="submit" id="submit-generar">Generar lote y PDF</button>
+        <button type="submit" id="submit-generar">Generar lote y descargar PDF</button>
     </div>
 </form>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        var exportFormat = document.getElementById('exportFormat');
+        var submitButton = document.getElementById('submit-generar');
+
+        function updateSubmitLabel() {
+            var isZip = exportFormat.value === 'ZIP';
+            submitButton.textContent = isZip
+                ? 'Generar lote y descargar ZIP (PNG)'
+                : 'Generar lote y descargar PDF';
+        }
+
+        exportFormat.addEventListener('change', updateSubmitLabel);
+        updateSubmitLabel();
+
         QrLoading.bindForm(
             document.querySelector('form[action*="generar"]'),
-            'Generando códigos QR… Esto puede tardar unos minutos en lotes grandes.'
+            function () {
+                return exportFormat.value === 'ZIP'
+                    ? 'Generando códigos QR y ZIP… Esto puede tardar unos minutos en lotes grandes.'
+                    : 'Generando códigos QR y PDF… Esto puede tardar unos minutos en lotes grandes.';
+            }
         );
     });
 </script>
