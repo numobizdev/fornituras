@@ -32,6 +32,8 @@
 <div class="card">
     <p><strong>Descripción:</strong> <span th:text="${lote.descripcion}"></span></p>
     <p><strong>Cantidad:</strong> <span th:text="${lote.cantidad}"></span> códigos</p>
+    <p><strong>Rango:</strong> FOR-<span th:text="${#numbers.formatInteger(lote.consecutivoInicial, 6)}"></span>
+        – FOR-<span th:text="${#numbers.formatInteger(lote.consecutivoFinal, 6)}"></span></p>
     <p><strong>Fecha de generación:</strong> <span th:text="${#temporals.format(lote.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
     <p><strong>Configuración original:</strong></p>
     <ul>

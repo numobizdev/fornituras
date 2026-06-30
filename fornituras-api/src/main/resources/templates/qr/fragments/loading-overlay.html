@@ -120,7 +120,8 @@
             function bindForm(form, message) {
                 if (!form) return;
                 form.addEventListener('submit', function () {
-                    show(message);
+                    var text = typeof message === 'function' ? message() : message;
+                    show(text);
                     disableSubmitButtons(form);
                 });
             }

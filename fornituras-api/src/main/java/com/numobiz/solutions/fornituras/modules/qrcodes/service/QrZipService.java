@@ -1,7 +1,6 @@
 package com.numobiz.solutions.fornituras.modules.qrcodes.service;
 
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
-import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
 import org.slf4j.Logger;
@@ -30,12 +29,12 @@ public class QrZipService {
 		this.qrImageService = qrImageService;
 	}
 
-	public byte[] generateZip(LoteQR lote, List<CodigoQR> codigos) {
+	public byte[] generateZip(LoteQR lote, List<String> codigos) {
 		return generateZip(lote, codigos, lote.getQrSizeCm(), lote.getPaddingCm(), lote.getLabelPosition(),
 				lote.isMostrarBordes());
 	}
 
-	public byte[] generateZip(LoteQR lote, List<CodigoQR> codigos, BigDecimal qrSizeCm, BigDecimal paddingCm,
+	public byte[] generateZip(LoteQR lote, List<String> codigos, BigDecimal qrSizeCm, BigDecimal paddingCm,
 			LabelPosition labelPosition, boolean mostrarBordes) {
 		if (codigos.isEmpty()) {
 			throw new BadRequestException("No QR codes provided for ZIP generation");
@@ -48,8 +47,7 @@ public class QrZipService {
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 				ZipOutputStream zip = new ZipOutputStream(outputStream)) {
-			for (CodigoQR codigoQR : codigos) {
-				String codigo = codigoQR.getCodigo();
+			for (String codigo : codigos) {
 				BufferedImage image = qrImageService.generateCodeUnitImage(codigo, qrSize, padding, labelPosition,
 						mostrarBordes);
 				String entryName = uniqueEntryName(codigo, usedNames);

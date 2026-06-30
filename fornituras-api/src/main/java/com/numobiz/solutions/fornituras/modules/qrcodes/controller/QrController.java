@@ -5,7 +5,6 @@ import com.numobiz.solutions.fornituras.modules.qrcodes.dto.CodigoQrResponseDTO;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.GenerateQrForm;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.LoteQrResponseDTO;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.ReprintQrForm;
-import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.LoteQrService;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrPdfService;
@@ -49,7 +48,7 @@ public class QrController {
 	}
 
 	@PostMapping("/lotes")
-	@Operation(summary = "Generate QR batch", description = "Creates a new batch of unique QR codes with the given print settings")
+	@Operation(summary = "Generate QR batch", description = "Creates a new batch of sequential QR codes with the given print settings")
 	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Batch created")
 	public ResponseEntity<ApiResponse<LoteQrResponseDTO>> generate(@Valid @RequestBody GenerateQrForm form) {
 		LoteQR lote = loteQrService.generate(form);
@@ -88,7 +87,7 @@ public class QrController {
 			content = @Content(mediaType = "application/pdf", schema = @Schema(type = "string", format = "binary"))))
 	public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
 		LoteQR lote = loteQrService.findById(id);
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos);
 		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
 	}
@@ -99,7 +98,7 @@ public class QrController {
 			content = @Content(mediaType = "application/zip", schema = @Schema(type = "string", format = "binary"))))
 	public ResponseEntity<byte[]> downloadZip(@PathVariable Long id) {
 		LoteQR lote = loteQrService.findById(id);
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] zip = qrZipService.generateZip(lote, codigos);
 		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));
 	}
@@ -111,7 +110,7 @@ public class QrController {
 			content = @Content(mediaType = "application/pdf", schema = @Schema(type = "string", format = "binary"))))
 	public ResponseEntity<byte[]> exportPdf(@PathVariable Long id, @Valid @RequestBody ReprintQrForm form) {
 		LoteQR lote = loteQrService.findById(id);
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
 		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
@@ -124,7 +123,7 @@ public class QrController {
 			content = @Content(mediaType = "application/zip", schema = @Schema(type = "string", format = "binary"))))
 	public ResponseEntity<byte[]> exportZip(@PathVariable Long id, @Valid @RequestBody ReprintQrForm form) {
 		LoteQR lote = loteQrService.findById(id);
-		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] zip = qrZipService.generateZip(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
 		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));

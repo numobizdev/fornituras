@@ -38,9 +38,8 @@ app:
     expiration-ms: 86400000
   qr:
     prefix: FOR-
-    suffix-length: 5
+    sequence-length: 6
     max-batch-size: 10000
-    max-generation-retries: 100
   pii:
     # Cifrado de PII a nivel de aplicación (ADR 0006). Valores SOLO por entorno; nunca en el repo.
     encryption-key: ${PII_ENCRYPTION_KEY:}

@@ -11,7 +11,6 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
-import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
 import org.slf4j.Logger;
@@ -45,12 +44,12 @@ public class QrPdfService {
 		this.qrImageService = qrImageService;
 	}
 
-	public byte[] generatePdf(LoteQR lote, List<CodigoQR> codigos) {
+	public byte[] generatePdf(LoteQR lote, List<String> codigos) {
 		return generatePdf(lote, codigos, lote.getQrSizeCm(), lote.getPaddingCm(), lote.getLabelPosition(),
 				lote.isMostrarBordes());
 	}
 
-	public byte[] generatePdf(LoteQR lote, List<CodigoQR> codigos, BigDecimal qrSizeCm, BigDecimal paddingCm,
+	public byte[] generatePdf(LoteQR lote, List<String> codigos, BigDecimal qrSizeCm, BigDecimal paddingCm,
 			LabelPosition labelPosition, boolean mostrarBordes) {
 		if (codigos.isEmpty()) {
 			throw new BadRequestException("No QR codes provided for PDF generation");
@@ -180,7 +179,7 @@ public class QrPdfService {
 		return cell;
 	}
 
-	private PdfPTable buildCodesTable(List<CodigoQR> codigos, int startIndex, int count, int rowsThisPage,
+	private PdfPTable buildCodesTable(List<String> codigos, int startIndex, int count, int rowsThisPage,
 			PageLayout layout, LabelPosition labelPosition, float qrSize, float padding, Font labelFont,
 			boolean mostrarBordes) throws Exception {
 		PdfPTable table = new PdfPTable(layout.cols());
@@ -192,8 +191,8 @@ public class QrPdfService {
 
 		int capacityThisPage = layout.cols() * rowsThisPage;
 		for (int cell = 0; cell < count; cell++) {
-			CodigoQR codigoQR = codigos.get(startIndex + cell);
-			table.addCell(buildCell(codigoQR.getCodigo(), labelPosition, qrSize, padding, labelFont, mostrarBordes));
+			String codigo = codigos.get(startIndex + cell);
+			table.addCell(buildCell(codigo, labelPosition, qrSize, padding, labelFont, mostrarBordes));
 		}
 		for (int cell = count; cell < capacityThisPage; cell++) {
 			table.addCell(buildEmptyCell(layout.cellHeightPt()));
