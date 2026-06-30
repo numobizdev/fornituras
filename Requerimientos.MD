@@ -10,7 +10,15 @@ documentos curp, rfc, identificador (placa/serie), municipio y una seccion de fo
 3.- Fornituras: 
 Pantalla principal.- boton nueva fornitura con uno alado de alta por lote seguido de un panel de filtros qr descripcion,estado, almacen y seguido de una tabla de fornituras con las columnas QR, descripcion, tipo(cinturon,chaleco), talla, almacen, estado, vida util, acciones
 
-Alta de fornitura por lote.- En esta pantalla se va capturar los datos generales del lote descripcion, talla(catalogo), tipo (catalogo)(cinturon,chaleco), almacen, vida util (investigo como puede ser este por que puede ser meses o año pero dame sugerencias) posteriormente se podra capturara codigos de QR por medio de un lector, camara, manual numero de codigo QR este tendre un campo con un input con un placeholder escanee con el lector o teclee el codigo  y un boton agregar y debajo una tabla de fornituras en el lote un boton crear lote y cancelar
+Alta de fornitura por lote.- En esta pantalla se va capturar los datos generales del lote descripcion, talla(catalogo), tipo (catalogo)(cinturon,chaleco), almacen, vida util posteriormente se podra capturara codigos de QR por medio de un lector, camara, manual numero de codigo QR este tendre un campo con un input con un placeholder escanee con el lector o teclee el codigo  y un boton agregar y debajo una tabla de fornituras en el lote un boton crear lote y cancelar
+
+> **Modelado de "vida útil" (recomendación adoptada en la spec 001).** El dato canónico es una
+> **fecha de vencimiento absoluta** (`fecha_vencimiento`), porque elimina ambigüedad y permite
+> derivar alertas y los estados de vigencia (vigente / próxima a vencer ≤ 90 días / caducada).
+> En el alta por lote se captura la **vida útil en meses** (`vida_util_meses`) junto con la
+> `fecha_fabricacion`/adquisición, y el sistema calcula
+> `fecha_vencimiento = fecha_fabricacion + vida_util_meses`. Así el usuario piensa en "meses/años"
+> y el sistema razona con una fecha concreta. Ver `specs/001-inventario-equipos/spec.md`.
 Alta de fornitura individual.- este formulario solicitara registrar Numero de QR (Unico) la cual puede ser por lector QR, Carmara(si detecta el movi que automaitcamente reconosca la camara del movil o del pc par hacerlo flexible pero no se que tan viable sea este ultimo), Descripcion, Talla (catalogo), tipo(catalogo)(cinturon,chaleco), almacen, vida util
 
 4.- Incidencias:
