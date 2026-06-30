@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,7 @@ import java.util.List;
 @RequestMapping("/api/v1/qr")
 @Tag(name = "QR Codes", description = "QR code batch generation and export")
 @SecurityRequirement(name = "Bearer Authentication")
+@PreAuthorize("hasAnyRole('ADMIN', 'CAPTURISTA')")
 public class QrController {
 
 	private final LoteQrService loteQrService;
