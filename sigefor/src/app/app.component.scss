@@ -22,6 +22,26 @@
   border-radius: 2px;
 }
 
+.menu-user {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.menu-user-email {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+}
+
+.menu-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 ion-menu ion-content {
   --background: var(--gobmx-fondo-suave);
 }

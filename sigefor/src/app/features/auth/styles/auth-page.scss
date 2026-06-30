@@ -1,0 +1,79 @@
+.auth-page {
+  --background: var(--gobmx-fondo-suave);
+}
+
+.auth-page__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.auth-page__brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-page__brand-title {
+  margin: 0;
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gobmx-guinda);
+}
+
+.auth-page__brand-accent {
+  height: 4px;
+  width: 48px;
+  margin: 14px auto 0;
+  background: var(--gobmx-dorado);
+  border-radius: 2px;
+}
+
+.auth-page__subtitle {
+  margin: 8px 0 0;
+  color: var(--gobmx-gris);
+  font-size: 0.95rem;
+}
+
+.auth-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-page__field-error {
+  display: block;
+  margin: 4px 0 8px 16px;
+  font-size: 0.8rem;
+  color: var(--ion-color-danger);
+}
+
+.auth-page__submit {
+  margin-top: 16px;
+}
+
+.auth-page__links {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-page__links a {
+  color: var(--gobmx-guinda);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.auth-page__success {
+  text-align: center;
+  color: var(--gobmx-gris);
+  line-height: 1.5;
+}

@@ -1,37 +1,59 @@
 <ion-app>
-  <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
-      <ion-content>
-        <div class="menu-brand">
-          <h1 class="menu-brand-title">SIGEFOR</h1>
-          <div class="menu-brand-accent" aria-hidden="true"></div>
-        </div>
+  @if (showMenu()) {
+    <ion-split-pane contentId="main-content">
+      <ion-menu contentId="main-content" type="overlay">
+        <ion-content>
+          <div class="menu-brand">
+            <h1 class="menu-brand-title">SIGEFOR</h1>
+            <div class="menu-brand-accent" aria-hidden="true"></div>
+            @if (currentUser(); as user) {
+              <p class="menu-user">{{ user.name }}</p>
+              <ion-note class="menu-user-email">{{ user.email }}</ion-note>
+            }
+          </div>
 
-        <ion-list id="nav-list">
-          <ion-list-header>Navegación</ion-list-header>
+          <ion-list id="nav-list">
+            <ion-list-header>Navegación</ion-list-header>
 
-          @for (page of appPages; track page.url) {
+            @for (page of appPages; track page.url) {
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  [routerLink]="[page.url]"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="page.icon + '-outline'"
+                    [md]="page.icon + '-sharp'"
+                  ></ion-icon>
+                  <ion-label>{{ page.title }}</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            }
+          </ion-list>
+
+          <ion-list class="menu-footer">
             <ion-menu-toggle auto-hide="false">
-              <ion-item
-                routerDirection="root"
-                [routerLink]="[page.url]"
-                lines="none"
-                detail="false"
-                routerLinkActive="selected"
-              >
+              <ion-item button lines="none" detail="false" (click)="logout()">
                 <ion-icon
                   aria-hidden="true"
                   slot="start"
-                  [ios]="page.icon + '-outline'"
-                  [md]="page.icon + '-sharp'"
+                  ios="log-out-outline"
+                  md="log-out-sharp"
                 ></ion-icon>
-                <ion-label>{{ page.title }}</ion-label>
+                <ion-label>Cerrar sesión</ion-label>
               </ion-item>
             </ion-menu-toggle>
-          }
-        </ion-list>
-      </ion-content>
-    </ion-menu>
-    <ion-router-outlet id="main-content"></ion-router-outlet>
-  </ion-split-pane>
+          </ion-list>
+        </ion-content>
+      </ion-menu>
+      <ion-router-outlet id="main-content"></ion-router-outlet>
+    </ion-split-pane>
+  } @else {
+    <ion-router-outlet></ion-router-outlet>
+  }
 </ion-app>

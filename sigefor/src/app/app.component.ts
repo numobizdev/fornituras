@@ -1,6 +1,8 @@
 
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map, startWith } from 'rxjs/operators';
 import {
   IonApp,
   IonContent,
@@ -11,6 +13,7 @@ import {
   IonListHeader,
   IonMenu,
   IonMenuToggle,
+  IonNote,
   IonRouterLink,
   IonRouterOutlet,
   IonSplitPane,
@@ -23,11 +26,14 @@ import {
   homeSharp,
   linkOutline,
   linkSharp,
+  logOutOutline,
+  logOutSharp,
   peopleOutline,
   peopleSharp,
 } from 'ionicons/icons';
 import { APP_NAV_ITEMS } from './core/constants/app-navigation';
 import { NavItem } from './core/models/nav-item.model';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -46,12 +52,33 @@ import { NavItem } from './core/models/nav-item.model';
     IonItem,
     IonIcon,
     IonLabel,
+    IonNote,
     IonRouterLink,
     IonRouterOutlet,
   ],
 })
 export class AppComponent {
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   public readonly appPages: NavItem[] = APP_NAV_ITEMS;
+  public readonly currentUser = this.authService.currentUser;
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  public readonly showMenu = computed(() => {
+    const url = this.currentUrl();
+    return !url.startsWith('/login') &&
+      !url.startsWith('/forgot-password') &&
+      !url.startsWith('/reset-password');
+  });
 
   constructor() {
     addIcons({
@@ -63,6 +90,12 @@ export class AppComponent {
       cubeSharp,
       linkOutline,
       linkSharp,
+      logOutOutline,
+      logOutSharp,
     });
+  }
+
+  async logout(): Promise<void> {
+    await this.authService.logout();
   }
 }
