@@ -1,0 +1,89 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Almacenes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Almacenes</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-segment [value]="filter()" (ionChange)="onFilterChange($any($event.detail.value))">
+    <ion-segment-button value="active">
+      <ion-label>Activos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="inactive">
+      <ion-label>Inactivos</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-item lines="full">
+    <ion-select
+      label="Tipo"
+      [value]="tipoFilter()"
+      placeholder="Todos"
+      (ionChange)="onTipoChange($event.detail.value)">
+      <ion-select-option [value]="null">Todos</ion-select-option>
+      @for (type of types; track type.value) {
+        <ion-select-option [value]="type.value">{{ type.label }}</ion-select-option>
+      }
+    </ion-select>
+  </ion-item>
+
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else if (warehouses().length === 0) {
+    <div class="state-message">
+      <p>No hay almacenes en esta vista.</p>
+    </div>
+  } @else {
+    <ion-list>
+      @for (warehouse of warehouses(); track warehouse.id) {
+        <ion-item button (click)="goToEdit(warehouse)" [detail]="false">
+          <ion-label>
+            <h2>{{ warehouse.nombre }}</h2>
+            <ion-note color="medium">{{ warehouse.codigo }} · {{ typeLabel(warehouse.tipo) }}</ion-note>
+          </ion-label>
+          @if (!warehouse.active) {
+            <ion-badge slot="end" color="medium">Inactivo</ion-badge>
+          }
+          @if (isAdmin) {
+            <ion-button
+              slot="end"
+              fill="clear"
+              (click)="goToEdit(warehouse); $event.stopPropagation()"
+              aria-label="Editar">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-button>
+            @if (warehouse.active) {
+              <ion-button
+                slot="end"
+                fill="clear"
+                color="danger"
+                (click)="confirmDeactivate(warehouse); $event.stopPropagation()"
+                aria-label="Desactivar">
+                <ion-icon slot="icon-only" name="power-outline"></ion-icon>
+              </ion-button>
+            }
+          }
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  @if (isAdmin) {
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button (click)="goToNew()" aria-label="Nuevo almacén">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
+</ion-content>

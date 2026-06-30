@@ -1,0 +1,158 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/almacenes"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditing ? 'Editar almacén' : 'Nuevo almacén' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Identidad</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input
+            label="Clave (código)"
+            labelPlacement="stacked"
+            formControlName="codigo"
+            maxlength="40"
+            placeholder="Ej. ALM-01"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Nombre"
+            labelPlacement="stacked"
+            formControlName="nombre"
+            maxlength="120"
+            placeholder="Ej. Almacén Central"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-select label="Tipo" labelPlacement="stacked" formControlName="tipo">
+            @for (type of types; track type.value) {
+              <ion-select-option [value]="type.value">{{ type.label }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Ubicación</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-select
+            label="Municipio"
+            labelPlacement="stacked"
+            formControlName="municipioId"
+            placeholder="Sin municipio">
+            <ion-select-option [value]="''">Sin municipio</ion-select-option>
+            @for (municipio of municipios(); track municipio.id) {
+              <ion-select-option [value]="municipio.id.toString()">
+                {{ municipio.nombre }}@if (!municipio.active) { (inactivo) }
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Dirección"
+            labelPlacement="stacked"
+            formControlName="direccion"
+            maxlength="255"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Código postal"
+            labelPlacement="stacked"
+            formControlName="cp"
+            maxlength="10"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="number"
+            label="Latitud"
+            labelPlacement="stacked"
+            formControlName="latitud"
+            placeholder="-90 a 90"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="number"
+            label="Longitud"
+            labelPlacement="stacked"
+            formControlName="longitud"
+            placeholder="-180 a 180"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Responsable y contacto</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input
+            type="number"
+            label="Responsable (ID de usuario)"
+            labelPlacement="stacked"
+            formControlName="responsableId"
+            placeholder="Opcional"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Teléfono"
+            labelPlacement="stacked"
+            formControlName="telefono"
+            maxlength="30"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="email"
+            label="Correo de contacto"
+            labelPlacement="stacked"
+            formControlName="emailContacto"
+            maxlength="255"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Operativo</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input
+            type="number"
+            label="Capacidad"
+            labelPlacement="stacked"
+            formControlName="capacidad"
+            placeholder="Cupo máximo de fornituras"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-textarea
+            label="Observaciones"
+            labelPlacement="stacked"
+            formControlName="observaciones"
+            maxlength="500"
+            [autoGrow]="true"></ion-textarea>
+        </ion-item>
+      </ion-list>
+
+      <div class="form-actions">
+        <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <ion-spinner name="dots"></ion-spinner>
+          } @else {
+            {{ isEditing ? 'Guardar cambios' : 'Crear almacén' }}
+          }
+        </ion-button>
+      </div>
+    </form>
+  }
+</ion-content>
