@@ -1,0 +1,120 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/fornituras"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Alta por lote</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form [formGroup]="form">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Datos generales del lote</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-select
+          label="Tipo"
+          labelPlacement="stacked"
+          formControlName="equipmentTypeId"
+          placeholder="Seleccione un tipo"
+          (ionChange)="onTypeSelected($event.detail.value)">
+          @for (type of types(); track type.id) {
+            <ion-select-option [value]="type.id.toString()">{{ type.nombre }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-select label="Talla" labelPlacement="stacked" formControlName="sizeId" placeholder="Sin talla">
+          <ion-select-option [value]="''">Sin talla</ion-select-option>
+          @for (size of sizes(); track size.id) {
+            <ion-select-option [value]="size.id.toString()">{{ size.etiqueta }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-select
+          label="Almacén"
+          labelPlacement="stacked"
+          formControlName="warehouseId"
+          placeholder="Seleccione un almacén">
+          @for (warehouse of warehouses(); track warehouse.id) {
+            <ion-select-option [value]="warehouse.id.toString()">{{ warehouse.nombre }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Descripción" labelPlacement="stacked" formControlName="descripcion" maxlength="255"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Marca" labelPlacement="stacked" formControlName="marca" maxlength="120"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Modelo" labelPlacement="stacked" formControlName="modelo" maxlength="120"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="Nivel balístico" labelPlacement="stacked" formControlName="nivelBalistico" maxlength="60"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="date" label="Fecha de fabricación" labelPlacement="stacked" formControlName="fechaFabricacion"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="date" label="Fecha de adquisición" labelPlacement="stacked" formControlName="fechaAdquisicion"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="number" label="Vida útil (meses)" labelPlacement="stacked" formControlName="vidaUtilMeses"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="date" label="Fecha de vencimiento" labelPlacement="stacked" formControlName="fechaVencimiento"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
+      </ion-item>
+    </ion-list>
+  </form>
+
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Códigos del lote ({{ codigos().length }})</ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-input
+        label="Código"
+        labelPlacement="stacked"
+        placeholder="Escanee con el lector o teclee el código"
+        [value]="nextCode()"
+        (ionInput)="nextCode.set($any($event.target).value)"
+        (keyup.enter)="addCode()"></ion-input>
+      <ion-button slot="end" fill="clear" (click)="addCode()" aria-label="Agregar código">
+        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+
+    @if (codigos().length === 0) {
+      <ion-item lines="none">
+        <ion-label color="medium">Aún no hay códigos en el lote.</ion-label>
+      </ion-item>
+    } @else {
+      @for (codigo of codigos(); track codigo; let i = $index) {
+        <ion-item>
+          <ion-label>{{ codigo }}</ion-label>
+          <ion-button slot="end" fill="clear" color="danger" (click)="removeCode(i)" aria-label="Quitar código">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
+    }
+  </ion-list>
+
+  <div class="form-actions">
+    <ion-button expand="block" [disabled]="isSubmitting()" (click)="createBatch()">
+      @if (isSubmitting()) {
+        <ion-spinner name="dots"></ion-spinner>
+      } @else {
+        Crear lote
+      }
+    </ion-button>
+    <ion-button expand="block" fill="clear" color="medium" (click)="cancel()">Cancelar</ion-button>
+  </div>
+</ion-content>

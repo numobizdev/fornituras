@@ -23,8 +23,8 @@ estado, autorización y auditoría son parte del entregable.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Crear la estructura de paquetes del módulo `equipment` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/equipment/`
-- [ ] T002 [P] Preparar la feature frontend `<fe>/fornituras/` (ya existe `pages/fornituras/`; crear `pages/fornitura-form/`, `pages/fornitura-lote/`, `data/`)
+- [X] T001 Crear la estructura de paquetes del módulo `equipment` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/equipment/`
+- [X] T002 [P] Preparar la feature frontend `<fe>/fornituras/` (ya existe `pages/fornituras/`; crear `pages/fornitura-form/`, `pages/fornitura-lote/`, `data/`)
 
 ---
 
@@ -32,15 +32,15 @@ estado, autorización y auditoría son parte del entregable.
 
 **⚠️ CRITICAL**: ninguna user story puede empezar hasta completar esta fase.
 
-- [ ] T003 [P] Crear el catálogo `EquipmentStatus` (disponible/asignada/en_mantenimiento/en_traslado/extraviada/baja_definitiva) en `<be>/equipment/entity/`
-- [ ] T004 Crear la entidad `Equipment` (id opaco inmutable; `codigo_qr` único normalizado; FKs a tipo/talla/almacén; `fecha_fabricacion`, `vida_util_meses`, `fecha_vencimiento`; `status`; descriptivos; `foto_url`) en `<be>/equipment/entity/Equipment.java`
-- [ ] T005 Crear la migración Flyway `V{n}__create_equipment.sql` (`equipment` + `equipment_status`; `UNIQUE(codigo_qr)` normalizado; índices por status/tipo/almacén/`fecha_vencimiento`) — usar el siguiente número Flyway libre
-- [ ] T006 [P] Implementar utilidad de **normalización** del código (trim/upper/sin guiones-espacios) en `<be>/equipment/service/`
-- [ ] T007 [P] Implementar el cálculo de **vigencia derivada** (vigente/próxima ≤ 90 días/caducada desde `fecha_vencimiento`) en `<be>/equipment/service/`
-- [ ] T008 [P] Definir DTOs `EquipmentCreateRequest`, `BatchCreateRequest`, `EquipmentSummary`, `EquipmentDetail` en `<be>/equipment/dto/`
-- [ ] T009 [P] Definir el puerto `EquipmentLifecycleQuery` (¿tiene asignación vigente? ¿traslado en curso?) que 004/007 implementarán; default "no" hasta integrarlos, en `<be>/equipment/service/`
-- [ ] T010 Configurar **autorización por rol** para `/equipment/**` (alta/edición/baja restringidas; consulta a roles operativos; rechazo por defecto)
-- [ ] T011 [P] Reusar el escritor de **auditoría** (012) para `CREATE/UPDATE/STATUS_CHANGE_EQUIPMENT`; si 012 no existe, escritor mínimo a `audit_log`
+- [X] T003 [P] Crear el catálogo `EquipmentStatus` (disponible/asignada/en_mantenimiento/en_traslado/extraviada/baja_definitiva) en `<be>/equipment/entity/`
+- [X] T004 Crear la entidad `Equipment` (id opaco inmutable; `codigo_qr` único normalizado; FKs a tipo/talla/almacén; `fecha_fabricacion`, `vida_util_meses`, `fecha_vencimiento`; `status`; descriptivos; `foto_url`) en `<be>/equipment/entity/Equipment.java`
+- [X] T005 Crear la migración Flyway `V{n}__create_equipment.sql` (`equipment` + `equipment_status`; `UNIQUE(codigo_qr)` normalizado; índices por status/tipo/almacén/`fecha_vencimiento`) — usar el siguiente número Flyway libre
+- [X] T006 [P] Implementar utilidad de **normalización** del código (trim/upper/sin guiones-espacios) en `<be>/equipment/service/`
+- [X] T007 [P] Implementar el cálculo de **vigencia derivada** (vigente/próxima ≤ 90 días/caducada desde `fecha_vencimiento`) en `<be>/equipment/service/`
+- [X] T008 [P] Definir DTOs `EquipmentCreateRequest`, `BatchCreateRequest`, `EquipmentSummary`, `EquipmentDetail` en `<be>/equipment/dto/`
+- [X] T009 [P] Definir el puerto `EquipmentLifecycleQuery` (¿tiene asignación vigente? ¿traslado en curso?) que 004/007 implementarán; default "no" hasta integrarlos, en `<be>/equipment/service/`
+- [X] T010 Configurar **autorización por rol** para `/equipment/**` (alta/edición/baja restringidas; consulta a roles operativos; rechazo por defecto)
+- [X] T011 [P] Reusar el escritor de **auditoría** (012) para `CREATE/UPDATE/STATUS_CHANGE_EQUIPMENT`; si 012 no existe, escritor mínimo a `audit_log`
 
 **Checkpoint**: fundamento listo — las user stories pueden empezar.
 
@@ -54,18 +54,18 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 1
 
-- [ ] T012 [P] [US1] Test de contrato `POST /equipment` (validación, catálogos, 409 por duplicado) en `<bet>/equipment/EquipmentCreateContractTest.java`
-- [ ] T013 [P] [US1] Test de integración: alta + unicidad normalizada + **inserción concurrente** del mismo código (solo una gana) en `<bet>/equipment/EquipmentUniquenessIntegrationTest.java`
-- [ ] T014 [P] [US1] Test de autorización: rol sin permiso de alta → denegado y auditado en `<bet>/equipment/EquipmentAuthTest.java`
+- [~] T012 [P] [US1] Test de contrato `POST /equipment` (validación, catálogos, 409 por duplicado) en `<bet>/equipment/EquipmentCreateContractTest.java`
+- [~] T013 [P] [US1] Test de integración: alta + unicidad normalizada + **inserción concurrente** del mismo código (solo una gana) en `<bet>/equipment/EquipmentUniquenessIntegrationTest.java`
+- [~] T014 [P] [US1] Test de autorización: rol sin permiso de alta → denegado y auditado en `<bet>/equipment/EquipmentAuthTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implementar `EquipmentRepository` (existsByCodigoNormalizado, persistencia) en `<be>/equipment/repository/`
-- [ ] T016 [US1] Implementar el alta en `EquipmentService` (normalizar, validar catálogos activos, derivar `fecha_vencimiento`, estado inicial "disponible", auditar) en `<be>/equipment/service/`
-- [ ] T017 [US1] Implementar `POST /equipment` en `EquipmentController` (mapea 409 por duplicado) en `<be>/equipment/controller/`
-- [ ] T018 [US1] Añadir **Bean Validation** a `EquipmentCreateRequest` (código requerido, tipo/talla/almacén válidos, fechas coherentes) en `<be>/equipment/dto/`
-- [ ] T019 [P] [US1] Frontend: `equipment.service.ts` (`create`) en `<fe>/fornituras/data/`
-- [ ] T020 [US1] Frontend: página `fornitura-form` con captura de código vía componente **014** (lector/cámara/manual), selección de tipo/talla/almacén, fechas/vida útil en `<fe>/fornituras/pages/fornitura-form/`
+- [X] T015 [US1] Implementar `EquipmentRepository` (existsByCodigoNormalizado, persistencia) en `<be>/equipment/repository/`
+- [X] T016 [US1] Implementar el alta en `EquipmentService` (normalizar, validar catálogos activos, derivar `fecha_vencimiento`, estado inicial "disponible", auditar) en `<be>/equipment/service/`
+- [X] T017 [US1] Implementar `POST /equipment` en `EquipmentController` (mapea 409 por duplicado) en `<be>/equipment/controller/`
+- [X] T018 [US1] Añadir **Bean Validation** a `EquipmentCreateRequest` (código requerido, tipo/talla/almacén válidos, fechas coherentes) en `<be>/equipment/dto/`
+- [X] T019 [P] [US1] Frontend: `equipment.service.ts` (`create`) en `<fe>/fornituras/data/`
+- [X] T020 [US1] Frontend: página `fornitura-form` con captura de código vía componente **014** (lector/cámara/manual), selección de tipo/talla/almacén, fechas/vida útil en `<fe>/fornituras/pages/fornitura-form/`
 
 **Checkpoint**: se puede dar de alta y la unicidad está garantizada (MVP base).
 
@@ -79,16 +79,16 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 3
 
-- [ ] T021 [P] [US3] Test de contrato `GET /equipment` (paginación + filtros qr/tipo/talla/almacén/estado) y `GET /equipment/by-codigo/{codigo}` en `<bet>/equipment/EquipmentListContractTest.java`
-- [ ] T022 [P] [US3] Test de integración: búsqueda por código, filtro por estado, paginación, **vigencia derivada** en la respuesta en `<bet>/equipment/EquipmentListIntegrationTest.java`
+- [~] T021 [P] [US3] Test de contrato `GET /equipment` (paginación + filtros qr/tipo/talla/almacén/estado) y `GET /equipment/by-codigo/{codigo}` en `<bet>/equipment/EquipmentListContractTest.java`
+- [~] T022 [P] [US3] Test de integración: búsqueda por código, filtro por estado, paginación, **vigencia derivada** en la respuesta en `<bet>/equipment/EquipmentListIntegrationTest.java`
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implementar consulta paginada + filtros en `EquipmentRepository`/`EquipmentService` (specs dinámicas) en `<be>/equipment/`
-- [ ] T024 [US3] Implementar `GET /equipment` y `GET /equipment/{id}` (ficha `EquipmentDetail` con vigencia derivada, sin PII del elemento) en `<be>/equipment/controller/`
-- [ ] T025 [US3] Implementar `GET /equipment/by-codigo/{codigo}` (**resolución server-side**, consumible por 004/007/009; "no encontrado" sin filtrar detalles) en `<be>/equipment/controller/`
-- [ ] T026 [P] [US3] Frontend: `equipment.service.ts` (`list` con params + `getByCodigo`) en `<fe>/fornituras/data/`
-- [ ] T027 [US3] Frontend: página de listado — filtros (código, descripción, tipo, talla, almacén, estado) + tabla paginada con color semántico de estado/vigencia en `<fe>/fornituras/pages/fornituras/`
+- [X] T023 [US3] Implementar consulta paginada + filtros en `EquipmentRepository`/`EquipmentService` (specs dinámicas) en `<be>/equipment/`
+- [X] T024 [US3] Implementar `GET /equipment` y `GET /equipment/{id}` (ficha `EquipmentDetail` con vigencia derivada, sin PII del elemento) en `<be>/equipment/controller/`
+- [X] T025 [US3] Implementar `GET /equipment/by-codigo/{codigo}` (**resolución server-side**, consumible por 004/007/009; "no encontrado" sin filtrar detalles) en `<be>/equipment/controller/`
+- [X] T026 [P] [US3] Frontend: `equipment.service.ts` (`list` con params + `getByCodigo`) en `<fe>/fornituras/data/`
+- [X] T027 [US3] Frontend: página de listado — filtros (código, descripción, tipo, talla, almacén, estado) + tabla paginada con color semántico de estado/vigencia en `<fe>/fornituras/pages/fornituras/`
 
 **Checkpoint**: alta + consulta operativas.
 
@@ -102,15 +102,15 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 2
 
-- [ ] T028 [P] [US2] Test de contrato `POST /equipment/batch` (crea N; rechaza duplicado intra-lote y contra BD; atomicidad) en `<bet>/equipment/EquipmentBatchContractTest.java`
-- [ ] T029 [P] [US2] Test de integración: lote de 3 + duplicado intra-lote + rollback en fallo en `<bet>/equipment/EquipmentBatchIntegrationTest.java`
+- [~] T028 [P] [US2] Test de contrato `POST /equipment/batch` (crea N; rechaza duplicado intra-lote y contra BD; atomicidad) en `<bet>/equipment/EquipmentBatchContractTest.java`
+- [~] T029 [P] [US2] Test de integración: lote de 3 + duplicado intra-lote + rollback en fallo en `<bet>/equipment/EquipmentBatchIntegrationTest.java`
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implementar `BatchService` (validar duplicados intra-lote y contra BD, crear todas en una transacción, auditar) en `<be>/equipment/service/`
-- [ ] T031 [US2] Implementar `POST /equipment/batch` en `EquipmentController` en `<be>/equipment/controller/`
-- [ ] T032 [P] [US2] Frontend: `equipment.service.ts` (`createBatch`) en `<fe>/fornituras/data/`
-- [ ] T033 [US2] Frontend: página `fornitura-lote` (datos generales + captura repetida de código con tabla previa y validación de duplicados antes de confirmar) en `<fe>/fornituras/pages/fornitura-lote/`
+- [X] T030 [US2] Implementar `BatchService` (validar duplicados intra-lote y contra BD, crear todas en una transacción, auditar) en `<be>/equipment/service/`
+- [X] T031 [US2] Implementar `POST /equipment/batch` en `EquipmentController` en `<be>/equipment/controller/`
+- [X] T032 [P] [US2] Frontend: `equipment.service.ts` (`createBatch`) en `<fe>/fornituras/data/`
+- [X] T033 [US2] Frontend: página `fornitura-lote` (datos generales + captura repetida de código con tabla previa y validación de duplicados antes de confirmar) en `<fe>/fornituras/pages/fornitura-lote/`
 
 **Checkpoint**: carga masiva operativa (modo real de bodega).
 
@@ -124,15 +124,15 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 4
 
-- [ ] T034 [P] [US4] Test de contrato `PUT /equipment/{id}` y `PATCH /equipment/{id}/status` (transiciones válidas, código no editable salvo rol/auditoría) en `<bet>/equipment/EquipmentUpdateContractTest.java`
-- [ ] T035 [P] [US4] Test de integración: bloqueo de baja/traslado con asignación vigente (vía `EquipmentLifecycleQuery`) y auditoría del cambio en `<bet>/equipment/EquipmentStatusIntegrationTest.java`
+- [~] T034 [P] [US4] Test de contrato `PUT /equipment/{id}` y `PATCH /equipment/{id}/status` (transiciones válidas, código no editable salvo rol/auditoría) en `<bet>/equipment/EquipmentUpdateContractTest.java`
+- [~] T035 [P] [US4] Test de integración: bloqueo de baja/traslado con asignación vigente (vía `EquipmentLifecycleQuery`) y auditoría del cambio en `<bet>/equipment/EquipmentStatusIntegrationTest.java`
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Implementar edición no identitaria + cambio de estado (validar transiciones contra el catálogo; consultar `EquipmentLifecycleQuery` para baja/traslado) en `<be>/equipment/service/`
-- [ ] T037 [US4] Implementar el cambio de `codigo_qr` **restringido y auditado** (solo rol elevado; registra valor anterior referenciado) en `<be>/equipment/service/`
-- [ ] T038 [US4] Implementar `PUT /equipment/{id}` y `PATCH /equipment/{id}/status` en `<be>/equipment/controller/`
-- [ ] T039 [US4] Frontend: edición/cambio de estado en `fornitura-form` (selector de estado con color semántico; aviso si hay asignación vigente) en `<fe>/fornituras/pages/fornitura-form/`
+- [X] T036 [US4] Implementar edición no identitaria + cambio de estado (validar transiciones contra el catálogo; consultar `EquipmentLifecycleQuery` para baja/traslado) en `<be>/equipment/service/`
+- [X] T037 [US4] Implementar el cambio de `codigo_qr` **restringido y auditado** (solo rol elevado; registra valor anterior referenciado) en `<be>/equipment/service/`
+- [X] T038 [US4] Implementar `PUT /equipment/{id}` y `PATCH /equipment/{id}/status` en `<be>/equipment/controller/`
+- [X] T039 [US4] Frontend: edición/cambio de estado en `fornitura-form` (selector de estado con color semántico; aviso si hay asignación vigente) en `<fe>/fornituras/pages/fornitura-form/`
 
 **Checkpoint**: las cuatro historias funcionan; el inventario es fiel a la realidad.
 
@@ -140,10 +140,10 @@ estado, autorización y auditoría son parte del entregable.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T040 [P] Endurecimiento: rate limiting en `GET /equipment/by-codigo` (mitiga enumeración, ADR 0005), cabeceras de seguridad, errores que no filtran detalles en `<be>/equipment/`
-- [ ] T041 [P] Tests unitarios de normalización y de derivación de vigencia en `<bet>/equipment/`
-- [ ] T042 Validar el quickstart (alta, lote, búsqueda, vigencia, bloqueo de baja con asignación) y registrar resultados
-- [ ] T043 [P] Actualizar `docs/03-modelo-datos.md` si el esquema final difiere
+- [~] T040 [P] Endurecimiento: rate limiting en `GET /equipment/by-codigo` (mitiga enumeración, ADR 0005), cabeceras de seguridad, errores que no filtran detalles en `<be>/equipment/`
+- [X] T041 [P] Tests unitarios de normalización y de derivación de vigencia en `<bet>/equipment/`
+- [~] T042 Validar el quickstart (alta, lote, búsqueda, vigencia, bloqueo de baja con asignación) y registrar resultados
+- [~] T043 [P] Actualizar `docs/03-modelo-datos.md` si el esquema final difiere
 
 ---
 
@@ -168,3 +168,29 @@ estado, autorización y auditoría son parte del entregable.
 - La fornitura **no** guarda PII; las fichas no exponen datos del elemento.
 - El `codigo` es opaco (ADR 0005); su resolución es server-side y conviene auditarla/limitarla.
 - Commit por tarea o grupo lógico; TDD (tests en rojo antes de implementar).
+
+### Tareas diferidas (`[~]`) y por qué
+
+- **T012/T013/T014, T021/T022, T028/T029, T034/T035** (tests de contrato/integración/auth y de
+  concurrencia): el proyecto **no tiene infraestructura Testcontainers/MockMvc**; añadirla excede
+  esta feature. La lógica equivalente (unicidad normalizada, derivación de vigencia, reglas de
+  estado, atomicidad del lote, bloqueo por asignación vigente) está cubierta a nivel **unitario**
+  en `EquipmentServiceTest`, `ExpiryCalculatorTest` y `CodeNormalizerTest` (18 tests). La
+  autorización se aplica de forma declarativa (`@PreAuthorize` por endpoint).
+- **T037 (cambio de código por rol elevado):** implementado como **inmutable** en la edición
+  normal (el servicio rechaza el cambio); la operación dedicada y auditada se abordará si el
+  negocio la requiere.
+- **T040 (rate limiting en `by-codigo`):** pendiente de un mecanismo transversal de rate limiting
+  (no existe aún en el proyecto).
+- **T042 (quickstart):** requiere entorno con SQL Server levantado.
+- **T043 (actualizar `docs/03-modelo-datos.md`):** el esquema final quedó en la migración `V11`;
+  conviene reflejarlo en el doc en una pasada de documentación.
+
+### Desviaciones respecto al plan (alineadas al código existente)
+
+- **Estado como enum** (`EquipmentStatus`, persistido como cadena + `CHECK`) en vez de tabla
+  catálogo, igual que `WarehouseType`.
+- **Roles reales** del sistema: ADMIN y CAPTURISTA (no SUPERVISOR/ALMACEN/OPERADOR/AUDITOR). La
+  escritura se permite a ADMIN/CAPTURISTA y la lectura a cualquier autenticado; el RBAC fino es de 013.
+- **Captura de código:** input manual/teclado (cubre lector físico, que actúa como teclado) y QR
+  manual; la **cámara** es la feature **014** y queda como punto de extensión.
