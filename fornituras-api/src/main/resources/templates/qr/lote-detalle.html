@@ -42,7 +42,7 @@
     </ul>
 </div>
 
-<h2>Reimprimir PDF</h2>
+<h2>Reimprimir / exportar</h2>
 <p>Seleccione las opciones de impresión. Los códigos del lote no cambiarán.</p>
 
 <form id="reprint-form" th:action="@{/qr/lotes/{id}/reimprimir(id=${lote.id})}" th:object="${form}" method="post">
@@ -70,23 +70,40 @@
     <div class="error" th:if="${#fields.hasErrors('mostrarBordes')}" th:errors="*{mostrarBordes}"></div>
 
     <div class="actions">
-        <button type="submit" id="submit-reimprimir">Reimprimir PDF</button>
+        <button type="submit" id="submit-reimprimir-pdf">Reimprimir PDF</button>
+        <button type="submit" id="submit-reimprimir-zip"
+                th:formaction="@{/qr/lotes/{id}/reimprimir-zip(id=${lote.id})}">Reimprimir ZIP (PNG)</button>
         <a id="pdf-original" th:href="@{/qr/lotes/{id}/pdf(id=${lote.id})}">PDF con config. original</a>
+        <a id="zip-original" th:href="@{/qr/lotes/{id}/zip(id=${lote.id})}">ZIP con config. original</a>
     </div>
 </form>
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
         var loteId = /*[[${lote.id}]]*/ 0;
-        var fallbackFilename = 'lote-qr-' + loteId + '.pdf';
-        QrLoading.bindPdfForm(
-            document.getElementById('reprint-form'),
-            'Generando PDF… Esto puede tardar en lotes grandes.',
-            fallbackFilename
-        );
-        QrLoading.bindPdfLink(
+        var form = document.getElementById('reprint-form');
+        QrLoading.bindDownloadForm(form, function (event) {
+            var isZip = event.submitter && event.submitter.id === 'submit-reimprimir-zip';
+            return {
+                message: isZip
+                    ? 'Generando ZIP… Esto puede tardar en lotes grandes.'
+                    : 'Generando PDF… Esto puede tardar en lotes grandes.',
+                fallbackFilename: 'lote-qr-' + loteId + (isZip ? '.zip' : '.pdf'),
+                errorMessage: isZip
+                    ? 'No se pudo generar el ZIP. Intente de nuevo.'
+                    : 'No se pudo generar el PDF. Intente de nuevo.'
+            };
+        });
+        QrLoading.bindDownloadLink(
             document.getElementById('pdf-original'),
             'Generando PDF… Esto puede tardar en lotes grandes.',
-            fallbackFilename
+            'lote-qr-' + loteId + '.pdf',
+            'No se pudo generar el PDF. Intente de nuevo.'
+        );
+        QrLoading.bindDownloadLink(
+            document.getElementById('zip-original'),
+            'Generando ZIP… Esto puede tardar en lotes grandes.',
+            'lote-qr-' + loteId + '.zip',
+            'No se pudo generar el ZIP. Intente de nuevo.'
         );
     });
 </script>

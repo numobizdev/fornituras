@@ -50,6 +50,8 @@ app:
       - http://localhost:4200
       - http://localhost:8100
       - capacitor://localhost
+  mail:
+    from: ${MAIL_FROM:noreply@fornituras.local}
 
 management:
   endpoints:

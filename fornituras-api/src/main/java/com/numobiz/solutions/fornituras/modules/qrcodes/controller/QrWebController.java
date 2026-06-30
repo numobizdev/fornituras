@@ -7,6 +7,7 @@ import com.numobiz.solutions.fornituras.modules.qrcodes.entity.CodigoQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.LoteQrService;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrPdfService;
+import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrZipService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,11 +29,14 @@ public class QrWebController {
 
 	private final LoteQrService loteQrService;
 	private final QrPdfService qrPdfService;
+	private final QrZipService qrZipService;
 	private final QrProperties qrProperties;
 
-	public QrWebController(LoteQrService loteQrService, QrPdfService qrPdfService, QrProperties qrProperties) {
+	public QrWebController(LoteQrService loteQrService, QrPdfService qrPdfService, QrZipService qrZipService,
+			QrProperties qrProperties) {
 		this.loteQrService = loteQrService;
 		this.qrPdfService = qrPdfService;
+		this.qrZipService = qrZipService;
 		this.qrProperties = qrProperties;
 	}
 
@@ -83,7 +87,15 @@ public class QrWebController {
 		LoteQR lote = loteQrService.findById(id);
 		List<CodigoQR> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos);
-		return pdfResponse(id, pdf);
+		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
+	}
+
+	@GetMapping("/lotes/{id}/zip")
+	public ResponseEntity<byte[]> downloadZip(@PathVariable Long id) {
+		LoteQR lote = loteQrService.findById(id);
+		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		byte[] zip = qrZipService.generateZip(lote, codigos);
+		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));
 	}
 
 	@PostMapping("/lotes/{id}/reimprimir")
@@ -101,13 +113,31 @@ public class QrWebController {
 		List<CodigoQR> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
-		return pdfResponse(id, pdf);
+		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
 	}
 
-	private ResponseEntity<byte[]> pdfResponse(Long id, byte[] pdf) {
+	@PostMapping("/lotes/{id}/reimprimir-zip")
+	public Object reprintZip(
+			@PathVariable Long id,
+			@Valid @ModelAttribute("form") ReprintQrForm form,
+			BindingResult bindingResult,
+			Model model) {
+		LoteQR lote = loteQrService.findById(id);
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("lote", lote);
+			return "qr/lote-detalle";
+		}
+
+		List<CodigoQR> codigos = loteQrService.listCodigos(id);
+		byte[] zip = qrZipService.generateZip(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
+				form.mostrarBordes());
+		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));
+	}
+
+	private ResponseEntity<byte[]> fileResponse(Long id, byte[] content, String extension, MediaType mediaType) {
 		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=lote-qr-" + id + ".pdf")
-				.contentType(MediaType.APPLICATION_PDF)
-				.body(pdf);
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=lote-qr-" + id + "." + extension)
+				.contentType(mediaType)
+				.body(content);
 	}
 }

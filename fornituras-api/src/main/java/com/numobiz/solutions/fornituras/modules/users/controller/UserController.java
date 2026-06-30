@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,21 +32,24 @@ public class UserController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN') or @userService.isCurrentUser(#id)")
 	public ResponseEntity<ApiResponse<UserResponseDTO>> getById(@PathVariable Long id) {
 		UserResponseDTO user = userService.findById(id);
 		return ResponseEntity.ok(ApiResponse.ok(user));
 	}
 
 	@GetMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getAll() {
 		List<UserResponseDTO> users = userService.findAll();
 		return ResponseEntity.ok(ApiResponse.ok(users));
 	}
 
 	@PostMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ApiResponse<UserResponseDTO>> create(@Valid @RequestBody UserRequestDTO request) {
 		UserResponseDTO user = userService.create(request);
 		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(ApiResponse.ok("User created successfully", user));
+				.body(ApiResponse.ok("Usuario creado. Se envió un código de activación al correo.", user));
 	}
 }

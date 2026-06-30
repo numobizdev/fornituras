@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Activación de cuenta</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .code { font-size: 32px; font-weight: bold; text-align: center; letter-spacing: 8px; color: #1f6feb; margin: 24px 0; padding: 16px; background: #f5f5f5; border-radius: 8px; }
+        .footer { margin-top: 24px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Activación de cuenta - Fornituras</h1>
+    <p>Hola <strong th:text="${name}">Usuario</strong>,</p>
+    <p>Se creó una cuenta para <strong th:text="${email}">email</strong>. Para activarla y establecer tu contraseña, usa este código en la aplicación:</p>
+    <div class="code" th:text="${code}">000000</div>
+    <p>Este código expira en 24 horas. Si no esperabas este correo, puedes ignorarlo.</p>
+    <p class="footer">Fornituras - Numobiz Soluciones</p>
+</body>
+</html>

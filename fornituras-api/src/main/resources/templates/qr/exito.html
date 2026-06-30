@@ -36,16 +36,24 @@
 
 <div class="actions">
     <a id="pdf-download" th:href="@{/qr/lotes/{id}/pdf(id=${lote.id})}">Descargar PDF</a>
+    <a id="zip-download" th:href="@{/qr/lotes/{id}/zip(id=${lote.id})}">Descargar ZIP (PNG)</a>
     <a class="secondary" th:href="@{/qr/lotes/{id}(id=${lote.id})}">Ver detalle y reimprimir</a>
     <a class="secondary" th:href="@{/qr/generar}">Generar otro lote</a>
 </div>
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
         var loteId = /*[[${lote.id}]]*/ 0;
-        QrLoading.bindPdfLink(
+        QrLoading.bindDownloadLink(
             document.getElementById('pdf-download'),
             'Generando PDF… Esto puede tardar en lotes grandes.',
-            'lote-qr-' + loteId + '.pdf'
+            'lote-qr-' + loteId + '.pdf',
+            'No se pudo generar el PDF. Intente de nuevo.'
+        );
+        QrLoading.bindDownloadLink(
+            document.getElementById('zip-download'),
+            'Generando ZIP… Esto puede tardar en lotes grandes.',
+            'lote-qr-' + loteId + '.zip',
+            'No se pudo generar el ZIP. Intente de nuevo.'
         );
     });
 </script>

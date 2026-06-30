@@ -8,10 +8,13 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
+import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition;
 import org.springframework.stereotype.Service;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -23,6 +26,8 @@ public class QrImageService {
 
 	private static final int DPI = 300;
 	private static final double CM_TO_PIXELS = DPI / 2.54;
+	private static final double LABEL_HEIGHT_CM = 0.5;
+	private static final float LABEL_FONT_PT = 8f;
 
 	public BufferedImage generateQrImage(String content, double sizeCm) {
 		int sizePx = cmToPx(sizeCm);
@@ -72,6 +77,41 @@ public class QrImageService {
 
 		graphics.dispose();
 		return canvas;
+	}
+
+	public BufferedImage generateCodeUnitImage(String content, double qrSizeCm, double paddingCm,
+			LabelPosition labelPosition, boolean drawBorder) {
+		BufferedImage sticker = generateStickerImage(content, qrSizeCm, paddingCm, drawBorder);
+		int squarePx = sticker.getWidth();
+		int labelHeightPx = labelPosition == LabelPosition.NONE ? 0 : cmToPx(LABEL_HEIGHT_CM);
+		int totalHeight = squarePx + labelHeightPx;
+
+		BufferedImage canvas = new BufferedImage(squarePx, totalHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = canvas.createGraphics();
+		graphics.setColor(Color.WHITE);
+		graphics.fillRect(0, 0, squarePx, totalHeight);
+
+		int stickerY = labelPosition == LabelPosition.TOP ? labelHeightPx : 0;
+		graphics.drawImage(sticker, 0, stickerY, null);
+
+		if (labelPosition != LabelPosition.NONE) {
+			int labelY = labelPosition == LabelPosition.TOP ? 0 : squarePx;
+			drawCenteredLabel(graphics, content, squarePx, labelY, labelHeightPx);
+		}
+
+		graphics.dispose();
+		return canvas;
+	}
+
+	private void drawCenteredLabel(Graphics2D graphics, String text, int width, int y, int height) {
+		int fontSizePx = (int) Math.round(LABEL_FONT_PT * DPI / 72.0);
+		graphics.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, fontSizePx));
+		graphics.setColor(Color.BLACK);
+		graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		FontMetrics metrics = graphics.getFontMetrics();
+		int textX = (width - metrics.stringWidth(text)) / 2;
+		int textY = y + (height - metrics.getHeight()) / 2 + metrics.getAscent();
+		graphics.drawString(text, textX, textY);
 	}
 
 	private int cmToPx(double cm) {

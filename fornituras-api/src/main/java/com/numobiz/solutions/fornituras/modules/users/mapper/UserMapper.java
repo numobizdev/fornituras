@@ -14,8 +14,8 @@ public interface UserMapper {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
-	@Mapping(target = "password", source = "password")
-	@Mapping(target = "enabled", constant = "true")
+	@Mapping(target = "password", ignore = true)
+	@Mapping(target = "enabled", ignore = true)
 	@Mapping(target = "role", source = "role")
 	User toEntity(UserRequestDTO dto);
 

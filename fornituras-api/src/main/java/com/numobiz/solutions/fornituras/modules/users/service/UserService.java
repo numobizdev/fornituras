@@ -2,6 +2,7 @@ package com.numobiz.solutions.fornituras.modules.users.service;
 
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.NotFoundException;
+import com.numobiz.solutions.fornituras.modules.auth.service.AuthService;
 import com.numobiz.solutions.fornituras.modules.users.dto.UserRequestDTO;
 import com.numobiz.solutions.fornituras.modules.users.dto.UserResponseDTO;
 import com.numobiz.solutions.fornituras.modules.users.entity.Role;
@@ -10,11 +11,13 @@ import com.numobiz.solutions.fornituras.modules.users.mapper.UserMapper;
 import com.numobiz.solutions.fornituras.modules.users.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,11 +28,17 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final AuthService authService;
 
-	public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+	public UserService(
+			UserRepository userRepository,
+			UserMapper userMapper,
+			PasswordEncoder passwordEncoder,
+			AuthService authService) {
 		this.userRepository = userRepository;
 		this.userMapper = userMapper;
 		this.passwordEncoder = passwordEncoder;
+		this.authService = authService;
 	}
 
 	public UserResponseDTO findById(Long id) {
@@ -57,6 +66,16 @@ public class UserService {
 		return userMapper.toResponse(user);
 	}
 
+	public boolean isCurrentUser(Long id) {
+		var authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return false;
+		}
+		return userRepository.findByEmail(authentication.getName())
+				.map(user -> user.getId().equals(id))
+				.orElse(false);
+	}
+
 	@Transactional
 	public UserResponseDTO create(UserRequestDTO request) {
 		log.info("Creating user with email: {}", request.email());
@@ -66,15 +85,14 @@ public class UserService {
 		}
 
 		User user = userMapper.toEntity(request);
-		user.setPassword(passwordEncoder.encode(request.password()));
-		if (request.role() != null) {
-			user.setRole(request.role());
-		} else {
-			user.setRole(Role.CAPTURISTA);
-		}
+		user.setEmail(request.email().trim());
+		user.setRole(request.role() != null ? request.role() : Role.CAPTURISTA);
+		user.setEnabled(false);
+		user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString() + UUID.randomUUID()));
 
 		User savedUser = userRepository.save(user);
-		log.info("User created with id: {}", savedUser.getId());
+		authService.sendActivationCode(savedUser);
+		log.info("Pending user created with id: {}", savedUser.getId());
 		return userMapper.toResponse(savedUser);
 	}
 }

@@ -125,7 +125,7 @@
                 });
             }
 
-            function bindPdfLink(link, message, fallbackFilename) {
+            function bindDownloadLink(link, message, fallbackFilename, errorMessage) {
                 if (!link) return;
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
@@ -134,7 +134,7 @@
                     fetch(link.href, { credentials: 'same-origin' })
                         .then(function (response) {
                             if (!response.ok) {
-                                throw new Error('PDF request failed');
+                                throw new Error('Download request failed');
                             }
                             var disposition = response.headers.get('Content-Disposition');
                             return response.blob().then(function (blob) {
@@ -142,7 +142,7 @@
                             });
                         })
                         .catch(function () {
-                            alert('No se pudo generar el PDF. Intente de nuevo.');
+                            alert(errorMessage || 'No se pudo completar la descarga. Intente de nuevo.');
                         })
                         .finally(function () {
                             hide();
@@ -151,29 +151,31 @@
                 });
             }
 
-            function bindPdfForm(form, message, fallbackFilename) {
+            function bindDownloadForm(form, resolveOptions) {
                 if (!form) return;
                 form.addEventListener('submit', function (event) {
                     event.preventDefault();
+                    var options = resolveOptions(event);
+                    var action = (event.submitter && event.submitter.getAttribute('formaction')) || form.action;
                     var formData = new FormData(form);
-                    show(message);
+                    show(options.message);
                     disableSubmitButtons(form);
-                    fetch(form.action, {
+                    fetch(action, {
                         method: 'POST',
                         body: formData,
                         credentials: 'same-origin'
                     })
                         .then(function (response) {
                             if (!response.ok) {
-                                throw new Error('PDF request failed');
+                                throw new Error('Download request failed');
                             }
                             var disposition = response.headers.get('Content-Disposition');
                             return response.blob().then(function (blob) {
-                                downloadBlob(blob, filenameFromDisposition(disposition, fallbackFilename));
+                                downloadBlob(blob, filenameFromDisposition(disposition, options.fallbackFilename));
                             });
                         })
                         .catch(function () {
-                            alert('No se pudo generar el PDF. Intente de nuevo.');
+                            alert(options.errorMessage || 'No se pudo completar la descarga. Intente de nuevo.');
                         })
                         .finally(function () {
                             hide();
@@ -182,10 +184,26 @@
                 });
             }
 
+            function bindPdfLink(link, message, fallbackFilename) {
+                bindDownloadLink(link, message, fallbackFilename, 'No se pudo generar el PDF. Intente de nuevo.');
+            }
+
+            function bindPdfForm(form, message, fallbackFilename) {
+                bindDownloadForm(form, function () {
+                    return {
+                        message: message,
+                        fallbackFilename: fallbackFilename,
+                        errorMessage: 'No se pudo generar el PDF. Intente de nuevo.'
+                    };
+                });
+            }
+
             return {
                 show: show,
                 hide: hide,
                 bindForm: bindForm,
+                bindDownloadLink: bindDownloadLink,
+                bindDownloadForm: bindDownloadForm,
                 bindPdfLink: bindPdfLink,
                 bindPdfForm: bindPdfForm
             };

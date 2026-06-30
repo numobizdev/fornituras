@@ -12,6 +12,9 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
   flyway:
     enabled: false
+  mail:
+    host: localhost
+    port: 1025
 
 app:
   jwt:
@@ -25,3 +28,5 @@ app:
   seed:
     admin:
       enabled: false
+  mail:
+    from: test@fornituras.local
