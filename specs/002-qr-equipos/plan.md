@@ -35,7 +35,7 @@ pruebas de contrato sobre los endpoints. Frontend: pruebas de servicio con HttpT
 
 **Target Platform**: API REST sobre Linux/contenedor; cliente Ionic (web + móvil vía Capacitor).
 
-**Project Type**: Web (monorepo `backend/` + `frontend/`).
+**Project Type**: Web (monorepo `fornituras-api/` backend + `sigefor/` frontend).
 
 **Performance Goals**: generación y verificación de un QR en < 200 ms p95 (operación local de
 CPU); export por lote de cientos de equipos sin bloquear la UI.
@@ -80,25 +80,25 @@ specs/002-qr-equipos/
 ### Source Code (repository root)
 
 ```text
-backend/
+fornituras-api/
 └── src/
-    ├── main/java/<base>/qr/
-    │   ├── api/            # QrController (endpoints REST)
+    ├── main/java/com/numobiz/solutions/fornituras/modules/qrcodes/
+    │   ├── controller/     # QrController (endpoints REST)
     │   ├── service/        # QrSigningService (HMAC), QrImageService (ZXing), QrService
-    │   ├── domain/         # value objects: OpaqueId, QrPayload, KeyVersion
-    │   └── config/         # carga de llave(s) HMAC desde entorno/secret manager
-    ├── main/resources/db/migration/   # migración: columnas qr_* en equipment
-    └── test/java/<base>/qr/            # unit + contract + integración (Testcontainers)
+    │   ├── entity/dto/     # value objects: OpaqueId, QrPayload, KeyVersion
+    │   └── repository/     # persistencia de columnas qr_* en equipment
+    ├── main/resources/db/migration/   # migración Flyway: columnas qr_* en equipment
+    └── test/java/.../modules/qrcodes/  # unit + contract + integración (Testcontainers)
 
-frontend/
-└── src/app/
-    ├── equipos/qr/         # acción "Generar/Exportar QR" en la ficha de equipo
-    └── core/api/qr.service.ts
+sigefor/
+└── src/app/features/fornituras/
+    ├── ...                 # acción "Generar/Exportar QR" en la ficha de fornitura
+    └── data/qr.service.ts  # acceso a API (usa auth.interceptor existente)
 ```
 
-**Structure Decision**: Web app en monorepo. El grueso vive en `backend/` (emisión, firma,
-render, verificación); el `frontend/` solo dispara y descarga/exporta. La feature de **escaneo**
-(cámara/HID) es independiente y consumirá el endpoint de verificación/resolución.
+**Structure Decision**: Web app en monorepo. El grueso vive en `fornituras-api/` (emisión, firma,
+render, verificación); el frontend `sigefor/` solo dispara y descarga/exporta. La feature de
+**escaneo** (cámara/HID, spec 014) es independiente y consumirá el endpoint de verificación.
 
 ## Phase 0 — Research
 

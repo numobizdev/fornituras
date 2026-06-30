@@ -43,7 +43,7 @@ Toda contribución de IA debe leer y respetar [`docs/02-seguridad.md`](./docs/02
 | Base de datos | **Microsoft SQL Server 2022**                                   |
 | Frontend    | **Ionic 8 + Angular**                                             |
 | Móvil/QR    | **Capacitor** (cámara) + soporte para **escáner manual** de QR    |
-| Repo        | **Monorepo**: `fornituras-api/` (backend) y `frontend/`           |
+| Repo        | **Monorepo**: `fornituras-api/` (backend) y `sigefor/` (frontend) |
 
 No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 
@@ -60,8 +60,11 @@ No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 │   └── 04-decisiones/        # ADRs (registro de decisiones de arquitectura)
 ├── specs/                    # Especificaciones de features (spec-driven, .specify/)
 ├── fornituras-api/           # API Spring Boot — IMPLEMENTADA (auth, usuarios, QR)
-└── frontend/                 # App Ionic + Angular (vacío por ahora)
+└── sigefor/                  # App Ionic 8 + Angular — auth implementada (login/JWT)
 ```
+
+> **Nota:** el frontend vive en `sigefor/` (no `frontend/`). Si existe un directorio
+> `frontend/` vacío, es obsoleto y puede eliminarse.
 
 ## 5. Principios de trabajo para agentes de IA
 
@@ -78,7 +81,8 @@ No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
    **inglés** (convención estándar de Java/Angular).
 7. **El backend (`fornituras-api/`) ya está implementado.** Respeta su arquitectura por
    módulos (`modules/<feature>/{controller,service,repository,entity,dto}`) y no rompas lo
-   existente. El frontend aún no se ha generado.
+   existente. El **frontend `sigefor/`** ya existe con la **autenticación implementada**
+   (login por email/JWT, guards, interceptor); se extiende, no se reescribe.
 
 ## 6. Convenciones de código (cuando empiece la implementación)
 
@@ -100,7 +104,13 @@ No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 .\mvnw.cmd clean package       # Compila y empaqueta
 ```
 
-**Frontend:** pendiente (se llenará cuando se genere `frontend/`).
+**Frontend** (desde `sigefor/`):
+
+```powershell
+npm install                    # Instala dependencias
+npm start                      # Levanta la app (ng serve / ionic serve)
+npm test                       # Ejecuta los tests
+```
 
 ## 8. Qué NO hacer
 
