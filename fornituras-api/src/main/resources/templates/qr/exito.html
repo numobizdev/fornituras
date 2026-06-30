@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lote generado - Fornituras</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #222; }
+        h1 { font-size: 1.5rem; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 24px 0; }
+        .nav { margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .actions a { display: inline-block; padding: 10px 16px; background: #1f6feb; color: #fff; text-decoration: none; border-radius: 4px; }
+        .actions a.secondary { background: #475467; }
+    </style>
+</head>
+<body>
+<div th:replace="~{qr/fragments/loading-overlay :: loadingOverlay}"></div>
+<div class="nav">
+    <a class="secondary" th:href="@{/qr/generar}">Generar lote</a>
+    <a class="secondary" th:href="@{/qr/lotes}">Ver lotes</a>
+</div>
+
+<h1>Lote generado correctamente</h1>
+
+<div class="card">
+    <p><strong>ID del lote:</strong> <span th:text="${lote.id}"></span></p>
+    <p><strong>Descripción:</strong> <span th:text="${lote.descripcion}"></span></p>
+    <p><strong>Cantidad:</strong> <span th:text="${lote.cantidad}"></span> códigos</p>
+    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(lote.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+    <p><strong>Tamaño QR:</strong> <span th:text="${lote.qrSizeCm}"></span> cm</p>
+    <p><strong>Padding:</strong> <span th:text="${lote.paddingCm}"></span> cm</p>
+    <p><strong>Etiqueta:</strong> <span th:text="${lote.labelPosition.displayName}"></span></p>
+    <p><strong>Bordes:</strong> <span th:text="${lote.mostrarBordes ? 'Sí' : 'No'}"></span></p>
+</div>
+
+<div class="actions">
+    <a id="pdf-download" th:href="@{/qr/lotes/{id}/pdf(id=${lote.id})}">Descargar PDF</a>
+    <a class="secondary" th:href="@{/qr/lotes/{id}(id=${lote.id})}">Ver detalle y reimprimir</a>
+    <a class="secondary" th:href="@{/qr/generar}">Generar otro lote</a>
+</div>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var loteId = /*[[${lote.id}]]*/ 0;
+        QrLoading.bindPdfLink(
+            document.getElementById('pdf-download'),
+            'Generando PDF… Esto puede tardar en lotes grandes.',
+            'lote-qr-' + loteId + '.pdf'
+        );
+    });
+</script>
+</body>
+</html>

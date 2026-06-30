@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle lote QR - Fornituras</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #222; }
+        h1, h2 { font-size: 1.5rem; margin-bottom: 8px; }
+        h2 { font-size: 1.15rem; margin-top: 32px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 24px 0; }
+        .nav { margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .nav a { padding: 10px 16px; background: #475467; color: #fff; text-decoration: none; border-radius: 4px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 16px; box-sizing: border-box; }
+        button { background: #1f6feb; color: #fff; border: 0; padding: 12px 20px; cursor: pointer; border-radius: 4px; }
+        .error { color: #b42318; font-size: 0.875rem; margin-top: -12px; margin-bottom: 12px; }
+        .hint { font-size: 0.875rem; color: #666; margin-top: -10px; margin-bottom: 16px; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+        .actions a { padding: 10px 16px; background: #475467; color: #fff; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{qr/fragments/loading-overlay :: loadingOverlay}"></div>
+<div class="nav">
+    <a th:href="@{/qr/generar}">Generar lote</a>
+    <a th:href="@{/qr/lotes}">Ver lotes</a>
+</div>
+
+<h1>Detalle del lote #<span th:text="${lote.id}"></span></h1>
+
+<div class="card">
+    <p><strong>Descripción:</strong> <span th:text="${lote.descripcion}"></span></p>
+    <p><strong>Cantidad:</strong> <span th:text="${lote.cantidad}"></span> códigos</p>
+    <p><strong>Fecha de generación:</strong> <span th:text="${#temporals.format(lote.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+    <p><strong>Configuración original:</strong></p>
+    <ul>
+        <li>Tamaño QR: <span th:text="${lote.qrSizeCm}"></span> cm</li>
+        <li>Padding: <span th:text="${lote.paddingCm}"></span> cm</li>
+        <li>Etiqueta: <span th:text="${lote.labelPosition.displayName}"></span></li>
+        <li>Bordes: <span th:text="${lote.mostrarBordes ? 'Sí' : 'No'}"></span></li>
+    </ul>
+</div>
+
+<h2>Reimprimir PDF</h2>
+<p>Seleccione las opciones de impresión. Los códigos del lote no cambiarán.</p>
+
+<form id="reprint-form" th:action="@{/qr/lotes/{id}/reimprimir(id=${lote.id})}" th:object="${form}" method="post">
+    <label for="qrSizeCm">Tamaño del área QR (cm)</label>
+    <input id="qrSizeCm" type="number" step="0.1" min="1" max="15" th:field="*{qrSizeCm}" required>
+    <div class="error" th:if="${#fields.hasErrors('qrSizeCm')}" th:errors="*{qrSizeCm}"></div>
+
+    <label for="paddingCm">Padding alrededor del QR (cm)</label>
+    <input id="paddingCm" type="number" step="0.1" min="0" max="5" th:field="*{paddingCm}" required>
+    <div class="error" th:if="${#fields.hasErrors('paddingCm')}" th:errors="*{paddingCm}"></div>
+
+    <label for="labelPosition">Mostrar código legible</label>
+    <select id="labelPosition" th:field="*{labelPosition}" required>
+        <option th:each="position : ${T(com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition).values()}"
+                th:value="${position}" th:text="${position.displayName}"></option>
+    </select>
+    <div class="error" th:if="${#fields.hasErrors('labelPosition')}" th:errors="*{labelPosition}"></div>
+
+    <label for="mostrarBordes">Imprimir bordes del código</label>
+    <select id="mostrarBordes" th:field="*{mostrarBordes}" required>
+        <option th:value="true">Sí</option>
+        <option th:value="false">No</option>
+    </select>
+    <div class="hint">Los bordes marcan el área de corte incluyendo el padding configurado.</div>
+    <div class="error" th:if="${#fields.hasErrors('mostrarBordes')}" th:errors="*{mostrarBordes}"></div>
+
+    <div class="actions">
+        <button type="submit" id="submit-reimprimir">Reimprimir PDF</button>
+        <a id="pdf-original" th:href="@{/qr/lotes/{id}/pdf(id=${lote.id})}">PDF con config. original</a>
+    </div>
+</form>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var loteId = /*[[${lote.id}]]*/ 0;
+        var fallbackFilename = 'lote-qr-' + loteId + '.pdf';
+        QrLoading.bindPdfForm(
+            document.getElementById('reprint-form'),
+            'Generando PDF… Esto puede tardar en lotes grandes.',
+            fallbackFilename
+        );
+        QrLoading.bindPdfLink(
+            document.getElementById('pdf-original'),
+            'Generando PDF… Esto puede tardar en lotes grandes.',
+            fallbackFilename
+        );
+    });
+</script>
+</body>
+</html>

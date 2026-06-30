@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:sqlserver://SQL8012.site4now.net:1433;databaseName=db_a986f5_fornituras;encrypt=true;trustServerCertificate=true
+    username: db_a986f5_fornituras_admin
+    password: F0rn1tur4sDbNum0b1z#
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    com.numobiz.solutions.fornituras: DEBUG
+    org.hibernate.SQL: WARN

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="loadingOverlay">
+    <div id="loading-overlay" class="qr-loading-overlay" hidden aria-live="polite" aria-busy="true">
+        <div class="qr-loading-panel">
+            <div class="qr-spinner" aria-hidden="true"></div>
+            <p id="loading-message" class="qr-loading-message">Procesando…</p>
+        </div>
+    </div>
+    <style>
+        .qr-loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.82);
+        }
+        .qr-loading-overlay[hidden] { display: none !important; }
+        .qr-loading-panel {
+            text-align: center;
+            padding: 28px 36px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 8px 32px rgba(16, 24, 40, 0.12);
+            max-width: 320px;
+        }
+        .qr-spinner {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 16px;
+            border: 4px solid #e4e7ec;
+            border-top-color: #1f6feb;
+            border-radius: 50%;
+            animation: qr-spin 0.85s linear infinite;
+        }
+        .qr-loading-message {
+            margin: 0;
+            color: #344054;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        @keyframes qr-spin { to { transform: rotate(360deg); } }
+    </style>
+    <script th:inline="javascript">
+        window.QrLoading = (function () {
+            var overlay = document.getElementById('loading-overlay');
+            var messageEl = document.getElementById('loading-message');
+
+            function show(message) {
+                if (messageEl && message) {
+                    messageEl.textContent = message;
+                }
+                if (overlay) {
+                    overlay.hidden = false;
+                }
+                document.body.style.cursor = 'wait';
+            }
+
+            function hide() {
+                if (overlay) {
+                    overlay.hidden = true;
+                }
+                document.body.style.cursor = '';
+            }
+
+            function disableSubmitButtons(container) {
+                if (!container) return;
+                container.querySelectorAll('button, a').forEach(function (el) {
+                    if (el.tagName === 'A') {
+                        el.dataset.qrPrevPointer = el.style.pointerEvents || '';
+                        el.style.pointerEvents = 'none';
+                        el.setAttribute('aria-disabled', 'true');
+                    } else {
+                        el.dataset.qrWasDisabled = el.disabled ? '1' : '0';
+                        el.disabled = true;
+                    }
+                });
+            }
+
+            function enableSubmitButtons(container) {
+                if (!container) return;
+                container.querySelectorAll('button, a').forEach(function (el) {
+                    if (el.tagName === 'A') {
+                        el.style.pointerEvents = el.dataset.qrPrevPointer || '';
+                        el.removeAttribute('aria-disabled');
+                    } else if (el.dataset.qrWasDisabled !== '1') {
+                        el.disabled = false;
+                    }
+                });
+            }
+
+            function disableActions(container) {
+                disableSubmitButtons(container);
+            }
+
+            function enableActions(container) {
+                enableSubmitButtons(container);
+            }
+
+            function filenameFromDisposition(header, fallback) {
+                if (!header) return fallback;
+                var match = /filename="?([^";\n]+)"?/i.exec(header);
+                return match ? match[1] : fallback;
+            }
+
+            function downloadBlob(blob, filename) {
+                var url = URL.createObjectURL(blob);
+                var anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = filename;
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                URL.revokeObjectURL(url);
+            }
+
+            function bindForm(form, message) {
+                if (!form) return;
+                form.addEventListener('submit', function () {
+                    show(message);
+                    disableSubmitButtons(form);
+                });
+            }
+
+            function bindPdfLink(link, message, fallbackFilename) {
+                if (!link) return;
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    show(message);
+                    disableActions(link.closest('.actions') || link.parentElement);
+                    fetch(link.href, { credentials: 'same-origin' })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('PDF request failed');
+                            }
+                            var disposition = response.headers.get('Content-Disposition');
+                            return response.blob().then(function (blob) {
+                                downloadBlob(blob, filenameFromDisposition(disposition, fallbackFilename));
+                            });
+                        })
+                        .catch(function () {
+                            alert('No se pudo generar el PDF. Intente de nuevo.');
+                        })
+                        .finally(function () {
+                            hide();
+                            enableActions(link.closest('.actions') || link.parentElement);
+                        });
+                });
+            }
+
+            function bindPdfForm(form, message, fallbackFilename) {
+                if (!form) return;
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    var formData = new FormData(form);
+                    show(message);
+                    disableSubmitButtons(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('PDF request failed');
+                            }
+                            var disposition = response.headers.get('Content-Disposition');
+                            return response.blob().then(function (blob) {
+                                downloadBlob(blob, filenameFromDisposition(disposition, fallbackFilename));
+                            });
+                        })
+                        .catch(function () {
+                            alert('No se pudo generar el PDF. Intente de nuevo.');
+                        })
+                        .finally(function () {
+                            hide();
+                            enableSubmitButtons(form);
+                        });
+                });
+            }
+
+            return {
+                show: show,
+                hide: hide,
+                bindForm: bindForm,
+                bindPdfLink: bindPdfLink,
+                bindPdfForm: bindPdfForm
+            };
+        })();
+    </script>
+</div>
+</body>
+</html>

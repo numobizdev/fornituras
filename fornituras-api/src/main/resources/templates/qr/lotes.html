@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lotes QR - Fornituras</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 16px; color: #222; }
+        h1 { font-size: 1.5rem; margin-bottom: 8px; }
+        .nav { margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .nav a { padding: 10px 16px; background: #475467; color: #fff; text-decoration: none; border-radius: 4px; }
+        .nav a.primary { background: #1f6feb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f5f5f5; }
+        .empty { color: #666; margin-top: 24px; }
+        .link { color: #1f6feb; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a class="primary" th:href="@{/qr/generar}">Generar lote</a>
+    <a th:href="@{/qr/lotes}">Ver lotes</a>
+</div>
+
+<h1>Lotes de QR generados</h1>
+
+<div th:if="${#lists.isEmpty(lotes)}" class="empty">
+    <p>No hay lotes generados todavía.</p>
+</div>
+
+<table th:if="${!#lists.isEmpty(lotes)}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Descripción</th>
+        <th>Fecha</th>
+        <th>Cantidad</th>
+        <th>Tamaño QR (cm)</th>
+        <th>Padding (cm)</th>
+        <th>Etiqueta</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="lote : ${lotes}">
+        <td th:text="${lote.id}"></td>
+        <td th:text="${lote.descripcion}"></td>
+        <td th:text="${#temporals.format(lote.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+        <td th:text="${lote.cantidad}"></td>
+        <td th:text="${lote.qrSizeCm}"></td>
+        <td th:text="${lote.paddingCm}"></td>
+        <td th:text="${lote.labelPosition.displayName}"></td>
+        <td>
+            <a class="link" th:href="@{/qr/lotes/{id}(id=${lote.id})}">Ver detalle</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

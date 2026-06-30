@@ -1,0 +1,1 @@
+ALTER TABLE lote_qr ADD descripcion NVARCHAR(255) NOT NULL DEFAULT '';

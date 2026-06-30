@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar QR Codes - Fornituras</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #222; }
+        h1 { font-size: 1.5rem; margin-bottom: 8px; }
+        p { color: #555; margin-bottom: 24px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 16px; box-sizing: border-box; }
+        button, .btn { background: #1f6feb; color: #fff; border: 0; padding: 12px 20px; cursor: pointer; border-radius: 4px; text-decoration: none; display: inline-block; }
+        .btn.secondary { background: #475467; }
+        .nav { margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .error { color: #b42318; font-size: 0.875rem; margin-top: -12px; margin-bottom: 12px; }
+        .hint { font-size: 0.875rem; color: #666; margin-top: -10px; margin-bottom: 16px; }
+        .actions { margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+<div th:replace="~{qr/fragments/loading-overlay :: loadingOverlay}"></div>
+<div class="nav">
+    <a class="btn" th:href="@{/qr/generar}">Generar lote</a>
+    <a class="btn secondary" th:href="@{/qr/lotes}">Ver lotes</a>
+</div>
+
+<h1>Generar lote de QR Codes</h1>
+<p>Los códigos tendrán formato <strong>FOR-XXXXX</strong> y serán únicos en todo el sistema.</p>
+
+<form th:action="@{/qr/generar}" th:object="${form}" method="post">
+    <label for="descripcion">Descripción del lote</label>
+    <input id="descripcion" type="text" maxlength="255" th:field="*{descripcion}"
+           placeholder="Ej. Códigos prendas Chiapas" required>
+    <div class="hint">Nombre o referencia para identificar este lote.</div>
+    <div class="error" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+
+    <label for="cantidad">¿Cuántos QR Codes desea generar?</label>
+    <input id="cantidad" type="number" min="1" th:attr="max=${maxBatchSize}" th:field="*{cantidad}" required>
+    <div class="hint">Máximo <span th:text="${maxBatchSize}"></span> códigos por lote.</div>
+    <div class="error" th:if="${#fields.hasErrors('cantidad')}" th:errors="*{cantidad}"></div>
+
+    <label for="qrSizeCm">Tamaño del área QR (cm)</label>
+    <input id="qrSizeCm" type="number" step="0.1" min="1" max="15" th:field="*{qrSizeCm}" required>
+    <div class="hint">Tamaño del código QR impreso, sin contar padding ni etiqueta.</div>
+    <div class="error" th:if="${#fields.hasErrors('qrSizeCm')}" th:errors="*{qrSizeCm}"></div>
+
+    <label for="paddingCm">Padding alrededor del QR (cm)</label>
+    <input id="paddingCm" type="number" step="0.1" min="0" max="5" th:field="*{paddingCm}" required>
+    <div class="error" th:if="${#fields.hasErrors('paddingCm')}" th:errors="*{paddingCm}"></div>
+
+    <label for="labelPosition">Mostrar código legible</label>
+    <select id="labelPosition" th:field="*{labelPosition}" required>
+        <option th:each="position : ${T(com.numobiz.solutions.fornituras.modules.qrcodes.entity.LabelPosition).values()}"
+                th:value="${position}" th:text="${position.displayName}"></option>
+    </select>
+    <div class="error" th:if="${#fields.hasErrors('labelPosition')}" th:errors="*{labelPosition}"></div>
+
+    <label for="mostrarBordes">Imprimir bordes del código</label>
+    <select id="mostrarBordes" th:field="*{mostrarBordes}" required>
+        <option th:value="true">Sí</option>
+        <option th:value="false">No</option>
+    </select>
+    <div class="hint">Los bordes marcan el área de corte incluyendo el padding configurado.</div>
+    <div class="error" th:if="${#fields.hasErrors('mostrarBordes')}" th:errors="*{mostrarBordes}"></div>
+
+    <div class="actions">
+        <button type="submit" id="submit-generar">Generar lote y PDF</button>
+    </div>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        QrLoading.bindForm(
+            document.querySelector('form[action*="generar"]'),
+            'Generando códigos QR… Esto puede tardar unos minutos en lotes grandes.'
+        );
+    });
+</script>
+</body>
+</html>

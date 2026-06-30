@@ -1,0 +1,14 @@
+CREATE TABLE users (
+    id BIGINT IDENTITY(1,1) NOT NULL,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(255) NOT NULL,
+    password NVARCHAR(255) NOT NULL,
+    role NVARCHAR(20) NOT NULL DEFAULT 'CAPTURISTA',
+    enabled BIT NOT NULL DEFAULT 1,
+    created_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+    updated_at DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT pk_users PRIMARY KEY (id),
+    CONSTRAINT uk_users_email UNIQUE (email)
+);
+
+CREATE INDEX idx_users_email ON users (email);
