@@ -1,6 +1,6 @@
 # 0013. Expansión del enum de roles (RBAC) del sistema
 
-- **Estado:** **Propuesto**
+- **Estado:** **Aceptado**
 - **Fecha:** 2026-07-01
 - **Feature:** [013-usuarios](../../specs/013-usuarios/) (tareas T003 → T020, gated)
 
@@ -19,8 +19,8 @@ una sola tarea (T020) y se propaga.
 
 ## Decisión
 
-*(Propuesta a validar.)* Ampliar el enum `Role` a **cinco roles** y fijar la siguiente matriz de
-autorización (mínimo privilegio, **rechazo por defecto**):
+Se amplía el enum `Role` a **cinco roles** y se fija la siguiente matriz de autorización (mínimo
+privilegio, **rechazo por defecto**):
 
 | Rol | Enum | Alcance (qué puede hacer) |
 |-----|------|---------------------------|
@@ -63,4 +63,5 @@ desde la pantalla de usuarios.
   enum (tarea concentrada en T020); riesgo de regresión si algún endpoint queda con la expresión
   antigua. Se mitiga centralizando las expresiones en constantes y con tests de autorización por rol.
 - **Seguridad:** rechazo por defecto se mantiene; ampliar roles no relaja ningún control existente.
-- **Pendiente de decisión:** confirmar los nombres/alcances exactos de la tabla antes de implementar.
+- **Implementación:** la matriz de la sección Decisión queda fijada; se materializa en la tarea **T020**
+  de la spec 013 (ampliar el enum y propagar las expresiones `@PreAuthorize`).
