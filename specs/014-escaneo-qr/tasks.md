@@ -74,7 +74,7 @@ fallback a manual sin romper; el componente no llama a ninguna resolución de da
 
 - [X] T012 [P] Integrar `QrScanComponent` en el alta/lote de **001** (`features/fornituras/`): `fornitura-form` (código en alta) y `fornitura-lote` (captura repetida con `clearOnCapture`)
 - [X] T013 [P] Integrar en el paso 1 de **004** (`features/asignacion/`), resolviendo la fornitura disponible server-side vía `GET /equipment/by-codigo`
-- [~] T014 [P] Integrar en el alta de traslado **007** (`features/traslados/`) — **bloqueada:** la feature 007 aún no existe; se integra al implementarla (el componente ya está listo)
+- [X] T014 [P] Integrar en el alta de traslado **007** (`features/traslados/`) — integrado en `traslado-form` al implementar la spec 007
 - [~] T015 [P] Integrar en la búsqueda de baja **009** (`features/bajas/`) — **bloqueada:** la feature 009 aún no existe; se integra al implementarla
 
 ---

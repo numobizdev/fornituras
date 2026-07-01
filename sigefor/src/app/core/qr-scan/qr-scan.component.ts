@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { IonButton, IonIcon, IonInput, IonNote, IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonIcon, IonInput, IonNote } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline, closeOutline } from 'ionicons/icons';
 import { HidDetector } from './hid-detector';
@@ -29,7 +29,7 @@ import { QrCapture, QrCaptureError } from './qr-scan.types';
   selector: 'app-qr-scan',
   templateUrl: './qr-scan.component.html',
   styleUrls: ['./qr-scan.component.scss'],
-  imports: [IonInput, IonButton, IonIcon, IonNote, IonSpinner],
+  imports: [IonInput, IonButton, IonIcon, IonNote],
 })
 export class QrScanComponent implements OnDestroy {
   private readonly service = inject(QrScanService);

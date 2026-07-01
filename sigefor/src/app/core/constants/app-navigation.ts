@@ -5,6 +5,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
   { title: 'Elementos', url: '/elementos', icon: 'people' },
   { title: 'Fornituras', url: '/fornituras', icon: 'cube' },
   { title: 'Asignación', url: '/asignacion', icon: 'link' },
+  { title: 'Traslados', url: '/traslados', icon: 'swap-horizontal' },
   { title: 'Catálogo de Tipos', url: '/tipos', icon: 'pricetags' },
   { title: 'Almacenes', url: '/almacenes', icon: 'business' },
 ];

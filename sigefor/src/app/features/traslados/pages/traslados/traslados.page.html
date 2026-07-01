@@ -1,0 +1,80 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Traslados</ion-title>
+    @if (canWrite) {
+      <ion-buttons slot="end">
+        <ion-button (click)="newTransfer()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Nuevo
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <ion-item>
+      <ion-select
+        label="Estado"
+        labelPlacement="stacked"
+        [value]="filterStatus()"
+        (ionChange)="filterStatus.set($event.detail.value); applyFilters()">
+        <ion-select-option [value]="''">Todos</ion-select-option>
+        <ion-select-option value="ENVIADO">Enviado</ion-select-option>
+        <ion-select-option value="RECIBIDO">Recibido</ion-select-option>
+        <ion-select-option value="CANCELADO">Cancelado</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-select
+        label="Origen"
+        labelPlacement="stacked"
+        [value]="filterOrigen()"
+        (ionChange)="filterOrigen.set($event.detail.value); applyFilters()">
+        <ion-select-option [value]="''">Todos</ion-select-option>
+        @for (warehouse of warehouses(); track warehouse.id) {
+          <ion-select-option [value]="warehouse.id">{{ warehouse.nombre }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Movimientos</ion-label>
+    </ion-list-header>
+
+    @if (isLoading()) {
+      <div class="state-message"><ion-spinner></ion-spinner></div>
+    } @else if (transfers().length === 0) {
+      <div class="state-message"><p>No hay traslados.</p></div>
+    } @else {
+      @for (item of transfers(); track item.id) {
+        <ion-item>
+          <ion-label>
+            <h2>{{ item.origenNombre }} → {{ item.destinoNombre }}</h2>
+            <p>{{ item.itemCount }} fornitura(s) · Enviado {{ item.fechaEnvio | date: 'short' }}</p>
+            @if (item.fechaRecepcion) {
+              <ion-note color="medium">Recibido {{ item.fechaRecepcion | date: 'short' }}</ion-note>
+            }
+          </ion-label>
+          <ion-badge slot="end" [color]="statusColor(item.status)">{{ statusLabel(item.status) }}</ion-badge>
+          @if (canWrite && item.status === 'ENVIADO') {
+            <ion-button slot="end" fill="clear" (click)="receive(item)">Recibir</ion-button>
+            <ion-button slot="end" fill="clear" color="danger" (click)="cancel(item)">Cancelar</ion-button>
+          }
+        </ion-item>
+      }
+
+      <div class="pager">
+        <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
+        <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+        <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
+      </div>
+    }
+  </ion-list>
+</ion-content>

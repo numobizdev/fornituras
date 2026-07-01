@@ -195,6 +195,9 @@ public class EquipmentService {
 		if (newStatus == EquipmentStatus.BAJA_DEFINITIVA && lifecycle.hasActiveAssignment(id)) {
 			throw new ConflictException("La fornitura tiene una asignación vigente; resuélvala antes de darla de baja.");
 		}
+		if (newStatus == EquipmentStatus.BAJA_DEFINITIVA && lifecycle.hasOngoingTransfer(id)) {
+			throw new ConflictException("La fornitura está en un traslado en curso; resuélvalo antes de darla de baja.");
+		}
 		if (newStatus == EquipmentStatus.EN_TRASLADO && lifecycle.hasActiveAssignment(id)) {
 			throw new ConflictException("La fornitura tiene una asignación vigente; resuélvala antes de trasladarla.");
 		}

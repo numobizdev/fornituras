@@ -1,0 +1,78 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/traslados"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nuevo traslado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form [formGroup]="form">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Almacenes</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-select label="Origen" labelPlacement="stacked" formControlName="origenId" placeholder="Seleccione el origen">
+          @for (warehouse of warehouses(); track warehouse.id) {
+            <ion-select-option [value]="warehouse.id.toString()">{{ warehouse.nombre }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-select label="Destino" labelPlacement="stacked" formControlName="destinoId" placeholder="Seleccione el destino">
+          @for (warehouse of warehouses(); track warehouse.id) {
+            <ion-select-option [value]="warehouse.id.toString()">{{ warehouse.nombre }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
+      </ion-item>
+    </ion-list>
+  </form>
+
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Fornituras ({{ items().length }})</ion-label>
+    </ion-list-header>
+    <ion-item lines="none">
+      <app-qr-scan
+        class="ion-margin-vertical"
+        actionLabel="Agregar"
+        [clearOnCapture]="true"
+        (codeCaptured)="onCodeCaptured($event)"
+        (captureError)="onCaptureError($event)"></app-qr-scan>
+    </ion-item>
+
+    @if (items().length === 0) {
+      <ion-item lines="none">
+        <ion-note color="medium">Escanee o teclee el código de las fornituras disponibles del origen.</ion-note>
+      </ion-item>
+    } @else {
+      @for (item of items(); track item.id) {
+        <ion-item>
+          <ion-label>
+            <h3>{{ item.codigoQr }}</h3>
+            <p>{{ item.descripcion }}@if (item.tipoNombre) { · {{ item.tipoNombre }} }</p>
+          </ion-label>
+          <ion-button slot="end" fill="clear" color="danger" (click)="removeItem(item.id)" aria-label="Quitar fornitura">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
+    }
+  </ion-list>
+
+  <div class="form-actions">
+    <ion-button expand="block" [disabled]="isSubmitting()" (click)="confirm()">
+      @if (isSubmitting()) {
+        <ion-spinner name="dots"></ion-spinner>
+      } @else {
+        Crear traslado
+      }
+    </ion-button>
+    <ion-button expand="block" fill="clear" color="medium" (click)="cancel()">Cancelar</ion-button>
+  </div>
+</ion-content>

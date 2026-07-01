@@ -2,18 +2,16 @@ package com.numobiz.solutions.fornituras.modules.assignments.service;
 
 import com.numobiz.solutions.fornituras.modules.assignments.repository.AssignmentRepository;
 import com.numobiz.solutions.fornituras.modules.equipment.service.EquipmentLifecycleQuery;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
- * Implementación real del puerto que 001 dejó abierto: ahora que existe el módulo de asignaciones,
- * una fornitura con asignación vigente queda comprometida. Marcada {@code @Primary} para reemplazar
- * el {@code DefaultEquipmentLifecycleQuery} (que respondía "no"), activando el bloqueo de baja y
- * traslado de fornituras asignadas sin tocar el módulo de inventario.
+ * Responde la parte de <b>asignaciones</b> del puerto de ciclo de vida de 001: una fornitura con
+ * asignación vigente queda comprometida. Ya no es {@code @Primary}: desde 007 la implementación
+ * primaria es {@code TransferLifecycleQuery}, que compone esta respuesta con la de traslados en
+ * curso. Se mantiene como pieza reutilizable (LEGO) inyectada por esa composición.
  *
- * <p>El "traslado en curso" lo resolverá 007; hasta entonces se responde "no" para esa parte.
+ * <p>El "traslado en curso" lo resuelve 007; aquí se responde "no" para esa parte.
  */
-@Primary
 @Component
 public class AssignmentLifecycleQuery implements EquipmentLifecycleQuery {
 

@@ -8,7 +8,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonInput,
   IonItem,
   IonLabel,
   IonList,
@@ -17,13 +16,12 @@ import {
   IonNote,
   IonSearchbar,
   IonSpinner,
-  IonText,
   IonTitle,
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, closeCircle, searchOutline } from 'ionicons/icons';
+import { checkmarkCircle, closeCircle } from 'ionicons/icons';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
@@ -51,8 +49,6 @@ import { AssignmentSummary } from '../../data/assignment.model';
     IonItem,
     IonLabel,
     IonNote,
-    IonText,
-    IonInput,
     IonSearchbar,
     IonBadge,
     IonButton,
@@ -91,7 +87,7 @@ export class AsignacionPage implements OnInit {
   readonly canAssign = this.auth.hasRole('ADMIN') || this.auth.hasRole('CAPTURISTA');
 
   constructor() {
-    addIcons({ checkmarkCircle, closeCircle, searchOutline });
+    addIcons({ checkmarkCircle, closeCircle });
   }
 
   ngOnInit(): void {
