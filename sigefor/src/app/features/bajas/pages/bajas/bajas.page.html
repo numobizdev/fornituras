@@ -1,0 +1,96 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Bajas</ion-title>
+    @if (canWrite) {
+      <ion-buttons slot="end">
+        <ion-button (click)="newBaja()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Dar de baja
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Filtros -->
+  <ion-list>
+    <ion-item>
+      <ion-input
+        label="Desde"
+        labelPlacement="stacked"
+        type="date"
+        [value]="filterFechaDesde()"
+        (ionChange)="filterFechaDesde.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input
+        label="Hasta"
+        labelPlacement="stacked"
+        type="date"
+        [value]="filterFechaHasta()"
+        (ionChange)="filterFechaHasta.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-select
+        label="Tipo"
+        labelPlacement="stacked"
+        [value]="filterTipo()"
+        (ionChange)="filterTipo.set($event.detail.value); applyFilters()">
+        <ion-select-option [value]="''">Todos</ion-select-option>
+        @for (type of types(); track type.id) {
+          <ion-select-option [value]="type.id">{{ type.nombre }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-select
+        label="Motivo"
+        labelPlacement="stacked"
+        [value]="filterMotivo()"
+        (ionChange)="filterMotivo.set($event.detail.value); applyFilters()">
+        <ion-select-option [value]="''">Todos</ion-select-option>
+        @for (reason of reasons(); track reason.id) {
+          <ion-select-option [value]="reason.id">{{ reason.nombre }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <!-- Listado de bajas -->
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Fornituras dadas de baja</ion-label>
+    </ion-list-header>
+
+    @if (isLoading()) {
+      <div class="state-message"><ion-spinner></ion-spinner></div>
+    } @else if (decommissions().length === 0) {
+      <div class="state-message"><p>No hay bajas registradas.</p></div>
+    } @else {
+      @for (item of decommissions(); track item.id) {
+        <ion-item>
+          <ion-label class="ion-text-wrap">
+            <h2>{{ item.equipmentCodigo || 'Fornitura eliminada' }}</h2>
+            <p>{{ item.descripcion || 'Sin descripción' }}@if (item.tipoNombre) { · {{ item.tipoNombre }} }</p>
+            <ion-note color="medium">
+              {{ item.motivoNombre || 'Sin motivo' }} · Baja {{ item.fecha | date: 'mediumDate' }}
+            </ion-note>
+            @if (item.observaciones) {
+              <ion-note color="medium" class="ion-text-wrap"> · {{ item.observaciones }}</ion-note>
+            }
+          </ion-label>
+        </ion-item>
+      }
+
+      <div class="pager">
+        <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
+        <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+        <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
+      </div>
+    }
+  </ion-list>
+</ion-content>

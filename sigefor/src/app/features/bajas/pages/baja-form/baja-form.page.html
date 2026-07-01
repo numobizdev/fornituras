@@ -1,0 +1,71 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/bajas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Dar de baja</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Fornitura</ion-label>
+    </ion-list-header>
+    <ion-item lines="none">
+      <app-qr-scan
+        class="ion-margin-vertical"
+        actionLabel="Buscar"
+        [clearOnCapture]="true"
+        (codeCaptured)="onCodeCaptured($event)"
+        (captureError)="onCaptureError($event)"></app-qr-scan>
+    </ion-item>
+
+    @if (equipment(); as item) {
+      <ion-item>
+        <ion-label class="ion-text-wrap">
+          <h3>{{ item.codigoQr }}</h3>
+          <p>{{ item.descripcion || 'Sin descripción' }}@if (item.tipoNombre) { · {{ item.tipoNombre }} }</p>
+          <ion-note color="medium">Estado actual: {{ item.status }}</ion-note>
+        </ion-label>
+        <ion-button slot="end" fill="clear" color="medium" (click)="clearEquipment()">Cambiar</ion-button>
+      </ion-item>
+    } @else {
+      <ion-item lines="none">
+        <ion-note color="medium">Escanee o teclee el código de la fornitura a dar de baja.</ion-note>
+      </ion-item>
+    }
+  </ion-list>
+
+  <form [formGroup]="form">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Baja</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-select label="Motivo" labelPlacement="stacked" formControlName="motivoId" placeholder="Seleccione el motivo">
+          @for (reason of reasons(); track reason.id) {
+            <ion-select-option [value]="reason.id.toString()">{{ reason.nombre }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
+      </ion-item>
+    </ion-list>
+    <ion-note class="field-note" color="medium">
+      La baja es definitiva: no se revierte. Un error se corrige con un ajuste auditado.
+    </ion-note>
+  </form>
+
+  <div class="submit-bar">
+    <ion-button expand="block" color="danger" [disabled]="isSubmitting()" (click)="confirm()">
+      @if (isSubmitting()) {
+        <ion-spinner name="dots"></ion-spinner>
+      } @else {
+        Dar de baja
+      }
+    </ion-button>
+    <ion-button expand="block" fill="clear" color="medium" (click)="cancel()">Cancelar</ion-button>
+  </div>
+</ion-content>

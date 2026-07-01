@@ -20,6 +20,8 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
+  archiveOutline,
+  archiveSharp,
   businessOutline,
   businessSharp,
   cubeOutline,
@@ -90,6 +92,8 @@ export class AppComponent {
 
   constructor() {
     addIcons({
+      archiveOutline,
+      archiveSharp,
       homeOutline,
       homeSharp,
       peopleOutline,

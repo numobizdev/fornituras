@@ -24,7 +24,7 @@ fornitura dada de baja, preservación de historial, autorización y auditoría.
 ## Phase 1: Setup (Shared Infrastructure)
 
 - [X] T001 Crear la estructura de paquetes del módulo `decommissions` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/decommissions/`
-- [ ] T002 [P] Preparar la feature frontend `<fe>/bajas/` (`pages/bajas/`, `pages/baja-form/`, `data/`)
+- [X] T002 [P] Preparar la feature frontend `<fe>/bajas/` (`pages/bajas/`, `pages/baja-form/`, `data/`)
 
 ---
 
@@ -62,8 +62,8 @@ ser asignable, queda en la lista de bajas; con asignación vigente → bloqueado
 - [X] T012 [US1] Implementar `DecommissionRepository`/`DecommissionReasonRepository` en `<be>/decommissions/repository/`
 - [X] T013 [US1] Implementar `DecommissionService.decommission()` (resolver fornitura por código, validar bloqueo vía `EquipmentLifecycleQuery`, registrar motivo/fecha/responsable, cambiar estado vía `EquipmentStateChanger`, auditar) en `<be>/decommissions/service/`
 - [X] T014 [US1] Implementar `POST /decommissions` con **Bean Validation** del request en `<be>/decommissions/controller/` y `<be>/decommissions/dto/`
-- [ ] T015 [P] [US1] Frontend: `decommissions.service.ts` (`decommission`, catálogo de motivos) en `<fe>/bajas/data/`
-- [ ] T016 [US1] Frontend: página `baja-form` (búsqueda por QR con componente **014**, selección de motivo, confirmación) en `<fe>/bajas/pages/baja-form/`
+- [X] T015 [P] [US1] Frontend: `decommissions.service.ts` (`decommission`, catálogo de motivos) en `<fe>/bajas/data/`
+- [X] T016 [US1] Frontend: página `baja-form` (búsqueda por QR con componente **014**, selección de motivo, confirmación) en `<fe>/bajas/pages/baja-form/`
 
 **Checkpoint**: se pueden dar de baja fornituras de forma segura (MVP).
 
@@ -83,8 +83,8 @@ fecha/tipo acota.
 ### Implementation for User Story 2
 
 - [X] T018 [US2] Implementar `GET /decommissions` (paginado + filtros) en `<be>/decommissions/controller/`
-- [ ] T019 [P] [US2] Frontend: `decommissions.service.ts` (`list`) en `<fe>/bajas/data/`
-- [ ] T020 [US2] Frontend: página de listado (tabla paginada + filtros) en `<fe>/bajas/pages/bajas/`
+- [X] T019 [P] [US2] Frontend: `decommissions.service.ts` (`list`) en `<fe>/bajas/data/`
+- [X] T020 [US2] Frontend: página de listado (tabla paginada + filtros) en `<fe>/bajas/pages/bajas/`
 
 **Checkpoint**: ambas historias funcionan.
 
@@ -92,9 +92,9 @@ fecha/tipo acota.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T021 [P] Documentar la **política de no-reversión** (corrección por ajuste auditado) y, si se formaliza un flujo de ajuste, abrir ADR
-- [ ] T022 [P] Tests unitarios de la regla de bloqueo y del cambio de estado en `<bet>/decommissions/`
-- [ ] T023 Validar el quickstart (baja por QR, bloqueo con asignación, rechazo de operaciones sobre baja) y registrar resultados
+- [X] T021 [P] Documentar la **política de no-reversión** (corrección por ajuste auditado) y, si se formaliza un flujo de ajuste, abrir ADR
+- [X] T022 [P] Tests unitarios de la regla de bloqueo y del cambio de estado en `<bet>/decommissions/`
+- [X] T023 Validar el quickstart (baja por QR, bloqueo con asignación, rechazo de operaciones sobre baja) y registrar resultados
 
 ---
 
