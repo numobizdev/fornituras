@@ -23,6 +23,7 @@ de prenda tiene hoy un único valor, "Fornitura".
 | 012 | [auditoria](./012-auditoria/spec.md) — bitácora ISO 27001 | §9 Auditoría | Bitácora de Auditoría |
 | 013 | [usuarios](./013-usuarios/spec.md) — usuarios y roles (RBAC) | §8 Usuarios | Usuarios y Roles |
 | 014 | [escaneo-qr](./014-escaneo-qr/spec.md) — captura QR (lector/cámara/manual) | §1/§3/§5 (captura) | — (componente) |
+| 015 | [catalogos-sexo-sangre](./015-catalogos-sexo-sangre/spec.md) — migrar `SEXO`/`TIPO_SANGRE` a la estructura genérica (ADR 0007) | — (deuda técnica) | — (parte de Catálogos) |
 
 ## Orden de implementación recomendado
 
@@ -36,7 +37,8 @@ testear antes de que existan las features de las que se depende):
 5. **Operación de equipo:** 007-traslados, 008-incidencias, 009-bajas.
 6. **Lectura/control:** 010-dashboard, 011-reportes.
 7. **Gobierno de acceso:** 013-usuarios (extiende la auth; expansión de roles y MFA **gated por ADR**).
-8. **Deuda gestionada:** 002-qr-equipos (verificación + cierre de brechas; firma abierta en ADR 0005).
+8. **Deuda gestionada:** 002-qr-equipos (verificación + cierre de brechas; firma abierta en ADR 0005),
+   015-catalogos-sexo-sangre (migrar `SEXO`/`TIPO_SANGRE` al catálogo genérico; depende de 006).
 
 > No es un orden estricto: las features con puertos (p. ej. 004 sobre 001/003, 009 sobre 004/007)
 > pueden avanzarse en paralelo y cerrar su integración real al existir la dependencia.
