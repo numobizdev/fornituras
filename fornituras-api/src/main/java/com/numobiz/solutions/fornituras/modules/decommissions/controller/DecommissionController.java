@@ -5,6 +5,7 @@ import com.numobiz.solutions.fornituras.modules.decommissions.dto.DecommissionRe
 import com.numobiz.solutions.fornituras.modules.decommissions.dto.DecommissionRequest;
 import com.numobiz.solutions.fornituras.modules.decommissions.dto.DecommissionSummary;
 import com.numobiz.solutions.fornituras.modules.decommissions.service.DecommissionService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,9 +27,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * API de bajas definitivas de fornituras. Dar de baja está restringido a ADMIN (rol elevado);
- * consultar el listado y el catálogo de motivos es para cualquier rol autenticado. Toda baja se
- * audita y respeta el bloqueo por asignación vigente/traslado en curso (delegado a 001).
+ * API de bajas definitivas de fornituras. Dar de baja está restringido a mando
+ * ({@link RolePolicy#AUTHORIZE_DECOMMISSION}: ADMIN/SUPERVISOR, acción elevada); consultar el listado y
+ * el catálogo de motivos es para cualquier rol autenticado. Toda baja se audita y respeta el bloqueo por
+ * asignación vigente/traslado en curso (delegado a 001).
  */
 @RestController
 @RequestMapping("/api/v1/decommissions")
@@ -63,8 +65,8 @@ public class DecommissionController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Dar de baja", description = "Da de baja una fornitura por código con un motivo. Bloquea si tiene asignación vigente o traslado en curso. Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "Dar de baja", description = "Da de baja una fornitura por código con un motivo. Bloquea si tiene asignación vigente o traslado en curso. Solo ADMIN/SUPERVISOR.")
+	@PreAuthorize(RolePolicy.AUTHORIZE_DECOMMISSION)
 	public ResponseEntity<ApiResponse<DecommissionSummary>> decommission(
 			@Valid @RequestBody DecommissionRequest request) {
 		DecommissionSummary created = service.decommission(request);

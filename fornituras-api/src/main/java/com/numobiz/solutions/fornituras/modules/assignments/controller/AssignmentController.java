@@ -5,6 +5,7 @@ import com.numobiz.solutions.fornituras.modules.assignments.dto.AssignRequest;
 import com.numobiz.solutions.fornituras.modules.assignments.dto.AssignmentSummary;
 import com.numobiz.solutions.fornituras.modules.assignments.dto.ReassignRequest;
 import com.numobiz.solutions.fornituras.modules.assignments.service.AssignmentService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,16 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * API de asignaciones (resguardos). Listar las vigentes es para cualquier rol autenticado; asignar,
- * devolver y reasignar quedan restringidos a ADMIN/CAPTURISTA. Toda mutación se audita y respeta la
- * regla de una sola asignación vigente por fornitura.
+ * devolver y reasignar quedan restringidos a {@link RolePolicy#WRITE_OPERATIONS} (ADMIN/SUPERVISOR
+ * autorizan, CAPTURISTA captura). Toda mutación se audita y respeta la regla de una sola asignación
+ * vigente por fornitura.
  */
 @RestController
 @RequestMapping("/api/v1/assignments")
 @Tag(name = "Assignments", description = "Asignación de fornituras a elementos (resguardos)")
 @SecurityRequirement(name = "Bearer Authentication")
 public class AssignmentController {
-
-	private static final String WRITE_ROLES = "hasAnyRole('ADMIN','CAPTURISTA')";
 
 	private final AssignmentService service;
 
@@ -48,23 +48,23 @@ public class AssignmentController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Asignar fornitura", description = "Asigna una fornitura disponible a un elemento; 409 si ya está asignada o no disponible. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Asignar fornitura", description = "Asigna una fornitura disponible a un elemento; 409 si ya está asignada o no disponible. Roles de operación (ADMIN/SUPERVISOR/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_OPERATIONS)
 	public ResponseEntity<ApiResponse<AssignmentSummary>> assign(@Valid @RequestBody AssignRequest request) {
 		AssignmentSummary created = service.assign(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Fornitura asignada.", created));
 	}
 
 	@PostMapping("/{id}/return")
-	@Operation(summary = "Registrar devolución", description = "Cierra una asignación vigente y libera la fornitura (vuelve a disponible). Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Registrar devolución", description = "Cierra una asignación vigente y libera la fornitura (vuelve a disponible). Roles de operación (ADMIN/SUPERVISOR/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_OPERATIONS)
 	public ResponseEntity<ApiResponse<AssignmentSummary>> returnAssignment(@PathVariable Long id) {
 		return ResponseEntity.ok(ApiResponse.ok("Devolución registrada.", service.returnAssignment(id)));
 	}
 
 	@PostMapping("/reassign")
-	@Operation(summary = "Reasignar fornitura", description = "Cierra la asignación vigente y abre una nueva para otro elemento, conservando el historial. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Reasignar fornitura", description = "Cierra la asignación vigente y abre una nueva para otro elemento, conservando el historial. Roles de operación (ADMIN/SUPERVISOR/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_OPERATIONS)
 	public ResponseEntity<ApiResponse<AssignmentSummary>> reassign(@Valid @RequestBody ReassignRequest request) {
 		AssignmentSummary created = service.reassign(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Fornitura reasignada.", created));

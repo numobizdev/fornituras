@@ -5,6 +5,7 @@ import com.numobiz.solutions.fornituras.modules.catalog.dto.CatalogItemCreateReq
 import com.numobiz.solutions.fornituras.modules.catalog.dto.CatalogItemSummary;
 import com.numobiz.solutions.fornituras.modules.catalog.dto.CatalogSummary;
 import com.numobiz.solutions.fornituras.modules.catalog.service.CatalogService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,7 +78,7 @@ public class CatalogController {
 
 	@PostMapping("/{code}/items")
 	@Operation(summary = "Crear valor", description = "Crea un valor con nombre único dentro del catálogo. Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<CatalogItemSummary>> createItem(
 			@PathVariable String code,
 			@Valid @RequestBody CatalogItemCreateRequest request) {
@@ -88,7 +89,7 @@ public class CatalogController {
 
 	@PutMapping("/items/{itemId}")
 	@Operation(summary = "Editar valor", description = "Edita un valor manteniendo unicidad de nombre en su catálogo. Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<CatalogItemSummary>> updateItem(
 			@PathVariable Long itemId,
 			@Valid @RequestBody CatalogItemCreateRequest request) {
@@ -97,7 +98,7 @@ public class CatalogController {
 
 	@PatchMapping("/items/{itemId}/deactivate")
 	@Operation(summary = "Desactivar valor", description = "Marca el valor como inactivo (no borrado). Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<Void>> deactivateItem(@PathVariable Long itemId) {
 		service.deactivateItem(itemId);
 		return ResponseEntity.ok(ApiResponse.ok("Valor de catálogo desactivado."));

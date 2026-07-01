@@ -91,9 +91,9 @@ consulta la bitácora.
 
 - [X] T018 [US2] Consolidar la **matriz de autorización por rol** en la config de Spring Security (con los roles existentes `ADMIN`/`CAPTURISTA`) y exponer `hasRole` consistente al frontend en `<be>/auth/` — CRUD de usuarios `@PreAuthorize hasRole('ADMIN')`; documentado en `UserController`
 - [X] T019 [US2] Frontend: aplicar guards/permita-según-rol en menús y acciones (ocultar/inhabilitar lo no permitido) reusando `AuthService.hasRole` en `<fe>/usuarios/` y menús compartidos — nuevo `adminGuard` en rutas + entrada de menú `roles: ['ADMIN']`
-- [ ] T020 [US2] **(DIFERIDO)** **[GATED por ADR T003]** Ampliar el enum `Role` (Supervisor/Almacén/Auditor/Consulta) y propagar la matriz de permisos a todas las features — **solo tras aprobar el ADR**, con migración de datos si aplica, en `<be>/users/entity/Role.java`
+- [X] T020 [US2] **[ADR 0013 ACEPTADO]** Ampliar el enum `Role` a cinco valores (`ADMIN`/`SUPERVISOR`/`ALMACEN`/`AUDITOR`/`CAPTURISTA`) y propagar la matriz de permisos a todas las features — enum en `<be>/users/entity/Role.java`; matriz centralizada en `<be>/security/RolePolicy.java` (constantes `@PreAuthorize` + `canViewFullPii` para la regla 3) reutilizada por cada controlador; PII visible para ADMIN/SUPERVISOR/AUDITOR (regla 3); auditoría legible por ADMIN/AUDITOR (regla 4); roles expuestos al frontend en `role-options.ts`/`auth.model.ts`. Sin migración de datos (los usuarios existentes conservan su rol). Tests de autorización por rol añadidos (`RolePolicyTest`, `EquipmentAuthTest`, `DecommissionAuthTest`, `AuditQueryAuthTest`, `TransferAuthTest`)
 
-**Checkpoint**: RBAC consistente con los roles vigentes; la granularidad ampliada queda lista tras el ADR.
+**Checkpoint**: RBAC consistente con la matriz ampliada del ADR 0013 (cinco roles, mínimo privilegio).
 
 ---
 

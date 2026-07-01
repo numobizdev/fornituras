@@ -5,6 +5,7 @@ import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerCreateReques
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerDetail;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerSummary;
 import com.numobiz.solutions.fornituras.modules.officers.service.OfficerService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,8 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * API del padrón de elementos. <b>Maneja PII de alta sensibilidad.</b> El listado y la ficha son
  * para cualquier rol autenticado, pero la ficha enmascara CURP/RFC salvo para ADMIN y el acceso se
- * audita (lo decide el servicio, no el cliente). El alta queda restringida a ADMIN/CAPTURISTA. La
- * búsqueda usa solo blind index/placa: ninguna PII viaja en claro por la URL.
+ * audita (lo decide el servicio, no el cliente). El alta queda restringida a
+ * {@link RolePolicy#WRITE_OFFICERS} (ADMIN/SUPERVISOR/CAPTURISTA; ALMACEN queda fuera por manejar PII).
+ * La búsqueda usa solo blind index/placa: ninguna PII viaja en claro por la URL.
  */
 @RestController
 @RequestMapping("/api/v1/officers")
@@ -59,8 +61,8 @@ public class OfficerController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Alta de elemento", description = "Registra un elemento con placa única. CURP/RFC opcionales (ADR 0003). Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize("hasAnyRole('ADMIN','CAPTURISTA')")
+	@Operation(summary = "Alta de elemento", description = "Registra un elemento con placa única. CURP/RFC opcionales (ADR 0003). Solo ADMIN/SUPERVISOR/CAPTURISTA.")
+	@PreAuthorize(RolePolicy.WRITE_OFFICERS)
 	public ResponseEntity<ApiResponse<OfficerDetail>> create(
 			@Valid @RequestBody OfficerCreateRequest request) {
 		OfficerDetail created = service.create(request);

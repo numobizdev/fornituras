@@ -10,9 +10,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Autorización de {@code /decommissions} (T007): dar de baja está restringido a ADMIN (rol elevado);
- * consultar el listado y el catálogo de motivos es para cualquier rol autenticado. Un rol operativo
- * (CAPTURISTA) que intenta dar de baja queda denegado (403) sin persistir nada.
+ * Autorización de {@code /decommissions} (T007, matriz ADR 0013): dar de baja es una autorización de
+ * mando restringida a {@code AUTHORIZE_DECOMMISSION} (ADMIN/SUPERVISOR); consultar el listado y el
+ * catálogo de motivos es para cualquier rol autenticado. Un rol operativo (CAPTURISTA) o de inventario
+ * (ALMACEN) que intenta dar de baja queda denegado (403) sin persistir nada.
  */
 class DecommissionAuthTest extends DecommissionApiTestSupport {
 
@@ -40,11 +41,33 @@ class DecommissionAuthTest extends DecommissionApiTestSupport {
 	}
 
 	@Test
+	@WithMockUser(roles = "ALMACEN")
+	void decommission_withInventoryRole_isForbidden() throws Exception {
+		mockMvc.perform(post("/api/v1/decommissions")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(decommissionJson(seed.equipmentCodigo(), seed.motivoId(), "Sin permiso")))
+				.andExpect(status().isForbidden());
+
+		assertThat(decommissionRepository.count()).isZero();
+	}
+
+	@Test
 	@WithMockUser(roles = "ADMIN")
 	void decommission_withAdminRole_isAllowed() throws Exception {
 		mockMvc.perform(post("/api/v1/decommissions")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(decommissionJson(seed.equipmentCodigo(), seed.motivoId(), "Baja autorizada")))
+				.andExpect(status().isCreated());
+
+		assertThat(decommissionRepository.count()).isEqualTo(1);
+	}
+
+	@Test
+	@WithMockUser(roles = "SUPERVISOR")
+	void decommission_withSupervisorRole_isAllowed() throws Exception {
+		mockMvc.perform(post("/api/v1/decommissions")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(decommissionJson(seed.equipmentCodigo(), seed.motivoId(), "Baja autorizada por mando")))
 				.andExpect(status().isCreated());
 
 		assertThat(decommissionRepository.count()).isEqualTo(1);
