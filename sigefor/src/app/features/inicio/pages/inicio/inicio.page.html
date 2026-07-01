@@ -3,19 +3,36 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Inicio</ion-title>
+    <ion-title>Tablero</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Inicio</ion-title>
+      <ion-title size="large">Tablero</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div class="page-placeholder">
-    <h2>Panel de indicadores</h2>
-    <p>Los indicadores principales del sistema se definirán próximamente.</p>
-  </div>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (isLoading() && !summary()) {
+    <div class="state-message"><ion-spinner></ion-spinner></div>
+  } @else if (hasError()) {
+    <div class="state-message">
+      <p>No fue posible cargar los indicadores. Desliza hacia abajo para reintentar.</p>
+    </div>
+  } @else {
+    <div class="indicator-grid">
+      @for (indicator of indicators; track indicator.key) {
+        <div class="indicator-card" [style.--accent]="'var(' + indicator.colorVar + ')'">
+          <ion-icon class="indicator-icon" [name]="indicator.icon" aria-hidden="true"></ion-icon>
+          <span class="indicator-value">{{ value(indicator) }}</span>
+          <span class="indicator-label">{{ indicator.label }}</span>
+        </div>
+      }
+    </div>
+  }
 </ion-content>
