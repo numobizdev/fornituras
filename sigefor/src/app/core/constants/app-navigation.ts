@@ -10,6 +10,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
   { title: 'Bajas', url: '/bajas', icon: 'archive' },
   { title: 'Reportes y Estadística', url: '/reportes', icon: 'bar-chart' },
   { title: 'Bitácora de Auditoría', url: '/auditoria', icon: 'shield-checkmark', roles: ['ADMIN'] },
+  { title: 'Usuarios', url: '/usuarios', icon: 'person-circle', roles: ['ADMIN'] },
   { title: 'Catálogo de Tipos', url: '/tipos', icon: 'pricetags' },
   { title: 'Almacenes', url: '/almacenes', icon: 'business' },
 ];

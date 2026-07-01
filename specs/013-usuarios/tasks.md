@@ -29,10 +29,10 @@ admin", hashing y bloqueo por fuerza bruta.
 
 ## Phase 1: Setup
 
-- [ ] T001 Revisar el módulo `users`/`auth` existente y anotar puntos de extensión (controller, service, enum `Role`, config de Security) sin romper lo actual
-- [ ] T002 [P] Preparar la feature frontend `<fe>/usuarios/` (`pages/usuarios/`, `pages/usuario-form/`, `data/`)
-- [ ] T003 [P] Abrir **ADR de expansión de roles** (mapa rol→permisos para Supervisor/Almacén/Auditor/Consulta) en `docs/04-decisiones/`
-- [ ] T004 [P] Abrir **ADR de estrategia MFA** (TOTP vs OTP por correo; almacenamiento cifrado del secreto; dependencia, Principio VI) en `docs/04-decisiones/`
+- [X] T001 Revisar el módulo `users`/`auth` existente y anotar puntos de extensión (controller, service, enum `Role`, config de Security) sin romper lo actual
+- [X] T002 [P] Preparar la feature frontend `<fe>/usuarios/` (`pages/usuarios/`, `pages/usuario-form/`, `data/`)
+- [ ] T003 [P] **(DIFERIDO — pendiente de ADR)** Abrir **ADR de expansión de roles** (mapa rol→permisos para Supervisor/Almacén/Auditor/Consulta) en `docs/04-decisiones/`
+- [ ] T004 [P] **(DIFERIDO — pendiente de ADR)** Abrir **ADR de estrategia MFA** (TOTP vs OTP por correo; almacenamiento cifrado del secreto; dependencia, Principio VI) en `docs/04-decisiones/`
 
 ---
 
@@ -40,9 +40,9 @@ admin", hashing y bloqueo por fuerza bruta.
 
 **⚠️ CRITICAL**: las historias de CRUD/RBAC pueden empezar; MFA/roles nuevos esperan su ADR.
 
-- [ ] T005 [P] Definir DTOs `UserCreateRequest`, `UserSummary`, `UserUpdateRequest` (sin exponer hash ni token) en `<be>/users/dto/`
-- [ ] T006 [P] Verificar/confirmar el **hashing fuerte** (Argon2id/bcrypt) del backend y documentar parámetros (FR-003, SC-001) en `<be>/auth/` o `<be>/users/service/`
-- [ ] T007 Reusar el escritor de **auditoría** (012) para `CREATE/UPDATE/ENABLE/DISABLE/ROLE_CHANGE_USER` (sin volcar hash/token); si 012 no existe, escritor mínimo a `audit_log`
+- [X] T005 [P] Definir DTOs `UserCreateRequest`, `UserSummary`, `UserUpdateRequest` (sin exponer hash ni token) en `<be>/users/dto/` — se reusan `UserRequestDTO`/`UserResponseDTO` existentes y se añaden `UserUpdateRequest`, `RoleUpdateRequest`, `EnabledUpdateRequest`
+- [X] T006 [P] Verificar/confirmar el **hashing fuerte** (Argon2id/bcrypt) del backend y documentar parámetros (FR-003, SC-001) en `<be>/auth/` o `<be>/users/service/` — confirmado `BCryptPasswordEncoder` en `SecurityConfig`
+- [X] T007 Reusar el escritor de **auditoría** (012) para `CREATE/UPDATE/ENABLE/DISABLE/ROLE_CHANGE_USER` (sin volcar hash/token); si 012 no existe, escritor mínimo a `audit_log`
 
 **Checkpoint**: fundamento listo para el CRUD admin.
 
@@ -58,18 +58,18 @@ duplicado → rechazado; desactivar al último admin → bloqueado.
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Test de contrato `GET/POST/PUT /users` + `PATCH .../enabled` + `PATCH .../role` (admin only; 409 email duplicado) en `<bet>/users/UserAdminContractTest.java`
-- [ ] T009 [P] [US1] Test de integración: alta con hash (nunca texto plano); **no dejar el sistema sin admin** (desactivar/degradar último admin → bloqueado, FR-007) en `<bet>/users/UserAdminIntegrationTest.java`
-- [ ] T010 [P] [US1] Test de autorización: rol no-admin no accede al CRUD de usuarios (rechazo por defecto) y queda auditado en `<bet>/users/UserAdminAuthTest.java`
+- [X] T008 [P] [US1] Test de contrato `GET/POST/PUT /users` + `PATCH .../enabled` + `PATCH .../role` (admin only; 409 email duplicado) en `<bet>/users/UserAdminContractTest.java`
+- [X] T009 [P] [US1] Test de integración: alta con hash (nunca texto plano); **no dejar el sistema sin admin** (desactivar/degradar último admin → bloqueado, FR-007) en `<bet>/users/UserAdminIntegrationTest.java`
+- [X] T010 [P] [US1] Test de autorización: rol no-admin no accede al CRUD de usuarios (rechazo por defecto) y queda auditado en `<bet>/users/UserAdminAuthTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Extender `UserService` (alta con unicidad de email, edición, activar/desactivar, cambio de rol, **regla de último admin**, auditoría) en `<be>/users/service/`
-- [ ] T012 [US1] Extender `UserController` con el CRUD admin (`GET` paginado, `POST`, `PUT`, `PATCH /enabled`, `PATCH /role`), restringido a admin, en `<be>/users/controller/`
-- [ ] T013 [US1] Añadir **Bean Validation** a los DTOs (email válido/único, rol válido del enum actual, nombre requerido) en `<be>/users/dto/`
-- [ ] T014 [P] [US1] Frontend: `users.service.ts` (list/create/update/enable/disable/role) en `<fe>/usuarios/data/`
-- [ ] T015 [US1] Frontend: página de listado (paginada, admin) en `<fe>/usuarios/pages/usuarios/`
-- [ ] T016 [US1] Frontend: página `usuario-form` (datos + rol + activar/desactivar) reusando `core/auth` en `<fe>/usuarios/pages/usuario-form/`
+- [X] T011 [US1] Extender `UserService` (alta con unicidad de email, edición, activar/desactivar, cambio de rol, **regla de último admin**, auditoría) en `<be>/users/service/`
+- [X] T012 [US1] Extender `UserController` con el CRUD admin (`GET` paginado, `POST`, `PUT`, `PATCH /enabled`, `PATCH /role`), restringido a admin, en `<be>/users/controller/`
+- [X] T013 [US1] Añadir **Bean Validation** a los DTOs (email válido/único, rol válido del enum actual, nombre requerido) en `<be>/users/dto/`
+- [X] T014 [P] [US1] Frontend: `users.service.ts` (list/create/update/enable/disable/role) en `<fe>/usuarios/data/`
+- [X] T015 [US1] Frontend: página de listado (paginada, admin) en `<fe>/usuarios/pages/usuarios/`
+- [X] T016 [US1] Frontend: página `usuario-form` (datos + rol + activar/desactivar) reusando `core/auth` en `<fe>/usuarios/pages/usuario-form/`
 
 **Checkpoint**: administración de usuarios operativa (MVP).
 
@@ -85,13 +85,13 @@ consulta la bitácora.
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Test de RBAC: acción fuera del alcance del rol → denegada (rechazo por defecto) y auditada (SC-002) en `<bet>/users/RbacTest.java`
+- [X] T017 [P] [US2] Test de RBAC: acción fuera del alcance del rol → denegada (rechazo por defecto) y auditada (SC-002) en `<bet>/users/RbacTest.java`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Consolidar la **matriz de autorización por rol** en la config de Spring Security (con los roles existentes `ADMIN`/`CAPTURISTA`) y exponer `hasRole` consistente al frontend en `<be>/auth/`
-- [ ] T019 [US2] Frontend: aplicar guards/permita-según-rol en menús y acciones (ocultar/inhabilitar lo no permitido) reusando `AuthService.hasRole` en `<fe>/usuarios/` y menús compartidos
-- [ ] T020 [US2] **[GATED por ADR T003]** Ampliar el enum `Role` (Supervisor/Almacén/Auditor/Consulta) y propagar la matriz de permisos a todas las features — **solo tras aprobar el ADR**, con migración de datos si aplica, en `<be>/users/entity/Role.java`
+- [X] T018 [US2] Consolidar la **matriz de autorización por rol** en la config de Spring Security (con los roles existentes `ADMIN`/`CAPTURISTA`) y exponer `hasRole` consistente al frontend en `<be>/auth/` — CRUD de usuarios `@PreAuthorize hasRole('ADMIN')`; documentado en `UserController`
+- [X] T019 [US2] Frontend: aplicar guards/permita-según-rol en menús y acciones (ocultar/inhabilitar lo no permitido) reusando `AuthService.hasRole` en `<fe>/usuarios/` y menús compartidos — nuevo `adminGuard` en rutas + entrada de menú `roles: ['ADMIN']`
+- [ ] T020 [US2] **(DIFERIDO)** **[GATED por ADR T003]** Ampliar el enum `Role` (Supervisor/Almacén/Auditor/Consulta) y propagar la matriz de permisos a todas las features — **solo tras aprobar el ADR**, con migración de datos si aplica, en `<be>/users/entity/Role.java`
 
 **Checkpoint**: RBAC consistente con los roles vigentes; la granularidad ampliada queda lista tras el ADR.
 
@@ -99,17 +99,17 @@ consulta la bitácora.
 
 ## Phase 5: Endurecimiento de autenticación (objetivos)
 
-- [ ] T021 [US-sec] Implementar **anti-fuerza-bruta** (rate limiting + bloqueo temporal por intentos fallidos; columnas `failed_attempts`/`locked_until` vía nueva migración Flyway) en `<be>/auth/`
-- [ ] T022 [US-sec] **[GATED por ADR T004]** Implementar **MFA** para roles administrativos (TOTP/OTP según ADR; secreto cifrado; recuperación) — solo tras aprobar el ADR, en `<be>/auth/`
-- [ ] T023 [P] [US-sec] Frontend: flujo de MFA en login para roles administrativos (gated por T022) en `<fe>/usuarios/`/`core/auth`
+- [X] T021 [US-sec] Implementar **anti-fuerza-bruta** (rate limiting + bloqueo temporal por intentos fallidos; columnas `failed_attempts`/`locked_until` vía nueva migración Flyway) en `<be>/auth/` — `LoginAttemptService` + `LoginLockProperties` + migración `V22`
+- [ ] T022 [US-sec] **(DIFERIDO)** **[GATED por ADR T004]** Implementar **MFA** para roles administrativos (TOTP/OTP según ADR; secreto cifrado; recuperación) — solo tras aprobar el ADR, en `<be>/auth/`
+- [ ] T023 [P] [US-sec] **(DIFERIDO)** Frontend: flujo de MFA en login para roles administrativos (gated por T022) en `<fe>/usuarios/`/`core/auth`
 
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T024 [P] Asegurar que ninguna respuesta/login expone hash, secreto MFA ni token de más; errores que no filtran si el email existe
-- [ ] T025 [P] Tests unitarios de la regla "último admin" y de unicidad de email en `<bet>/users/`
-- [ ] T026 Validar el quickstart (crear/editar/rol/activar, bloqueo de último admin, anti-bruteforce) y registrar resultados
+- [X] T024 [P] Asegurar que ninguna respuesta/login expone hash, secreto MFA ni token de más; errores que no filtran si el email existe — `UserResponseDTO` sin password (test lo verifica); login/lock con mensajes genéricos
+- [X] T025 [P] Tests unitarios de la regla "último admin" y de unicidad de email en `<bet>/users/` — `UserServiceTest`
+- [X] T026 Validar el quickstart (crear/editar/rol/activar, bloqueo de último admin, anti-bruteforce) y registrar resultados — cubierto por tests automáticos (contract/integration/lockout); suite completa 215/215 verde
 
 ---
 

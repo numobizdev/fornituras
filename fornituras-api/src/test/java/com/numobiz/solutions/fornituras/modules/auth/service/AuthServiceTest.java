@@ -50,6 +50,10 @@ class AuthServiceTest {
 	private JwtService jwtService;
 	@Mock
 	private EmailService emailService;
+	@Mock
+	private com.numobiz.solutions.fornituras.common.audit.AuditWriter audit;
+	@Mock
+	private LoginAttemptService loginAttempt;
 
 	@InjectMocks
 	private AuthService authService;
