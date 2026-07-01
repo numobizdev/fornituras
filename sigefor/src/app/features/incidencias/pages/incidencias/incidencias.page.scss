@@ -1,0 +1,24 @@
+.state-message {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  color: var(--ion-color-medium);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+
+  .pager-info {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+ion-list-header ion-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
