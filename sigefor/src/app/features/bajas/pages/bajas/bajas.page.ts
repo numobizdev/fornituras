@@ -85,6 +85,10 @@ export class BajasPage implements OnInit {
 
   ngOnInit(): void {
     void this.loadCatalogs();
+  }
+
+  // El listado se refresca en cada entrada (Ionic no re-ejecuta ngOnInit al volver del formulario).
+  ionViewWillEnter(): void {
     void this.load();
   }
 

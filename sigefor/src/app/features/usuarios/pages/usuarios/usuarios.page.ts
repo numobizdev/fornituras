@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -57,7 +57,7 @@ import { UsersService } from '../../data/users.service';
     IonFabButton,
   ],
 })
-export class UsuariosPage implements OnInit {
+export class UsuariosPage {
   private readonly service = inject(UsersService);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
@@ -78,7 +78,8 @@ export class UsuariosPage implements OnInit {
     addIcons({ add, createOutline, powerOutline, ribbonOutline });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada (Ionic cachea la página y no re-ejecuta ngOnInit al volver del formulario).
+  ionViewWillEnter(): void {
     void this.load();
   }
 

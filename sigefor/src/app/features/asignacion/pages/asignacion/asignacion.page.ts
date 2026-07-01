@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
   AlertController,
@@ -57,7 +57,7 @@ import { AssignmentSummary } from '../../data/assignment.model';
     QrScanComponent,
   ],
 })
-export class AsignacionPage implements OnInit {
+export class AsignacionPage {
   private readonly assignmentsService = inject(AssignmentsService);
   private readonly equipmentService = inject(EquipmentService);
   private readonly officersService = inject(OfficersService);
@@ -90,7 +90,8 @@ export class AsignacionPage implements OnInit {
     addIcons({ checkmarkCircle, closeCircle });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada (Ionic no re-ejecuta ngOnInit al volver de asignar/devolver).
+  ionViewWillEnter(): void {
     void this.loadVigentes();
   }
 

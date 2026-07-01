@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -76,7 +76,7 @@ import { LandingService } from '../../data/landing.service';
     IonSelectOption,
   ],
 })
-export class LandingAdminPage implements OnInit {
+export class LandingAdminPage {
   private readonly service = inject(LandingService);
   private readonly fb = inject(FormBuilder);
   private readonly toastController = inject(ToastController);
@@ -109,7 +109,8 @@ export class LandingAdminPage implements OnInit {
     addIcons({ add, createOutline, powerOutline, arrowUpOutline, arrowDownOutline, closeOutline, trashOutline });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada (Ionic no re-ejecuta ngOnInit al volver a la página).
+  ionViewWillEnter(): void {
     void this.load();
   }
 

@@ -81,8 +81,13 @@ export class AlmacenesPage implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.load();
     void this.loadTipos();
+  }
+
+  // Se recarga en cada entrada (incluye volver del formulario): Ionic cachea la página y NO
+  // re-ejecuta ngOnInit al navegar hacia atrás, por eso el listado debe refrescarse aquí.
+  ionViewWillEnter(): void {
+    void this.load();
   }
 
   private async loadTipos(): Promise<void> {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -53,7 +53,7 @@ import { EquipmentTypeSummary } from '../../data/equipment-type.model';
     IonFabButton,
   ],
 })
-export class TiposPage implements OnInit {
+export class TiposPage {
   private readonly service = inject(EquipmentTypesService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -69,7 +69,8 @@ export class TiposPage implements OnInit {
     addIcons({ add, createOutline, powerOutline });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada (Ionic cachea la página y no re-ejecuta ngOnInit al volver del formulario).
+  ionViewWillEnter(): void {
     void this.load();
   }
 
