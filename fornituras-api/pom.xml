@@ -34,6 +34,7 @@
 		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 		<zxing.version>3.5.3</zxing.version>
 		<openpdf.version>2.0.3</openpdf.version>
+		<bucket4j.version>8.10.1</bucket4j.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -67,6 +68,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>${bucket4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>

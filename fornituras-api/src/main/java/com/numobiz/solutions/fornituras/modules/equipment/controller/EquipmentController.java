@@ -1,6 +1,8 @@
 package com.numobiz.solutions.fornituras.modules.equipment.controller;
 
 import com.numobiz.solutions.fornituras.common.dto.ApiResponse;
+import com.numobiz.solutions.fornituras.common.exception.TooManyRequestsException;
+import com.numobiz.solutions.fornituras.common.ratelimit.RateLimiter;
 import com.numobiz.solutions.fornituras.modules.equipment.dto.BatchCreateRequest;
 import com.numobiz.solutions.fornituras.modules.equipment.dto.EquipmentCreateRequest;
 import com.numobiz.solutions.fornituras.modules.equipment.dto.EquipmentDetail;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,9 +47,11 @@ public class EquipmentController {
 	private static final String WRITE_ROLES = "hasAnyRole('ADMIN','CAPTURISTA')";
 
 	private final EquipmentService service;
+	private final RateLimiter rateLimiter;
 
-	public EquipmentController(EquipmentService service) {
+	public EquipmentController(EquipmentService service, RateLimiter rateLimiter) {
 		this.service = service;
+		this.rateLimiter = rateLimiter;
 	}
 
 	@GetMapping
@@ -73,7 +79,17 @@ public class EquipmentController {
 	@Operation(summary = "Resolver fornitura por código", description = "Resolución server-side del código QR/serie (consumible por asignación, traslados y bajas).")
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<EquipmentDetail>> getByCodigo(@PathVariable String codigo) {
+		// Limita la enumeración de códigos opacos (ADR 0005/0010): tope por actor y ventana.
+		if (!rateLimiter.tryConsume("equipment:by-codigo:" + currentActor())) {
+			throw new TooManyRequestsException(
+					"Demasiadas consultas por código; intente de nuevo en un momento.");
+		}
 		return ResponseEntity.ok(ApiResponse.ok(service.findByCodigo(codigo)));
+	}
+
+	private String currentActor() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return (authentication == null) ? "anonymous" : authentication.getName();
 	}
 
 	@PostMapping

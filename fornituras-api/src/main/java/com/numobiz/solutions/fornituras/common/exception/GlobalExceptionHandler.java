@@ -41,6 +41,13 @@ public class GlobalExceptionHandler {
 				.body(ApiResponse.error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(TooManyRequestsException.class)
+	public ResponseEntity<ApiResponse<Void>> handleTooManyRequests(TooManyRequestsException ex) {
+		log.warn("Rate limit exceeded: {}", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+				.body(ApiResponse.error(ex.getMessage()));
+	}
+
 	@ExceptionHandler({UnauthorizedException.class, BadCredentialsException.class})
 	public ResponseEntity<ApiResponse<Void>> handleUnauthorized(RuntimeException ex) {
 		log.warn("Unauthorized: {}", ex.getMessage());
