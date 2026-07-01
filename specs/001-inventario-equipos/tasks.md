@@ -54,9 +54,9 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 1
 
-- [~] T012 [P] [US1] Test de contrato `POST /equipment` (validación, catálogos, 409 por duplicado) en `<bet>/equipment/EquipmentCreateContractTest.java`
-- [~] T013 [P] [US1] Test de integración: alta + unicidad normalizada + **inserción concurrente** del mismo código (solo una gana) en `<bet>/equipment/EquipmentUniquenessIntegrationTest.java`
-- [~] T014 [P] [US1] Test de autorización: rol sin permiso de alta → denegado y auditado en `<bet>/equipment/EquipmentAuthTest.java`
+- [X] T012 [P] [US1] Test de contrato `POST /equipment` (validación, catálogos, 409 por duplicado) en `<bet>/equipment/EquipmentCreateContractTest.java`
+- [X] T013 [P] [US1] Test de integración: alta + unicidad normalizada + **inserción concurrente** del mismo código (solo una gana) en `<bet>/equipment/EquipmentUniquenessIntegrationTest.java`
+- [X] T014 [P] [US1] Test de autorización: rol sin permiso de alta → denegado y auditado en `<bet>/equipment/EquipmentAuthTest.java`
 
 ### Implementation for User Story 1
 
@@ -79,8 +79,8 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 3
 
-- [~] T021 [P] [US3] Test de contrato `GET /equipment` (paginación + filtros qr/tipo/talla/almacén/estado) y `GET /equipment/by-codigo/{codigo}` en `<bet>/equipment/EquipmentListContractTest.java`
-- [~] T022 [P] [US3] Test de integración: búsqueda por código, filtro por estado, paginación, **vigencia derivada** en la respuesta en `<bet>/equipment/EquipmentListIntegrationTest.java`
+- [X] T021 [P] [US3] Test de contrato `GET /equipment` (paginación + filtros qr/tipo/talla/almacén/estado) y `GET /equipment/by-codigo/{codigo}` en `<bet>/equipment/EquipmentListContractTest.java`
+- [X] T022 [P] [US3] Test de integración: búsqueda por código, filtro por estado, paginación, **vigencia derivada** en la respuesta en `<bet>/equipment/EquipmentListIntegrationTest.java`
 
 ### Implementation for User Story 3
 
@@ -102,8 +102,8 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 2
 
-- [~] T028 [P] [US2] Test de contrato `POST /equipment/batch` (crea N; rechaza duplicado intra-lote y contra BD; atomicidad) en `<bet>/equipment/EquipmentBatchContractTest.java`
-- [~] T029 [P] [US2] Test de integración: lote de 3 + duplicado intra-lote + rollback en fallo en `<bet>/equipment/EquipmentBatchIntegrationTest.java`
+- [X] T028 [P] [US2] Test de contrato `POST /equipment/batch` (crea N; rechaza duplicado intra-lote y contra BD; atomicidad) en `<bet>/equipment/EquipmentBatchContractTest.java`
+- [X] T029 [P] [US2] Test de integración: lote de 3 + duplicado intra-lote + rollback en fallo en `<bet>/equipment/EquipmentBatchIntegrationTest.java`
 
 ### Implementation for User Story 2
 
@@ -124,8 +124,8 @@ estado, autorización y auditoría son parte del entregable.
 
 ### Tests for User Story 4
 
-- [~] T034 [P] [US4] Test de contrato `PUT /equipment/{id}` y `PATCH /equipment/{id}/status` (transiciones válidas, código no editable salvo rol/auditoría) en `<bet>/equipment/EquipmentUpdateContractTest.java`
-- [~] T035 [P] [US4] Test de integración: bloqueo de baja/traslado con asignación vigente (vía `EquipmentLifecycleQuery`) y auditoría del cambio en `<bet>/equipment/EquipmentStatusIntegrationTest.java`
+- [X] T034 [P] [US4] Test de contrato `PUT /equipment/{id}` y `PATCH /equipment/{id}/status` (transiciones válidas, código no editable salvo rol/auditoría) en `<bet>/equipment/EquipmentUpdateContractTest.java`
+- [X] T035 [P] [US4] Test de integración: bloqueo de baja/traslado con asignación vigente (vía `EquipmentLifecycleQuery`) y auditoría del cambio en `<bet>/equipment/EquipmentStatusIntegrationTest.java`
 
 ### Implementation for User Story 4
 
@@ -140,7 +140,7 @@ estado, autorización y auditoría son parte del entregable.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [~] T040 [P] Endurecimiento: rate limiting en `GET /equipment/by-codigo` (mitiga enumeración, ADR 0005), cabeceras de seguridad, errores que no filtran detalles en `<be>/equipment/`
+- [X] T040 [P] Endurecimiento: rate limiting en `GET /equipment/by-codigo` (mitiga enumeración, ADR 0005/0010), cabeceras de seguridad, errores que no filtran detalles en `<be>/equipment/`
 - [X] T041 [P] Tests unitarios de normalización y de derivación de vigencia en `<bet>/equipment/`
 - [~] T042 Validar el quickstart (alta, lote, búsqueda, vigencia, bloqueo de baja con asignación) y registrar resultados
 - [X] T043 [P] Actualizar `docs/03-modelo-datos.md` si el esquema final difiere
@@ -169,19 +169,51 @@ estado, autorización y auditoría son parte del entregable.
 - El `codigo` es opaco (ADR 0005); su resolución es server-side y conviene auditarla/limitarla.
 - Commit por tarea o grupo lógico; TDD (tests en rojo antes de implementar).
 
+### Tests de contrato/integración (T012–T014, T021/T022, T028/T029, T034/T035) — HECHOS
+
+Implementados con **`@SpringBootTest` + MockMvc + perfil H2** (`application-test.yml`) y
+`spring-security-test`, **sin Testcontainers ni Docker** (no disponible en el entorno de
+desarrollo). Ver **[ADR 0009](../../docs/04-decisiones/0009-tests-integracion-h2-mockmvc.md)**. Para
+reducir arranques de contexto, algunas parejas contrato/integración se **consolidaron** en una clase
+(anotado abajo). **23 tests** nuevos, todos verdes:
+
+- **T012** → `EquipmentCreateContractTest` (201/estado inicial, 409 duplicado normalizado, 400
+  validación y catálogo inactivo).
+- **T013** → `EquipmentUniquenessIntegrationTest` (unicidad normalizada + **inserción concurrente**:
+  solo una gana; cero duplicados vía `UNIQUE(codigo_normalizado)`).
+- **T014** → `EquipmentAuthTest` (rol sin permiso → 403 y no crea; ADMIN/CAPTURISTA sí; consulta a
+  cualquier autenticado). El rechazo es declarativo (`@PreAuthorize`), previo al servicio, por lo que
+  no genera auditoría de negocio.
+- **T021 + T022** → `EquipmentListApiTest` (paginación, filtro por estado, `by-codigo` server-side y
+  404, **vigencia derivada** en la respuesta).
+- **T028 + T029** → `EquipmentBatchApiTest` (crea N; rechaza duplicado intra-lote y contra BD;
+  **atomicidad**: nada persiste si uno falla).
+- **T034 + T035** → `EquipmentUpdateStatusApiTest` (edición no identitaria; **código inmutable**;
+  transición válida; **bloqueo de baja/traslado con asignación vigente** vía el puerto real
+  `EquipmentLifecycleQuery`).
+
+> **Límite (ADR 0009):** H2 en modo `MSSQLServer` no es SQL Server; el esquema de test lo genera JPA
+> (Flyway off). Validar migraciones/dialecto/semántica de carrera real queda para un perfil
+> Testcontainers en CI (donde haya Docker).
+
+La cobertura **unitaria** previa sigue vigente: `EquipmentServiceTest` (10), `ExpiryCalculatorTest`
+(5) y `CodeNormalizerTest` (3) — 18 tests (`CodeNormalizer` es la utilidad compartida en
+`common/text/`).
+
+### Endurecimiento (T040) — HECHO
+
+Rate limiting de `GET /equipment/by-codigo` con **Bucket4j tras el puerto `RateLimiter`**
+(`common/ratelimit`), configurable en `app.ratelimit.by-codigo` (por defecto 30/60 s por actor);
+excedido → **429** sin filtrar detalles. Ver
+**[ADR 0010](../../docs/04-decisiones/0010-rate-limiting-bucket4j.md)**. Cabeceras de seguridad por
+defecto de Spring Security y errores genéricos (`GlobalExceptionHandler`) ya cubrían el resto de la
+tarea. Test: `EquipmentRateLimitTest`.
+
 ### Tareas diferidas (`[~]`) y por qué
 
-- **T012/T013/T014, T021/T022, T028/T029, T034/T035** (tests de contrato/integración/auth y de
-  concurrencia): el proyecto **no tiene infraestructura Testcontainers/MockMvc**; añadirla excede
-  esta feature. La lógica equivalente (unicidad normalizada, derivación de vigencia, reglas de
-  estado, atomicidad del lote, bloqueo por asignación vigente) está cubierta a nivel **unitario**
-  en `EquipmentServiceTest`, `ExpiryCalculatorTest` y `CodeNormalizerTest` (18 tests). La
-  autorización se aplica de forma declarativa (`@PreAuthorize` por endpoint).
 - **T037 (cambio de código por rol elevado):** implementado como **inmutable** en la edición
   normal (el servicio rechaza el cambio); la operación dedicada y auditada se abordará si el
   negocio la requiere.
-- **T040 (rate limiting en `by-codigo`):** pendiente de un mecanismo transversal de rate limiting
-  (no existe aún en el proyecto).
 - **T042 (quickstart):** requiere entorno con SQL Server levantado.
 - **T043 (actualizar `docs/03-modelo-datos.md`):** **COMPLETADA.** El doc refleja ya el esquema de
   `V11` y las FKs repuntadas por ADR 0007 (`V15`: catálogos genéricos `catalog`/`catalog_item`,
