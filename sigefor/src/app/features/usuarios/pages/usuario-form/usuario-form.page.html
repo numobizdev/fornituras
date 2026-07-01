@@ -1,0 +1,80 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/usuarios"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditing ? 'Editar usuario' : 'Nuevo usuario' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (isLoading()) {
+    <div class="state-message">
+      <ion-spinner></ion-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Datos del usuario</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-input
+            label="Nombre"
+            labelPlacement="stacked"
+            formControlName="name"
+            maxlength="100"
+            placeholder="Ej. María López"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="email"
+            label="Correo"
+            labelPlacement="stacked"
+            formControlName="email"
+            maxlength="255"
+            placeholder="usuario@corporacion.gob.mx"></ion-input>
+        </ion-item>
+        @if (isEditing) {
+          <ion-item lines="none">
+            <ion-note color="medium">
+              El correo es la identidad de inicio de sesión y no puede modificarse.
+            </ion-note>
+          </ion-item>
+        }
+        <ion-item>
+          <ion-select
+            label="Rol"
+            labelPlacement="stacked"
+            formControlName="role"
+            placeholder="Seleccione un rol">
+            @for (option of roleOptions; track option.value) {
+              <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      </ion-list>
+
+      @if (!isEditing) {
+        <ion-list>
+          <ion-item lines="none">
+            <ion-note color="medium">
+              Se creará la cuenta como pendiente y se enviará un código de activación al correo para
+              que la persona defina su contraseña.
+            </ion-note>
+          </ion-item>
+        </ion-list>
+      }
+
+      <div class="form-actions">
+        <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <ion-spinner name="dots"></ion-spinner>
+          } @else {
+            {{ isEditing ? 'Guardar cambios' : 'Crear usuario' }}
+          }
+        </ion-button>
+      </div>
+    </form>
+  }
+</ion-content>

@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,4 +33,12 @@ public class User extends BaseEntity {
 
 	@Column(nullable = false)
 	private boolean enabled = true;
+
+	/** Intentos de login fallidos consecutivos; se reinicia al autenticar con éxito (anti-fuerza-bruta, FR-005). */
+	@Column(name = "failed_attempts", nullable = false)
+	private int failedAttempts = 0;
+
+	/** Momento hasta el que la cuenta queda bloqueada por exceso de intentos; {@code null} = sin bloqueo. */
+	@Column(name = "locked_until")
+	private LocalDateTime lockedUntil;
 }

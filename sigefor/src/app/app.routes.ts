@@ -71,6 +71,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/auditoria/auditoria.routes').then((m) => m.AUDITORIA_ROUTES),
       },
+      {
+        path: 'usuarios',
+        loadChildren: () =>
+          import('./features/usuarios/usuarios.routes').then((m) => m.USUARIOS_ROUTES),
+      },
     ],
   },
   {

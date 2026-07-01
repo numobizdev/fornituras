@@ -44,6 +44,7 @@ public class AuthService {
 	private final JwtService jwtService;
 	private final EmailService emailService;
 	private final AuditWriter audit;
+	private final LoginAttemptService loginAttempt;
 
 	public AuthService(
 			UserRepository userRepository,
@@ -52,7 +53,8 @@ public class AuthService {
 			PasswordEncoder passwordEncoder,
 			JwtService jwtService,
 			EmailService emailService,
-			AuditWriter audit) {
+			AuditWriter audit,
+			LoginAttemptService loginAttempt) {
 		this.userRepository = userRepository;
 		this.verificationTokenRepository = verificationTokenRepository;
 		this.passwordResetTokenRepository = passwordResetTokenRepository;
@@ -60,6 +62,7 @@ public class AuthService {
 		this.jwtService = jwtService;
 		this.emailService = emailService;
 		this.audit = audit;
+		this.loginAttempt = loginAttempt;
 	}
 
 	@Transactional(readOnly = true)
@@ -70,14 +73,19 @@ public class AuthService {
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
+		// Anti-fuerza-bruta (FR-005): rechaza si la cuenta está bloqueada por intentos fallidos.
+		loginAttempt.assertNotLocked(user);
+
 		if (!user.isEnabled()) {
 			throw new UnauthorizedException(
 					"La cuenta no está activada. Revise su correo para el código de activación.");
 		}
 		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
 			log.warn("Login failed: password mismatch for user id {}", user.getId());
+			loginAttempt.onFailedAttempt(user.getId());
 			throw new UnauthorizedException("Invalid email or password");
 		}
+		loginAttempt.onSuccessfulLogin(user.getId());
 
 		UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
 				.username(user.getEmail())
