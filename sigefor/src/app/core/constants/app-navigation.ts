@@ -7,6 +7,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
   { title: 'Asignación', url: '/asignacion', icon: 'link' },
   { title: 'Traslados', url: '/traslados', icon: 'swap-horizontal' },
   { title: 'Incidencias', url: '/incidencias', icon: 'warning' },
+  { title: 'Bajas', url: '/bajas', icon: 'archive' },
   { title: 'Catálogo de Tipos', url: '/tipos', icon: 'pricetags' },
   { title: 'Almacenes', url: '/almacenes', icon: 'business' },
 ];

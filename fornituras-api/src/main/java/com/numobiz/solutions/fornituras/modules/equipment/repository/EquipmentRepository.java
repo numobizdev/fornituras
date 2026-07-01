@@ -4,6 +4,8 @@ import com.numobiz.solutions.fornituras.modules.equipment.entity.Equipment;
 import com.numobiz.solutions.fornituras.modules.equipment.entity.EquipmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,4 +28,8 @@ public interface EquipmentRepository
 	 * las candidatas dentro de la ventana de aviso, para clasificarlas con {@code ExpiryCalculator}.
 	 */
 	List<Equipment> findByFechaVencimientoLessThanEqualAndStatusNot(LocalDate threshold, EquipmentStatus excludedStatus);
+
+	/** Ids de las fornituras de un tipo dado; sirve para filtrar por tipo sin acoplar otros módulos a la entidad. */
+	@Query("select e.id from Equipment e where e.equipmentTypeId = :typeId")
+	List<Long> findIdsByEquipmentTypeId(@Param("typeId") Long typeId);
 }

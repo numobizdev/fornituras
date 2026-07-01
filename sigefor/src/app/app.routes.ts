@@ -56,6 +56,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/incidencias/incidencias.routes').then((m) => m.INCIDENCIAS_ROUTES),
       },
+      {
+        path: 'bajas',
+        loadChildren: () =>
+          import('./features/bajas/bajas.routes').then((m) => m.BAJAS_ROUTES),
+      },
     ],
   },
   {
