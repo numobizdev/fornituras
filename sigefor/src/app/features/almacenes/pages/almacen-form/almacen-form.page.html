@@ -101,13 +101,21 @@
         <ion-list-header>
           <ion-label>Responsable y contacto</ion-label>
         </ion-list-header>
-        <ion-item>
-          <ion-input
-            type="number"
-            label="Responsable (ID de usuario)"
-            labelPlacement="stacked"
-            formControlName="responsableId"
-            placeholder="Opcional"></ion-input>
+        <ion-item button detail="true" (click)="openUserModal()">
+          <ion-label>
+            <p class="responsable-label">Responsable (opcional)</p>
+            <h3>{{ responsableNombre() || 'Sin asignar' }}</h3>
+          </ion-label>
+          @if (responsableId() !== null) {
+            <ion-button
+              slot="end"
+              fill="clear"
+              color="medium"
+              (click)="clearResponsable(); $event.stopPropagation()"
+              aria-label="Quitar responsable">
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          }
         </ion-item>
         <ion-item>
           <ion-input
@@ -158,5 +166,42 @@
         </ion-button>
       </div>
     </form>
+
+    <ion-modal [isOpen]="isUserModalOpen()" (didDismiss)="closeUserModal()">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Elegir responsable</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="closeUserModal()" aria-label="Cerrar">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+          <ion-toolbar>
+            <ion-searchbar
+              placeholder="Buscar por nombre o correo"
+              (ionInput)="onUserSearch($any($event.target).value)"></ion-searchbar>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-list>
+            @for (user of filteredUsers(); track user.id) {
+              <ion-item button (click)="selectUser(user)">
+                <ion-icon slot="start" name="person-outline" aria-hidden="true"></ion-icon>
+                <ion-label>
+                  <h3>{{ user.name }}</h3>
+                  <ion-note>{{ user.email }} · {{ user.role }}</ion-note>
+                </ion-label>
+              </ion-item>
+            } @empty {
+              <div class="state-message">
+                <p>No se encontraron usuarios.</p>
+              </div>
+            }
+          </ion-list>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
   }
 </ion-content>
