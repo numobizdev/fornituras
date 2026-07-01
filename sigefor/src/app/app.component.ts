@@ -26,6 +26,8 @@ import {
   barChartSharp,
   businessOutline,
   businessSharp,
+  shieldCheckmarkOutline,
+  shieldCheckmarkSharp,
   cubeOutline,
   cubeSharp,
   homeOutline,
@@ -73,8 +75,13 @@ export class AppComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  public readonly appPages: NavItem[] = APP_NAV_ITEMS;
   public readonly currentUser = this.authService.currentUser;
+
+  /** Menú filtrado por rol: las entradas con `roles` solo se muestran a esos roles (mínimo privilegio). */
+  public readonly appPages = computed<NavItem[]>(() => {
+    const role = this.currentUser()?.role;
+    return APP_NAV_ITEMS.filter((item) => !item.roles || (role != null && item.roles.includes(role)));
+  });
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -112,6 +119,8 @@ export class AppComponent {
       pricetagsSharp,
       businessOutline,
       businessSharp,
+      shieldCheckmarkOutline,
+      shieldCheckmarkSharp,
       swapHorizontalOutline,
       swapHorizontalSharp,
       warningOutline,
