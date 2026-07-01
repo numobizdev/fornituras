@@ -109,7 +109,29 @@ a roles autorizados.
 - Compatible con móvil y con navegación por teclado (clave para el flujo con lector HID).
 - Soporte de **modo oscuro** (definir variantes de las variables anteriores).
 
-## 8. Relación con las features
+## 8. Tokens de espaciado, tipografía y densidad
+
+Además de la paleta (§2), la identidad se apoya en estos tokens de base. El detalle de uso y la
+librería de componentes que los consume están en
+[`06-patrones-ux.md`](./06-patrones-ux.md).
+
+- **Espaciado — rejilla de 8 pt.** Todo margen/padding/gap es múltiplo de `4 px`
+  (`--space-1: 4px` … `--space-8: 64px`). Sin números mágicos.
+- **Tipografía — `Noto Sans`** (`--ion-font-family`). Escala: Display 28–32 / Title 20–22 /
+  Body 14–16 (mínimo 14) / Caption 12–13.
+- **Densidad.** Las vistas de tabla ofrecen densidad `cómoda` (default) y `compacta` (más filas,
+  para captura masiva en escritorio).
+
+## 9. Patrones de interacción y componentes
+
+La capa de **interacción** (cómo se comporta y se construye la UI: vista de datos responsiva,
+scan-first, estados de carga/vacío/error, filtros con chips, PII con revelado, wizard, etc.) y la
+**librería de componentes reutilizables** viven en
+[`06-patrones-ux.md`](./06-patrones-ux.md). Este documento (`05`) define la **identidad
+visual**; `06` define **cómo se interactúa**. No se duplican: `06` consume los colores y tokens
+de aquí.
+
+## 10. Relación con las features
 
 Toda feature que muestre estados de fornitura o indicadores DEBE usar la semántica de color de
 este documento (§3/§4). Las features que lo referencian: **001**, **008**, **010**, **011**.
