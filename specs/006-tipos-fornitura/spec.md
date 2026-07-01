@@ -166,10 +166,9 @@ tallas, esas tallas solo se ofrecen para ese tipo.
 > (`modules/catalog` + Flyway `V15__generic_catalog.sql`, que crea `catalog`/`catalog_item`, siembra
 > los catálogos y migra datos; se retiraron `modules/equipmenttypes` y el enum `warehouse_type`). El
 > frontend consume el CRUD genérico (`core/catalog`).
-> **Deuda de sincronización (código):** el código y `V15` aún usan el `code` **`TIPO_FORNITURA`** con
-> semilla de subtipos (chaleco/cinturón/casco). Falta: (a) migración nueva que **renombre el catálogo
-> a `TIPO_PRENDA`** y **reemplace la semilla por el único valor "Fornitura"**; (b) actualizar la
-> constante `CatalogCodes` y los usos en `sigefor`; (c) regenerar `plan.md`, `tasks.md` y
-> `data-model.md` de esta feature (`/speckit-plan`, `/speckit-tasks`) contra este spec.
+> **Sincronización con el código:** resuelta. La migración `V17__rename_tipo_fornitura_to_tipo_prenda.sql`
+> renombra el catálogo a **`TIPO_PRENDA`** y deja el único valor **"Fornitura"**; la constante
+> `CatalogCodes.TIPO_PRENDA` y los usos en `sigefor` están actualizados; `plan.md`, `tasks.md` y
+> `data-model.md` de esta feature fueron regenerados contra este spec.
 </content>
 </invoke>

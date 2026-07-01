@@ -83,5 +83,6 @@ columna se mantiene por ahora (renombrarlo es una limpieza posterior, no parte d
   valores de subtipos (chaleco/cinturón/casco). Falta una migración nueva que **renombre el catálogo
   a `TIPO_PRENDA`** y **reemplace la semilla por el único valor "Fornitura"**, más actualizar la
   constante `CatalogCodes` y los usos en `sigefor` (ver aclaración de dominio arriba).
-- **Pendiente:** regenerar `plan.md`/`tasks.md`/`data-model.md` de 003/005/006 (`/speckit-plan`,
-  `/speckit-tasks`); migrar a futuro `SEXO`/`TIPO_SANGRE` a la estructura genérica.
+- **Pendiente:** regenerar `plan.md`/`tasks.md`/`data-model.md` de 003/005 (`/speckit-plan`,
+  `/speckit-tasks`) — la **006 ya se regeneró**; migrar a futuro `SEXO`/`TIPO_SANGRE` a la estructura
+  genérica.
