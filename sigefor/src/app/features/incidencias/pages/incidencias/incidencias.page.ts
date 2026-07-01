@@ -92,6 +92,10 @@ export class IncidenciasPage implements OnInit {
 
   ngOnInit(): void {
     void this.loadAlerts();
+  }
+
+  // El listado se refresca en cada entrada (Ionic no re-ejecuta ngOnInit al volver del formulario).
+  ionViewWillEnter(): void {
     void this.load();
   }
 

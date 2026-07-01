@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import {
   IonBadge,
   IonButton,
@@ -60,7 +60,7 @@ interface FilterField {
     IonNote,
   ],
 })
-export class AuditoriaPage implements OnInit {
+export class AuditoriaPage {
   private readonly service = inject(AuditService);
   private readonly toastController = inject(ToastController);
 
@@ -99,7 +99,8 @@ export class AuditoriaPage implements OnInit {
     addIcons({ filterOutline, closeCircleOutline, chevronDownOutline, chevronUpOutline, shieldCheckmarkOutline });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada para reflejar los últimos eventos registrados.
+  ionViewWillEnter(): void {
     void this.load();
   }
 

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
 import {
   IonBadge,
   IonButton,
@@ -81,7 +81,7 @@ interface FilterField {
     IonText,
   ],
 })
-export class ReportesPage implements OnInit {
+export class ReportesPage {
   private readonly service = inject(ReportsService);
   private readonly toastController = inject(ToastController);
 
@@ -152,7 +152,8 @@ export class ReportesPage implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada para reflejar los últimos movimientos de inventario.
+  ionViewWillEnter(): void {
     void this.loadTotals();
     void this.load();
   }

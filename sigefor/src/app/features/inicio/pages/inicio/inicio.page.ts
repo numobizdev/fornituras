@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -60,7 +60,7 @@ import {
     LandingSectionsComponent,
   ],
 })
-export class InicioPage implements OnInit, OnDestroy {
+export class InicioPage implements OnDestroy {
   private readonly service = inject(DashboardService);
   private readonly landing = inject(LandingService);
   private readonly tour = inject(TourService);
@@ -87,7 +87,8 @@ export class InicioPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {
+  // Recarga en cada entrada para reflejar indicadores y contenido de inicio actualizados.
+  ionViewWillEnter(): void {
     void this.load();
   }
 
