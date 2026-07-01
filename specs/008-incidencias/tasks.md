@@ -24,7 +24,7 @@ alertas por umbral de fecha (mismo criterio que 001/010), autorización y audito
 ## Phase 1: Setup (Shared Infrastructure)
 
 - [X] T001 Crear la estructura de paquetes del módulo `incidents` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `mapper/`) en `<be>/incidents/`
-- [ ] T002 [P] Preparar la feature frontend `<fe>/incidencias/` (`pages/incidencias/`, `pages/incidencia-form/`, `data/`)
+- [X] T002 [P] Preparar la feature frontend `<fe>/incidencias/` (`pages/incidencias/`, `pages/incidencia-form/`, `data/`)
 
 ---
 
@@ -61,8 +61,8 @@ mantenimiento".
 - [X] T011 [US2] Implementar `IncidentRepository` (persistencia, por estado/equipment) en `<be>/incidents/repository/`
 - [X] T012 [US2] Implementar `IncidentService.report()` (crear "abierta", cambiar estado de fornitura vía `EquipmentStateChanger` si aplica, auditar) en `<be>/incidents/service/`
 - [X] T013 [US2] Implementar `POST /incidents` con **Bean Validation** del request en `<be>/incidents/controller/` y `<be>/incidents/dto/`
-- [ ] T014 [P] [US2] Frontend: `incidents.service.ts` (`report`) en `<fe>/incidencias/data/`
-- [ ] T015 [US2] Frontend: página `incidencia-form` (fornitura, tipo, descripción) en `<fe>/incidencias/pages/incidencia-form/`
+- [X] T014 [P] [US2] Frontend: `incidents.service.ts` (`report`) en `<fe>/incidencias/data/`
+- [X] T015 [US2] Frontend: página `incidencia-form` (fornitura, tipo, descripción) en `<fe>/incidencias/pages/incidencia-form/`
 
 **Checkpoint**: se pueden reportar incidencias (MVP).
 
@@ -81,8 +81,8 @@ mantenimiento".
 ### Implementation for User Story 1
 
 - [X] T017 [US1] Implementar `GET /incidents` (paginado + filtro estado) en `<be>/incidents/controller/`
-- [ ] T018 [P] [US1] Frontend: `incidents.service.ts` (`list`) en `<fe>/incidencias/data/`
-- [ ] T019 [US1] Frontend: página de listado (filtro de estado + tabla paginada con color semántico + acción "Actualizar") en `<fe>/incidencias/pages/incidencias/`
+- [X] T018 [P] [US1] Frontend: `incidents.service.ts` (`list`) en `<fe>/incidencias/data/`
+- [X] T019 [US1] Frontend: página de listado (filtro de estado + tabla paginada con color semántico + acción "Actualizar") en `<fe>/incidencias/pages/incidencias/`
 
 **Checkpoint**: seguimiento visible.
 
@@ -103,7 +103,7 @@ mantenimiento".
 
 - [X] T021 [US3] Implementar `IncidentService.update()` (transición de estado, liberar fornitura si procede, auditar) en `<be>/incidents/service/`
 - [X] T022 [US3] Implementar `PATCH /incidents/{id}` en `<be>/incidents/controller/`
-- [ ] T023 [US3] Frontend: acción "Actualizar" (modal de estado) en `<fe>/incidencias/pages/incidencias/`
+- [X] T023 [US3] Frontend: acción "Actualizar" (modal de estado) en `<fe>/incidencias/pages/incidencias/`
 
 **Checkpoint**: ciclo de incidencia completo.
 
@@ -124,7 +124,7 @@ mantenimiento, con el **mismo criterio** que 001/010.
 
 - [X] T025 [US4] Implementar `AlertService` (derivación por `fecha_vencimiento` usando `VigenciaCriteria`; consulta agregada eficiente) en `<be>/incidents/service/`
 - [X] T026 [US4] Implementar `GET /alerts/vigencia` (próximas/caducadas) y alertas de mantenimiento en `<be>/incidents/controller/`
-- [ ] T027 [US4] Frontend: vista/sección de alertas con color semántico (`docs/05-ui-ux.md`) en `<fe>/incidencias/pages/incidencias/`
+- [X] T027 [US4] Frontend: vista/sección de alertas con color semántico (`docs/05-ui-ux.md`) en `<fe>/incidencias/pages/incidencias/`
 
 **Checkpoint**: las cuatro historias funcionan; alertas derivadas operativas.
 
@@ -172,8 +172,13 @@ mantenimiento, con el **mismo criterio** que 001/010.
   (única fuente de las transiciones). Guarda de seguridad añadida: al reportar solo se retira la fornitura
   si está DISPONIBLE/ASIGNADA (no se interfiere con una custodia EN_TRASLADO); al resolver solo vuelve a
   DISPONIBLE si seguía retirada (EN_MANTENIMIENTO/EXTRAVIADA). Sin `mapper/` (mapeo inline en el servicio).
-- **Pendiente — frontend (`sigefor/`):** T002, T014, T015, T018, T019, T023, T027 (feature
-  `features/incidencias`: servicio HTTP, formulario de reporte, listado con color semántico y modal de
-  actualización, vista de alertas). Se abordará con la skill de UI/UX del proyecto.
+- **Frontend completo (`sigefor/`).** Feature `features/incidencias` construida con la skill de UI/UX del
+  proyecto, replicando las convenciones existentes (patrón de `traslados`): modelo + `IncidentsService`
+  (`data/`), página de listado con filtro por estado, paginación, badges de estado con color semántico y
+  sección "Alertas de vigencia" (CADUCADA=danger, PROXIMA_A_VENCER=warning, siempre color + etiqueta),
+  modal `ion-alert` de actualización de estado, y formulario `incidencia-form` (resolución de fornitura
+  por código vía `GET /equipment/by-codigo`, tipo y descripción). Ruta registrada en `app.routes.ts` y
+  entrada "Incidencias" en el menú (`app-navigation.ts` + iconos en `app.component.ts`). **Build de
+  desarrollo limpio** (solo warnings preexistentes de `@import` de Sass en `global.scss`).
 - **Diferido por diseño (`[~]`):** T028 (materializar alertas con tabla + job → ADR si el volumen lo exige;
   hoy las alertas son derivadas).

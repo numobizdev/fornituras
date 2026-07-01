@@ -1,0 +1,97 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Incidencias</ion-title>
+    @if (canWrite) {
+      <ion-buttons slot="end">
+        <ion-button (click)="newIncident()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Nueva
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Alertas de vigencia derivadas: severidad por color + etiqueta -->
+  <ion-list>
+    <ion-list-header>
+      <ion-label>
+        <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+        Alertas de vigencia
+      </ion-label>
+    </ion-list-header>
+
+    @if (alertsLoading()) {
+      <div class="state-message"><ion-spinner></ion-spinner></div>
+    } @else if (alerts().length === 0) {
+      <div class="state-message"><p>Sin alertas de vigencia.</p></div>
+    } @else {
+      @for (alert of alerts(); track alert.equipmentId) {
+        <ion-item>
+          <ion-label>
+            <h2>{{ alert.equipmentCodigo }}</h2>
+            <p>{{ alert.descripcion || 'Sin descripción' }} · Vence {{ alert.fechaVencimiento | date: 'mediumDate' }}</p>
+          </ion-label>
+          <ion-badge slot="end" [color]="alertColor(alert)">{{ alertLabel(alert) }}</ion-badge>
+        </ion-item>
+      }
+    }
+  </ion-list>
+
+  <!-- Filtro por estado -->
+  <ion-list>
+    <ion-item>
+      <ion-select
+        label="Estado"
+        labelPlacement="stacked"
+        [value]="filterEstado()"
+        (ionChange)="filterEstado.set($event.detail.value); applyFilters()">
+        <ion-select-option [value]="''">Todos</ion-select-option>
+        <ion-select-option value="ABIERTA">Abierta</ion-select-option>
+        <ion-select-option value="EN_PROCESO">En proceso</ion-select-option>
+        <ion-select-option value="RESUELTA">Resuelta</ion-select-option>
+        <ion-select-option value="CERRADA">Cerrada</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <!-- Listado de incidencias -->
+  <ion-list>
+    <ion-list-header>
+      <ion-label>Incidencias</ion-label>
+    </ion-list-header>
+
+    @if (isLoading()) {
+      <div class="state-message"><ion-spinner></ion-spinner></div>
+    } @else if (incidents().length === 0) {
+      <div class="state-message"><p>No hay incidencias.</p></div>
+    } @else {
+      @for (item of incidents(); track item.id) {
+        <ion-item>
+          <ion-label class="ion-text-wrap">
+            <h2>{{ item.equipmentCodigo }} · {{ typeLabel(item.tipo) }}</h2>
+            <p>{{ item.descripcion }}</p>
+            <ion-note color="medium">Reportada {{ item.fechaReporte | date: 'short' }}</ion-note>
+            @if (item.fechaResolucion) {
+              <ion-note color="medium"> · Resuelta {{ item.fechaResolucion | date: 'short' }}</ion-note>
+            }
+          </ion-label>
+          <ion-badge slot="end" [color]="statusColor(item.estado)">{{ statusLabel(item.estado) }}</ion-badge>
+          @if (canWrite) {
+            <ion-button slot="end" fill="clear" (click)="openUpdate(item)">Actualizar</ion-button>
+          }
+        </ion-item>
+      }
+
+      <div class="pager">
+        <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
+        <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+        <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
+      </div>
+    }
+  </ion-list>
+</ion-content>

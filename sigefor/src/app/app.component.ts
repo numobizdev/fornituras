@@ -36,6 +36,8 @@ import {
   pricetagsSharp,
   swapHorizontalOutline,
   swapHorizontalSharp,
+  warningOutline,
+  warningSharp,
 } from 'ionicons/icons';
 import { APP_NAV_ITEMS } from './core/constants/app-navigation';
 import { NavItem } from './core/models/nav-item.model';
@@ -104,6 +106,8 @@ export class AppComponent {
       businessSharp,
       swapHorizontalOutline,
       swapHorizontalSharp,
+      warningOutline,
+      warningSharp,
     });
   }
 

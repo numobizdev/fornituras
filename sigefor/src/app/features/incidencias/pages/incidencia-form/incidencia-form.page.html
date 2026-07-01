@@ -1,0 +1,83 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/incidencias"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva incidencia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <!-- Fornitura: se resuelve server-side por código -->
+    <ion-item>
+      <ion-input
+        label="Código de fornitura"
+        labelPlacement="stacked"
+        autocapitalize="characters"
+        placeholder="FOR-000001"
+        [value]="codigo()"
+        (ionInput)="onCodigoInput($event.detail.value ?? '')"
+        (keyup.enter)="resolveCodigo()">
+      </ion-input>
+      <ion-button slot="end" fill="clear" [disabled]="resolving()" (click)="resolveCodigo()">
+        @if (resolving()) {
+          <ion-spinner name="dots"></ion-spinner>
+        } @else {
+          <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+        }
+      </ion-button>
+    </ion-item>
+
+    @if (codigoError()) {
+      <ion-note color="danger" class="field-note">{{ codigoError() }}</ion-note>
+    }
+
+    @if (resolved(); as equipment) {
+      <ion-item lines="none">
+        <ion-label class="ion-text-wrap">
+          <h2>{{ equipment.codigoQr }}</h2>
+          <p>{{ equipment.descripcion || equipment.tipoNombre || 'Fornitura' }} · Estado: {{ equipment.status }}</p>
+        </ion-label>
+      </ion-item>
+    }
+
+    <!-- Tipo de incidencia -->
+    <ion-item>
+      <ion-select
+        label="Tipo"
+        labelPlacement="stacked"
+        placeholder="Selecciona el tipo"
+        [value]="tipo()"
+        (ionChange)="tipo.set($event.detail.value)">
+        @for (option of typeOptions; track option[0]) {
+          <ion-select-option [value]="option[0]">{{ option[1].label }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <!-- Descripción -->
+    <ion-item>
+      <ion-textarea
+        label="Descripción"
+        labelPlacement="stacked"
+        placeholder="Describe el problema"
+        [autoGrow]="true"
+        [counter]="true"
+        maxlength="500"
+        [value]="descripcion()"
+        (ionInput)="descripcion.set($event.detail.value ?? '')">
+      </ion-textarea>
+    </ion-item>
+  </ion-list>
+
+  <div class="submit-bar">
+    <ion-button expand="block" [disabled]="!canSubmit() || submitting()" (click)="submit()">
+      @if (submitting()) {
+        <ion-spinner name="dots"></ion-spinner>
+      } @else {
+        Reportar incidencia
+      }
+    </ion-button>
+  </div>
+</ion-content>
