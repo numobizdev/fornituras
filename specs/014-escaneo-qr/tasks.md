@@ -75,7 +75,7 @@ fallback a manual sin romper; el componente no llama a ninguna resolución de da
 - [X] T012 [P] Integrar `QrScanComponent` en el alta/lote de **001** (`features/fornituras/`): `fornitura-form` (código en alta) y `fornitura-lote` (captura repetida con `clearOnCapture`)
 - [X] T013 [P] Integrar en el paso 1 de **004** (`features/asignacion/`), resolviendo la fornitura disponible server-side vía `GET /equipment/by-codigo`
 - [X] T014 [P] Integrar en el alta de traslado **007** (`features/traslados/`) — integrado en `traslado-form` al implementar la spec 007
-- [~] T015 [P] Integrar en la búsqueda de baja **009** (`features/bajas/`) — **bloqueada:** la feature 009 aún no existe; se integra al implementarla
+- [X] T015 [P] Integrar en la búsqueda de baja **009** (`features/bajas/`) — integrado en `baja-form` (usa `app-qr-scan`, resuelve server-side vía `GET /equipment/by-codigo`; la baja no admite reversión)
 
 ---
 
@@ -106,13 +106,16 @@ fallback a manual sin romper; el componente no llama a ninguna resolución de da
 - Cualquier dependencia nueva (plugin de escaneo) se justifica y registra (Principio VI).
 - Commit por tarea o grupo lógico; TDD (specs en rojo antes de implementar).
 
-### Estado de implementación (2026-06-30)
+### Estado de implementación (act. 2026-07-01)
 
 - **Completado:** componente/servicio `core/qr-scan/` (contrato, normalización, HID, cámara web
   best-effort tras puerto `OpticalScanner`, manejo de permisos/fallback), **12 pruebas** verdes
   (`hid-detector`, `qr-scan.service`, `qr-scan.component`), ADR 0008, e integración en **001**
-  (`fornitura-form`, `fornitura-lote`) y **004** (`asignacion`).
-- **Diferido (`[~]`):** T014/T015 (integración en 007/009) porque esas features aún no existen;
-  T017 (quickstart en dispositivo real con lector/cámara).
+  (`fornitura-form`, `fornitura-lote`), **004** (`asignacion`), **007** (`traslado-form`) y **009**
+  (`baja-form`). Revisión UI/UX con **ui-ux-pro-max** (accesibilidad del campo, `role="alert"` en el
+  error de formato, marco guía y aviso `aria-live` en el escaneo).
+- **Diferido (`[~]`):** T017 (quickstart en dispositivo real con lector HID + cámara): la equivalencia
+  de valor por los tres medios y el fallback sin cámara están cubiertos por las 12 pruebas; falta la
+  validación manual en hardware.
 - **Nota fuera de alcance:** `app.component.spec.ts` falla en `dev` desde antes de esta feature
   (inyecta `AuthService → HttpClient` sin proveerlo en el test); no lo toca 014.

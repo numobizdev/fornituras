@@ -3,6 +3,11 @@
     <ion-input
       class="qr-scan__input"
       fill="outline"
+      aria-label="Código de la fornitura"
+      autocapitalize="characters"
+      autocomplete="off"
+      spellcheck="false"
+      enterkeyhint="search"
       [placeholder]="placeholder()"
       [value]="value()"
       (ionInput)="onInput($event.detail.value ?? '')"
@@ -25,11 +30,17 @@
   </div>
 
   @if (formatError()) {
-    <ion-note color="danger">El código no tiene el formato esperado (FOR-XXXXX).</ion-note>
+    <ion-note color="danger" role="alert">El código no tiene el formato esperado (FOR-XXXXX).</ion-note>
   }
 
   <div class="qr-scan__camera" [hidden]="!isScanning()">
-    <video #video class="qr-scan__video" playsinline muted></video>
+    <div class="qr-scan__viewport">
+      <video #video class="qr-scan__video" playsinline muted></video>
+      <div class="qr-scan__frame" aria-hidden="true"></div>
+    </div>
+    <p class="qr-scan__hint" aria-live="polite">
+      @if (isScanning()) { Escaneando… apunte la cámara al código QR. }
+    </p>
     <ion-button type="button" fill="outline" size="small" (click)="stopCamera()">
       <ion-icon slot="start" name="close-outline"></ion-icon>
       Cancelar
