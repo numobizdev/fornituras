@@ -29,3 +29,8 @@ app:
       enabled: false
   mail:
     from: test@fornituras.local
+  # Claves de prueba (no secretas): habilitan cifrado de PII y blind index para los tests de
+  # integración que persisten elementos del padrón (003) — p. ej. los reportes (011).
+  pii:
+    encryption-key: DCEUhley+zGGDQpInyELd/2hCM4iRgCQVPilR7i1au8=
+    blind-index-key: test-blind-index-key
