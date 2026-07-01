@@ -9,35 +9,43 @@
   --status-mantenimiento: #ffc107; // amarillo
 }
 
-.state-message {
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  padding: 48px 24px;
-  color: var(--ion-color-medium);
+.section {
+  padding: 16px;
+}
+
+.section-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-text-color);
 }
 
 .indicator-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
-  padding: 16px;
 }
 
 .indicator-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  gap: 6px;
   padding: 16px;
   border-radius: 12px;
-  background: var(--ion-card-background);
-  border: 1px solid var(--ion-border-color);
+  background: var(--ion-card-background, #fff);
+  border: 1px solid var(--ion-border-color, #e0e0e0);
   border-left: 4px solid var(--accent);
 
+  .indicator-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .indicator-icon {
-    font-size: 24px;
+    font-size: 22px;
     color: var(--accent);
+    flex-shrink: 0;
   }
 
   .indicator-value {
@@ -45,10 +53,90 @@
     font-weight: 700;
     line-height: 1.1;
     color: var(--ion-text-color);
+    font-variant-numeric: tabular-nums;
   }
 
   .indicator-label {
     font-size: 14px;
     color: var(--ion-color-medium);
+  }
+}
+
+// --- Estado de error / vacío ---
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+
+  ion-icon {
+    font-size: 48px;
+    color: var(--ion-color-medium);
+  }
+
+  .empty-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+
+  .empty-hint {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// --- Skeletons de carga ---
+.skeleton {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--ion-color-light, #eee) 25%,
+    var(--ion-color-light-shade, #ddd) 37%,
+    var(--ion-color-light, #eee) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-card {
+  min-height: 96px;
+  gap: 8px;
+}
+
+.skeleton-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.skeleton-value {
+  width: 45%;
+  height: 26px;
+}
+
+.skeleton-label {
+  width: 75%;
+  height: 13px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+// Accesibilidad: respetar la preferencia de movimiento reducido.
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
   }
 }

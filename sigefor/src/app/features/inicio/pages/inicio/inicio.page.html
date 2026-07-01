@@ -18,21 +18,41 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  @if (isLoading() && !summary()) {
-    <div class="state-message"><ion-spinner></ion-spinner></div>
-  } @else if (hasError()) {
-    <div class="state-message">
-      <p>No fue posible cargar los indicadores. Desliza hacia abajo para reintentar.</p>
-    </div>
-  } @else {
-    <div class="indicator-grid">
-      @for (indicator of indicators; track indicator.key) {
-        <div class="indicator-card" [style.--accent]="'var(' + indicator.colorVar + ')'">
-          <ion-icon class="indicator-icon" [name]="indicator.icon" aria-hidden="true"></ion-icon>
-          <span class="indicator-value">{{ value(indicator) }}</span>
-          <span class="indicator-label">{{ indicator.label }}</span>
-        </div>
-      }
-    </div>
-  }
+  <section class="section" aria-labelledby="indicators-heading">
+    <h2 id="indicators-heading" class="section-title">Indicadores del inventario</h2>
+
+    @if (isLoading() && !summary()) {
+      <div class="indicator-grid" aria-hidden="true">
+        @for (slot of skeletonSlots; track slot) {
+          <div class="indicator-card skeleton-card">
+            <span class="skeleton skeleton-icon"></span>
+            <span class="skeleton skeleton-value"></span>
+            <span class="skeleton skeleton-label"></span>
+          </div>
+        }
+      </div>
+    } @else if (hasError()) {
+      <div class="empty-state" role="alert">
+        <ion-icon name="cloud-offline-outline" aria-hidden="true"></ion-icon>
+        <p class="empty-title">No se pudieron cargar los indicadores</p>
+        <p class="empty-hint">Revisa tu conexión e inténtalo de nuevo.</p>
+        <ion-button fill="outline" size="small" (click)="load()">
+          <ion-icon slot="start" name="refresh-outline" aria-hidden="true"></ion-icon>
+          Reintentar
+        </ion-button>
+      </div>
+    } @else {
+      <div class="indicator-grid">
+        @for (indicator of indicators; track indicator.key) {
+          <div class="indicator-card" [style.--accent]="'var(' + indicator.colorVar + ')'">
+            <div class="indicator-head">
+              <ion-icon class="indicator-icon" [name]="indicator.icon" aria-hidden="true"></ion-icon>
+              <span class="indicator-value">{{ value(indicator) }}</span>
+            </div>
+            <span class="indicator-label">{{ indicator.label }}</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
 </ion-content>
