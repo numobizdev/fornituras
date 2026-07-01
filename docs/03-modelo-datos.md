@@ -6,36 +6,49 @@
 >
 > **Actualizado 2026-06-30** para el alcance SIGEFOR (`Requerimientos.MD`): "equipo" →
 > **fornitura**, catálogos (tipo, talla, almacén), traslados, incidencias, bajas. Ver `specs/`.
+>
+> **Actualizado 2026-06-30 (spec 001, T043)**: la tabla `equipment` refleja ya el esquema
+> **implementado** en la migración `V11__create_equipment.sql` (y sus FKs repuntadas por la
+> reestructuración de catálogos, ADR 0007 / `V15`). Los catálogos `equipment_type`/`size` y el
+> enum `warehouse.tipo` fueron **sustituidos** por el modelo genérico `catalog` + `catalog_item`.
 
 ## Entidades principales
 
-### Fornitura (`equipment`)
-El equipo de dotación controlado (chaleco antibala, cinturón táctico, casco, etc.).
+### Fornitura (`equipment`) — spec 001 — **IMPLEMENTADO** (`V11`, FKs repuntadas en `V15`)
+El equipo de dotación controlado (chaleco antibala, cinturón táctico, casco, etc.). Refleja la
+entidad `Equipment` y la migración `V11`.
 
-| Campo            | Tipo            | Notas                                              |
-|------------------|-----------------|----------------------------------------------------|
-| id               | UUID (PK)        | Identificador interno.                             |
-| serial_number    | string (único)   | Número de serie/QR único de la fornitura.          |
-| codigo_qr        | string (FK/único)| Código `FOR-XXXXX` escaneado (→ `codigo_qr.codigo`); se liga en el alta. |
-| numero_inventario| string           | Número de inventario institucional.                |
-| type_id          | FK → equipment_type | Tipo (cinturón, chaleco, casco…).               |
-| size_id          | FK → size (null) | Talla (catálogo).                                  |
-| warehouse_id     | FK → warehouse   | Almacén actual.                                    |
-| marca            | string (null)    |                                                    |
-| modelo           | string (null)    |                                                    |
-| nivel_proteccion | string (null)    | p. ej. nivel balístico (NIJ).                      |
-| status           | enum             | disponible, asignada, mantenimiento, en_traslado, extraviada, baja. |
-| fecha_fabricacion| date (null)      |                                                    |
-| fecha_adquisicion| date (null)      |                                                    |
-| vida_util_meses  | int (null)       | Duración; alimenta el cálculo de vencimiento.      |
-| fecha_vencimiento| date (null)      | **Canónico** para alertas/vigencia (ver spec 001). |
-| fecha_alta       | datetime         |                                                    |
-| ubicacion        | string (null)    | Ubicación dentro del almacén.                      |
-| observaciones    | string (null)    |                                                    |
-| foto_url         | string (null)    | Foto de la fornitura (no PII).                     |
+| Campo             | Tipo (BD)              | Notas                                                        |
+|-------------------|------------------------|-------------------------------------------------------------|
+| id                | BIGINT IDENTITY (PK)   | Identificador interno opaco e inmutable (`BaseEntity`). No es UUID. |
+| codigo_qr         | NVARCHAR(60)           | Código físico (QR/serie) tal cual se muestra; recortado y en mayúsculas. |
+| codigo_normalizado| NVARCHAR(60) **único** | Forma normalizada (sin espacios/guiones, mayúsculas); garantiza unicidad física. |
+| equipment_type_id | FK → catalog_item      | Tipo (catálogo `TIPO_FORNITURA`). Antes `equipment_type`; repuntada en `V15`. |
+| size_id           | FK → catalog_item (null)| Talla (catálogo `TALLA`, opcionalmente colgada del tipo). Antes `size`; repuntada en `V15`. |
+| warehouse_id      | FK → warehouse         | Almacén actual.                                             |
+| status            | NVARCHAR(20) + CHECK   | `DISPONIBLE`, `ASIGNADA`, `EN_MANTENIMIENTO`, `EN_TRASLADO`, `EXTRAVIADA`, `BAJA_DEFINITIVA` (enum `EquipmentStatus`). Default `DISPONIBLE`. |
+| descripcion       | NVARCHAR(255) (null)   |                                                             |
+| marca             | NVARCHAR(120) (null)   |                                                             |
+| modelo            | NVARCHAR(120) (null)   |                                                             |
+| nivel_balistico   | NVARCHAR(60) (null)    | p. ej. nivel balístico (NIJ).                               |
+| numero_inventario | NVARCHAR(60) (null)    | Número de inventario institucional.                        |
+| fecha_fabricacion | DATE (null)            |                                                             |
+| fecha_adquisicion | DATE (null)            |                                                             |
+| vida_util_meses   | INT (null)             | Duración; alimenta el cálculo de vencimiento.              |
+| fecha_vencimiento | DATE (null)            | **Canónico** para alertas/vigencia (`= fecha_fabricacion + vida_util_meses`; ver spec 001). |
+| observaciones     | NVARCHAR(500) (null)   |                                                             |
+| foto_url          | NVARCHAR(500) (null)   | Foto de la fornitura (no PII).                             |
+| created_at / updated_at | DATETIME2        | Timestamps de auditoría (`BaseEntity`).                    |
 
+> **Índices**: `codigo_normalizado` (único), `status`, `equipment_type_id`, `warehouse_id`,
+> `fecha_vencimiento`.
+>
 > **Estados de vigencia** (próxima a vencer ≤ 90 días / caducada) se **derivan** de
-> `fecha_vencimiento`; no son columnas de `status`.
+> `fecha_vencimiento` (`ExpiryCalculator` → `ExpiryStatus`); no son columnas de `status`.
+>
+> **Nota de identidad**: el `id` es interno; el código físico opaco `FOR-XXXXX` vive en
+> `codigo_qr`/`codigo_normalizado` y se resuelve server-side (`GET /equipment/by-codigo/{codigo}`).
+> No existe columna `serial_number` separada.
 
 ### QR — `lote_qr` y `codigo_qr` (**IMPLEMENTADO**, ver ADR 0005)
 Los códigos QR se generan **por lotes** e independientes de la fornitura; el enlace ocurre al dar
@@ -62,7 +75,8 @@ El personal policial.
 | apellido_materno | string (null)    | **PII** — Always Encrypted.                        |
 | sexo_id          | FK → sexo        | Catálogo.                                          |
 | tipo_sangre_id   | FK → tipo_sangre | Catálogo. **PII sensible.**                        |
-| municipio_id     | FK → municipio   | Catálogo.                                          |
+| municipio        | string (null)    | **Texto libre** (`NVARCHAR(120)`). Antes `municipio_id` FK; retirado en `V15` (ADR 0007). |
+| estado           | string (null)    | **Texto libre** (`NVARCHAR(120)`); añadido en `V15`.  |
 | curp             | string (null)    | **PII — [PENDIENTE ADR 0003]** Always Encrypted.   |
 | rfc              | string (null)    | **PII — [PENDIENTE ADR 0003]** Always Encrypted.   |
 | foto_url         | string (null)    | **PII biométrica indirecta** — storage cifrado.    |
@@ -74,15 +88,33 @@ El personal policial.
 > se contemplan en el esquema pero su captura permanece restringida. Guardar solo lo necesario
 > para la finalidad declarada.
 
-### Catálogos
-Tablas de catálogo controladas (activo/inactivo, no se eliminan si están en uso):
+### Catálogos — **modelo genérico `catalog` + `catalog_item`** (ADR 0007, `V15`)
+La reestructuración de catálogos (ADR 0007) sustituyó las tablas tipadas `equipment_type` y `size`
+(y el enum `warehouse.tipo`) por un par genérico. Cada **`catalog`** es una lista controlada; cada
+**`catalog_item`** es un valor de esa lista, con jerarquía opcional (`parent_item_id`) para modelar
+p. ej. tallas colgadas de un tipo.
 
-- **`equipment_type`** (spec 006): `id`, `nombre` (único), `descripcion`, `foto_url`, `activo`.
-- **`size`** (talla): `id`, `nombre`, `equipment_type_id` (null = global), `activo`.
-- **`sexo`**, **`tipo_sangre`**, **`municipio`**: `id`, `nombre`.
-- **`motivo_baja`**: `id`, `nombre`.
+- **`catalog`**: `id` (PK), `code` (único, p. ej. `TIPO_FORNITURA`/`TALLA`/`TIPO_ALMACEN`), `nombre`,
+  `descripcion`, `is_system` (bit), `active` (bit), timestamps.
+- **`catalog_item`**: `id` (PK), `catalog_id` (FK → `catalog`), `code` (null), `nombre`,
+  `nombre_normalizado`, `descripcion`, `foto_url`, `parent_item_id` (FK → `catalog_item`, null),
+  `orden`, `active` (bit), timestamps. **Único** `nombre_normalizado` por catálogo (distinguiendo por
+  padre para permitir el mismo valor —p. ej. talla "M"— bajo tipos distintos).
 
-> **`warehouse` (almacén) NO es un catálogo plano.** Es una **entidad operativa** (lugar físico con
+Catálogos semilla del sistema (`is_system = 1`): `TIPO_FORNITURA` (tipos de fornitura),
+`TALLA` (tallas, opcionalmente ligadas a un tipo vía `parent_item_id`), `TIPO_ALMACEN`
+(CENTRAL/REGIONAL/MOVIL/TEMPORAL). Las FKs de `equipment` (tipo/talla) y `warehouse` (tipo) apuntan
+a `catalog_item`.
+
+Catálogos aún **planos** (fuera del modelo genérico, pendientes de valorar su migración):
+
+- **`sexo`**, **`tipo_sangre`**: `id`, `nombre` (usados por `officer`).
+- **`motivo_baja`**: `id`, `nombre` (spec 009).
+
+> **`municipio` dejó de ser catálogo.** Con ADR 0007 se retiró la tabla `municipio` y su FK; ahora
+> `warehouse` y `officer` guardan `municipio`/`estado` como **texto libre** (`NVARCHAR(120)`).
+>
+> **`warehouse` (almacén) NO es un catálogo.** Es una **entidad operativa** (lugar físico con
 > responsable y cupo); ver su tabla propia abajo y `specs/005-almacenes/data-model.md`.
 
 ### Almacén (`warehouse`) — spec 005 — **entidad operativa (no catálogo)**
@@ -95,8 +127,9 @@ armería es **sensible** (RBAC por campo).
 | id               | Long (PK)          | IDENTITY.                                             |
 | codigo           | string (único)     | Clave de negocio estable (`ALM-01`); traslados/etiquetas. |
 | nombre           | string             | Legible (con `nombre_normalizado` único).            |
-| tipo             | enum               | CENTRAL, REGIONAL, MOVIL, TEMPORAL.                  |
-| municipio_id     | FK → municipio (null) | Reutiliza el catálogo geográfico de `officer`.    |
+| tipo_item_id     | FK → catalog_item  | Tipo de almacén (catálogo `TIPO_ALMACEN`). Antes enum `tipo`; migrado en `V15` (ADR 0007). |
+| municipio        | string (null)      | **Texto libre** (`NVARCHAR(120)`). Antes `municipio_id` FK; retirado en `V15`. |
+| estado           | string (null)      | **Texto libre** (`NVARCHAR(120)`); añadido en `V15`. |
 | direccion        | string (null)      | **Sensible** (ubicación de armería).                 |
 | cp               | string (null)      |                                                      |
 | latitud/longitud | decimal (null)     | **Sensible**; opcional, desaconsejada salvo necesidad. |
@@ -196,12 +229,13 @@ Quién accedió/modificó qué y cuándo.
 
 ## Relaciones
 
-- `equipment` N—1 `equipment_type`, `size` (catálogos), `warehouse` (entidad operativa).
-- `warehouse` N—1 `municipio` (catálogo); `warehouse` N—1 `user` (responsable).
+- `equipment` N—1 `catalog_item` (tipo `TIPO_FORNITURA` y talla `TALLA`), `warehouse` (entidad operativa).
+- `warehouse` N—1 `catalog_item` (tipo `TIPO_ALMACEN`); `municipio`/`estado` son texto libre; `warehouse` N—1 `user` (responsable).
+- `catalog` 1—N `catalog_item`; `catalog_item` 1—N `catalog_item` (jerarquía `parent_item_id`, p. ej. talla→tipo).
 - `equipment` 1—N `assignment` N—1 `officer` (historial de asignaciones / resguardos).
 - `equipment` 1—N `incident`; `equipment` 1—N `decommission` (baja definitiva).
 - `transfer` 1—N `transfer_item` N—1 `equipment`; `transfer` N—1 `warehouse` (origen/destino).
-- `officer` N—1 `sexo`, `tipo_sangre`, `municipio` (catálogos).
+- `officer` N—1 `sexo`, `tipo_sangre` (catálogos); `municipio`/`estado` son texto libre.
 - `assignment.asignado_por` / `recibido_por` → `user` (trazabilidad).
 - `audit_log.user_id` → `user`.
 
@@ -211,6 +245,7 @@ Quién accedió/modificó qué y cuándo.
   (ver spec **003**).
 - Definir qué columnas exactas usan Always Encrypted (mínimo: nombre/apellidos, CURP, RFC, tipo
   de sangre; foto en storage cifrado).
-- Talla: ¿catálogo global o por tipo de fornitura? (ver spec 006).
+- ~~Talla: ¿catálogo global o por tipo de fornitura?~~ **Resuelto (ADR 0007)**: `catalog_item`
+  `TALLA` con `parent_item_id` opcional → talla global (sin padre) o colgada de un tipo.
 - Inmutabilidad y retención de `audit_log` (ISO 27001) → ADR (ver spec **012**).
 - Política de retención y baja de datos (derechos ARCO).

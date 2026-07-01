@@ -143,7 +143,7 @@ estado, autorización y auditoría son parte del entregable.
 - [~] T040 [P] Endurecimiento: rate limiting en `GET /equipment/by-codigo` (mitiga enumeración, ADR 0005), cabeceras de seguridad, errores que no filtran detalles en `<be>/equipment/`
 - [X] T041 [P] Tests unitarios de normalización y de derivación de vigencia en `<bet>/equipment/`
 - [~] T042 Validar el quickstart (alta, lote, búsqueda, vigencia, bloqueo de baja con asignación) y registrar resultados
-- [~] T043 [P] Actualizar `docs/03-modelo-datos.md` si el esquema final difiere
+- [X] T043 [P] Actualizar `docs/03-modelo-datos.md` si el esquema final difiere
 
 ---
 
@@ -183,8 +183,9 @@ estado, autorización y auditoría son parte del entregable.
 - **T040 (rate limiting en `by-codigo`):** pendiente de un mecanismo transversal de rate limiting
   (no existe aún en el proyecto).
 - **T042 (quickstart):** requiere entorno con SQL Server levantado.
-- **T043 (actualizar `docs/03-modelo-datos.md`):** el esquema final quedó en la migración `V11`;
-  conviene reflejarlo en el doc en una pasada de documentación.
+- **T043 (actualizar `docs/03-modelo-datos.md`):** **COMPLETADA.** El doc refleja ya el esquema de
+  `V11` y las FKs repuntadas por ADR 0007 (`V15`: catálogos genéricos `catalog`/`catalog_item`,
+  `municipio` a texto libre).
 
 ### Desviaciones respecto al plan (alineadas al código existente)
 
