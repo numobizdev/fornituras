@@ -83,6 +83,8 @@ columna se mantiene por ahora (renombrarlo es una limpieza posterior, no parte d
   migración `V17__rename_tipo_fornitura_to_tipo_prenda.sql` lo **renombró a `TIPO_PRENDA`** y dejó el
   único valor **"Fornitura"**; la constante `CatalogCodes.TIPO_PRENDA` y los usos en `sigefor` están
   actualizados (ver aclaración de dominio arriba).
-- **Pendiente:** migrar `SEXO`/`TIPO_SANGRE` (hoy tablas planas, usadas por spec 003) a la estructura
-  genérica `catalog → catalog_item`. Planteado como feature
-  [**015-catalogos-sexo-sangre**](../../specs/015-catalogos-sexo-sangre/spec.md).
+- **Hecho:** `SEXO`/`TIPO_SANGRE` migrados a la estructura genérica `catalog → catalog_item` en
+  `V18__migrate_sexo_tiposangre_to_catalog.sql` (feature
+  [**015-catalogos-sexo-sangre**](../../specs/015-catalogos-sexo-sangre/spec.md)); se retiraron sus
+  tablas/entidades/repos y el `OfficerCatalogController`. Único catálogo plano restante:
+  `motivo_baja` (spec 009), a valorar al implementar bajas.

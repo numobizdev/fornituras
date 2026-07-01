@@ -73,8 +73,8 @@ El personal policial.
 | nombre           | string           | **PII** — Always Encrypted.                        |
 | apellido_paterno | string           | **PII** — Always Encrypted.                        |
 | apellido_materno | string (null)    | **PII** — Always Encrypted.                        |
-| sexo_id          | FK → sexo        | Catálogo.                                          |
-| tipo_sangre_id   | FK → tipo_sangre | Catálogo. **PII sensible.**                        |
+| sexo_id          | FK → catalog_item | Catálogo `SEXO` (genérico, ADR 0007 / `V18`). Antes FK a la tabla plana `sexo`. |
+| tipo_sangre_id   | FK → catalog_item | Catálogo `TIPO_SANGRE` (genérico, `V18`). **PII sensible.** Antes FK a `tipo_sangre`. |
 | municipio        | string (null)    | **Texto libre** (`NVARCHAR(120)`). Antes `municipio_id` FK; retirado en `V15` (ADR 0007). |
 | estado           | string (null)    | **Texto libre** (`NVARCHAR(120)`); añadido en `V15`.  |
 | curp             | string (null)    | **PII — [PENDIENTE ADR 0003]** Always Encrypted.   |
@@ -104,17 +104,17 @@ p. ej. tallas colgadas de un tipo.
 Catálogos semilla del sistema (`is_system = 1`): `TIPO_PRENDA` (**tipo de prenda**; semilla con el
 único valor "Fornitura" — una fornitura es un tipo de prenda, no una categoría con subtipos),
 `TALLA` (tallas, opcionalmente ligadas a un tipo de prenda vía `parent_item_id`), `TIPO_ALMACEN`
-(CENTRAL/REGIONAL/MOVIL/TEMPORAL). Las FKs de `equipment` (tipo de prenda/talla) y `warehouse` (tipo)
+(CENTRAL/REGIONAL/MOVIL/TEMPORAL), `SEXO` (MASCULINO/FEMENINO) y `TIPO_SANGRE` (O±/A±/B±/AB±). Las
+FKs de `equipment` (tipo de prenda/talla), `warehouse` (tipo) y `officer` (sexo/tipo de sangre)
 apuntan a `catalog_item`.
 
-> **Deuda de sincronización (código).** `V15` y el backend aún usan el `code` `TIPO_FORNITURA` con
-> semilla de subtipos (chaleco/cinturón/casco). Pendiente: migración que renombre el catálogo a
-> `TIPO_PRENDA` y reemplace la semilla por el único valor "Fornitura" (ADR 0007, spec 006).
+> **Rename `TIPO_PRENDA` (hecho).** `V15` sembró el catálogo como `TIPO_FORNITURA`; `V17` lo renombró
+> a `TIPO_PRENDA` con el único valor "Fornitura" (ADR 0007, spec 006). `SEXO`/`TIPO_SANGRE` se
+> migraron a la estructura genérica en `V18` (spec 015).
 
-Catálogos aún **planos** (fuera del modelo genérico, pendientes de valorar su migración):
+Catálogos aún **planos** (fuera del modelo genérico):
 
-- **`sexo`**, **`tipo_sangre`**: `id`, `nombre` (usados por `officer`).
-- **`motivo_baja`**: `id`, `nombre` (spec 009).
+- **`motivo_baja`**: `id`, `nombre` (spec 009; se valorará su migración al implementar bajas).
 
 > **`municipio` dejó de ser catálogo.** Con ADR 0007 se retiró la tabla `municipio` y su FK; ahora
 > `warehouse` y `officer` guardan `municipio`/`estado` como **texto libre** (`NVARCHAR(120)`).
@@ -240,7 +240,7 @@ Quién accedió/modificó qué y cuándo.
 - `equipment` 1—N `assignment` N—1 `officer` (historial de asignaciones / resguardos).
 - `equipment` 1—N `incident`; `equipment` 1—N `decommission` (baja definitiva).
 - `transfer` 1—N `transfer_item` N—1 `equipment`; `transfer` N—1 `warehouse` (origen/destino).
-- `officer` N—1 `sexo`, `tipo_sangre` (catálogos); `municipio`/`estado` son texto libre.
+- `officer` N—1 `catalog_item` (sexo `SEXO`, tipo de sangre `TIPO_SANGRE`); `municipio`/`estado` son texto libre.
 - `assignment.asignado_por` / `recibido_por` → `user` (trazabilidad).
 - `audit_log.user_id` → `user`.
 

@@ -3,6 +3,8 @@ export const CATALOG_CODES = {
   TIPO_PRENDA: 'TIPO_PRENDA',
   TALLA: 'TALLA',
   TIPO_ALMACEN: 'TIPO_ALMACEN',
+  SEXO: 'SEXO',
+  TIPO_SANGRE: 'TIPO_SANGRE',
 } as const;
 
 export type CatalogCode = (typeof CATALOG_CODES)[keyof typeof CATALOG_CODES];
