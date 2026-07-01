@@ -42,6 +42,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0005](./0005-formato-qr-implementado.md) — Formato QR implementado: código corto opaco + lotes. **Aceptado** (reemplaza 0002; firma = punto abierto).
 - [0006](./0006-cifrado-pii-nivel-aplicacion.md) — Cifrado de PII a nivel de aplicación.
 - [0007](./0007-catalogos-genericos.md) — Catálogos genéricos (`catalog → catalog_item`) y municipio/estado como texto libre. **Aceptado.**
+- [0011](./0011-libreria-export-excel.md) — Exportación de reportes a Excel con Apache POI (SXSSF, streaming). **Aceptado.**
 
 ## Decisiones pendientes de registrar
 

@@ -1,0 +1,98 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Reportes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="exportExcel()" [disabled]="exporting()">
+        @if (exporting()) {
+          <ion-spinner slot="start" name="dots"></ion-spinner>
+        } @else {
+          <ion-icon slot="start" name="download-outline"></ion-icon>
+        }
+        Exportar a Excel
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Totales por estado (coinciden con el tablero 010) -->
+  <div class="totals-grid">
+    @for (card of totalCards; track card.key) {
+      <div class="total-card" [style.--accent]="'var(' + card.colorVar + ')'">
+        <span class="total-value">{{ totalValue(card) }}</span>
+        <span class="total-label">{{ card.label }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Filtros de asignaciones activas -->
+  <ion-list>
+    <ion-list-header><ion-label>Asignaciones activas</ion-label></ion-list-header>
+    <ion-item>
+      <ion-input label="Código QR" labelPlacement="stacked" [value]="qr()"
+        (ionChange)="qr.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Nombre" labelPlacement="stacked" [value]="nombre()"
+        (ionChange)="nombre.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Placa" labelPlacement="stacked" [value]="placa()"
+        (ionChange)="placa.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Municipio" labelPlacement="stacked" [value]="municipio()"
+        (ionChange)="municipio.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="CURP" labelPlacement="stacked" [value]="curp()"
+        (ionChange)="curp.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="RFC" labelPlacement="stacked" [value]="rfc()"
+        (ionChange)="rfc.set($event.detail.value ?? ''); applyFilters()"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  @if (piiMasked()) {
+    <ion-text color="medium">
+      <p class="pii-note">
+        <ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon>
+        Algunos datos (CURP/RFC) se muestran enmascarados según tu rol. El archivo exportado hereda la
+        sensibilidad de los datos: trátalo con cuidado.
+      </p>
+    </ion-text>
+  }
+
+  <!-- Tabla de asignaciones activas -->
+  <ion-list>
+    @if (isLoading()) {
+      <div class="state-message"><ion-spinner></ion-spinner></div>
+    } @else if (rows().length === 0) {
+      <div class="state-message"><p>No hay asignaciones activas para el filtro.</p></div>
+    } @else {
+      @for (row of rows(); track row.assignmentId) {
+        <ion-item>
+          <ion-label class="ion-text-wrap">
+            <h2>{{ row.codigoQr }} · {{ row.elementoNombre }}</h2>
+            <p>Placa {{ row.placa }} · {{ row.municipio || 'Sin municipio' }}</p>
+            <ion-note color="medium">CURP {{ row.curp || '—' }} · RFC {{ row.rfc || '—' }}</ion-note>
+            <ion-note color="medium"> · Asignada {{ row.fechaAsignacion | date: 'short' }}</ion-note>
+          </ion-label>
+          @if (row.piiMasked) {
+            <ion-badge slot="end" color="medium">PII oculta</ion-badge>
+          }
+        </ion-item>
+      }
+
+      <div class="pager">
+        <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
+        <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+        <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
+      </div>
+    }
+  </ion-list>
+</ion-content>

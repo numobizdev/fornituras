@@ -22,6 +22,15 @@ public class AuditWriter {
 		log.info("AUDIT action={} resourceId={} actor={}", action, resourceId, currentActor());
 	}
 
+	/**
+	 * Registra un evento sin recurso puntual (p. ej. exportación de un reporte). El {@code detail}
+	 * describe el contexto del evento (tipo de reporte, campos de filtro usados) y <b>nunca</b> debe
+	 * contener PII ni valores de filtro sensibles (Principio V).
+	 */
+	public void recordEvent(String action, String detail) {
+		log.info("AUDIT action={} detail={} actor={}", action, detail, currentActor());
+	}
+
 	private String currentActor() {
 		var authentication = SecurityContextHolder.getContext().getAuthentication();
 		return (authentication != null && authentication.isAuthenticated())

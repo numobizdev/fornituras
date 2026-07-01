@@ -22,6 +22,8 @@ import { addIcons } from 'ionicons';
 import {
   archiveOutline,
   archiveSharp,
+  barChartOutline,
+  barChartSharp,
   businessOutline,
   businessSharp,
   cubeOutline,
@@ -94,6 +96,8 @@ export class AppComponent {
     addIcons({
       archiveOutline,
       archiveSharp,
+      barChartOutline,
+      barChartSharp,
       homeOutline,
       homeSharp,
       peopleOutline,
