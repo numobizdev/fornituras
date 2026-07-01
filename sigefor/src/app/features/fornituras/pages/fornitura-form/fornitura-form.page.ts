@@ -22,6 +22,8 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
+import { QrCaptureError } from '../../../../core/qr-scan/qr-scan.types';
 import { EquipmentTypesService } from '../../../tipos/data/equipment-types.service';
 import {
   EquipmentTypeSummary,
@@ -58,6 +60,7 @@ import {
     IonSelectOption,
     IonButton,
     IonSpinner,
+    QrScanComponent,
   ],
 })
 export class FornituraFormPage implements OnInit {
@@ -127,6 +130,16 @@ export class FornituraFormPage implements OnInit {
     } catch (error) {
       await this.showToast(extractApiErrorMessage(error), 'danger');
     }
+  }
+
+  /** Código capturado por lector/cámara/manual (componente 014): llena el control del formulario. */
+  onCodeCaptured(code: string): void {
+    this.form.controls.codigoQr.setValue(code);
+    this.form.controls.codigoQr.markAsDirty();
+  }
+
+  async onCaptureError(error: QrCaptureError): Promise<void> {
+    await this.showToast(error.message, 'warning');
   }
 
   async onTypeSelected(value: number | string | null): Promise<void> {

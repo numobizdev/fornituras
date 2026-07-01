@@ -1,0 +1,38 @@
+<div class="qr-scan">
+  <div class="qr-scan__row">
+    <ion-input
+      class="qr-scan__input"
+      fill="outline"
+      [placeholder]="placeholder()"
+      [value]="value()"
+      (ionInput)="onInput($event.detail.value ?? '')"
+      (keydown)="onKeyDown($event)"></ion-input>
+
+    @if (cameraSupported) {
+      <ion-button
+        type="button"
+        fill="clear"
+        aria-label="Escanear con la cámara"
+        [disabled]="isScanning()"
+        (click)="startCamera()">
+        <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+      </ion-button>
+    }
+
+    <ion-button type="button" [disabled]="!canSubmit()" (click)="submitManual()">
+      {{ actionLabel() }}
+    </ion-button>
+  </div>
+
+  @if (formatError()) {
+    <ion-note color="danger">El código no tiene el formato esperado (FOR-XXXXX).</ion-note>
+  }
+
+  <div class="qr-scan__camera" [hidden]="!isScanning()">
+    <video #video class="qr-scan__video" playsinline muted></video>
+    <ion-button type="button" fill="outline" size="small" (click)="stopCamera()">
+      <ion-icon slot="start" name="close-outline"></ion-icon>
+      Cancelar
+    </ion-button>
+  </div>
+</div>

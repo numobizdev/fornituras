@@ -26,6 +26,8 @@ import { addIcons } from 'ionicons';
 import { checkmarkCircle, closeCircle, searchOutline } from 'ionicons/icons';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
+import { QrCaptureError } from '../../../../core/qr-scan/qr-scan.types';
 import { EquipmentService } from '../../../fornituras/data/equipment.service';
 import { EquipmentDetail } from '../../../fornituras/data/equipment.model';
 import { OfficersService } from '../../../elementos/data/officers.service';
@@ -56,6 +58,7 @@ import { AssignmentSummary } from '../../data/assignment.model';
     IonButton,
     IonIcon,
     IonSpinner,
+    QrScanComponent,
   ],
 })
 export class AsignacionPage implements OnInit {
@@ -116,6 +119,16 @@ export class AsignacionPage implements OnInit {
 
   get canConfirm(): boolean {
     return this.equipmentAvailable && this.selectedOfficer() !== null;
+  }
+
+  /** Código capturado por lector/cámara/manual (componente 014): resuelve la fornitura server-side. */
+  async onCodeCaptured(code: string): Promise<void> {
+    this.codigo.set(code);
+    await this.resolveEquipment();
+  }
+
+  async onCaptureError(error: QrCaptureError): Promise<void> {
+    await this.showToast(error.message, 'warning');
   }
 
   async resolveEquipment(): Promise<void> {

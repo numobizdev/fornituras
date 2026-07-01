@@ -18,14 +18,32 @@
         <ion-list-header>
           <ion-label>Identificación</ion-label>
         </ion-list-header>
-        <ion-item>
-          <ion-input
-            label="Código QR / serie"
-            labelPlacement="stacked"
-            formControlName="codigoQr"
-            maxlength="60"
-            placeholder="Escanee con el lector o teclee el código"></ion-input>
-        </ion-item>
+        @if (isEditing) {
+          <ion-item>
+            <ion-input
+              label="Código QR / serie"
+              labelPlacement="stacked"
+              formControlName="codigoQr"
+              maxlength="60"></ion-input>
+          </ion-item>
+        } @else {
+          <ion-item lines="none">
+            <ion-label position="stacked">Código QR / serie</ion-label>
+          </ion-item>
+          <ion-item lines="none">
+            <app-qr-scan
+              class="ion-margin-vertical"
+              actionLabel="Usar código"
+              [validateFormat]="true"
+              (codeCaptured)="onCodeCaptured($event)"
+              (captureError)="onCaptureError($event)"></app-qr-scan>
+          </ion-item>
+          @if (form.controls.codigoQr.value) {
+            <ion-item>
+              <ion-label>Código: <strong>{{ form.controls.codigoQr.value }}</strong></ion-label>
+            </ion-item>
+          }
+        }
         <ion-item>
           <ion-select
             label="Tipo"

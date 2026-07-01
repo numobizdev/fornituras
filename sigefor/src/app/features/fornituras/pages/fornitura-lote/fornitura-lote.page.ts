@@ -24,8 +24,10 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, trashOutline } from 'ionicons/icons';
+import { trashOutline } from 'ionicons/icons';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
+import { QrCaptureError } from '../../../../core/qr-scan/qr-scan.types';
 import { EquipmentTypesService } from '../../../tipos/data/equipment-types.service';
 import {
   EquipmentTypeSummary,
@@ -60,6 +62,7 @@ import { BatchCreateRequest } from '../../data/equipment.model';
     IonButton,
     IonIcon,
     IonSpinner,
+    QrScanComponent,
   ],
 })
 export class FornituraLotePage implements OnInit {
@@ -74,7 +77,6 @@ export class FornituraLotePage implements OnInit {
   readonly sizes = signal<SizeSummary[]>([]);
   readonly warehouses = signal<WarehouseSummary[]>([]);
   readonly codigos = signal<string[]>([]);
-  readonly nextCode = signal('');
   readonly isSubmitting = signal(false);
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -93,7 +95,7 @@ export class FornituraLotePage implements OnInit {
   });
 
   constructor() {
-    addIcons({ addOutline, trashOutline });
+    addIcons({ trashOutline });
   }
 
   ngOnInit(): void {
@@ -127,8 +129,9 @@ export class FornituraLotePage implements OnInit {
     }
   }
 
-  addCode(): void {
-    const raw = this.nextCode().trim();
+  /** Código capturado por lector/cámara/manual (componente 014): valida duplicados y lo agrega. */
+  onCodeCaptured(code: string): void {
+    const raw = code.trim();
     if (!raw) {
       return;
     }
@@ -139,7 +142,10 @@ export class FornituraLotePage implements OnInit {
       return;
     }
     this.codigos.update((current) => [...current, raw.toUpperCase()]);
-    this.nextCode.set('');
+  }
+
+  async onCaptureError(error: QrCaptureError): Promise<void> {
+    await this.showToast(error.message, 'warning');
   }
 
   removeCode(index: number): void {

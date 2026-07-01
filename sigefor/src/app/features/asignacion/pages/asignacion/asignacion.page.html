@@ -21,17 +21,15 @@
       </ion-list-header>
 
       <!-- Paso 1: identificar la fornitura -->
-      <ion-item>
-        <ion-input
-          label="Paso 1 — Código QR"
-          labelPlacement="stacked"
-          placeholder="Escanee con el lector o teclee el código"
-          [value]="codigo()"
-          (ionInput)="codigo.set($any($event.target).value)"
-          (keyup.enter)="resolveEquipment()"></ion-input>
-        <ion-button slot="end" fill="clear" (click)="resolveEquipment()" aria-label="Buscar fornitura">
-          <ion-icon slot="icon-only" name="search-outline"></ion-icon>
-        </ion-button>
+      <ion-item lines="none">
+        <ion-label position="stacked">Paso 1 — Código QR</ion-label>
+      </ion-item>
+      <ion-item lines="none">
+        <app-qr-scan
+          class="ion-margin-vertical"
+          actionLabel="Buscar"
+          (codeCaptured)="onCodeCaptured($event)"
+          (captureError)="onCaptureError($event)"></app-qr-scan>
       </ion-item>
 
       @if (resolvingEquipment()) {

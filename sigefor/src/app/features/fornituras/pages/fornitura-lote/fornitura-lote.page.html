@@ -78,17 +78,14 @@
     <ion-list-header>
       <ion-label>Códigos del lote ({{ codigos().length }})</ion-label>
     </ion-list-header>
-    <ion-item>
-      <ion-input
-        label="Código"
-        labelPlacement="stacked"
-        placeholder="Escanee con el lector o teclee el código"
-        [value]="nextCode()"
-        (ionInput)="nextCode.set($any($event.target).value)"
-        (keyup.enter)="addCode()"></ion-input>
-      <ion-button slot="end" fill="clear" (click)="addCode()" aria-label="Agregar código">
-        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-      </ion-button>
+    <ion-item lines="none">
+      <app-qr-scan
+        class="ion-margin-vertical"
+        actionLabel="Agregar"
+        [validateFormat]="true"
+        [clearOnCapture]="true"
+        (codeCaptured)="onCodeCaptured($event)"
+        (captureError)="onCaptureError($event)"></app-qr-scan>
     </ion-item>
 
     @if (codigos().length === 0) {
