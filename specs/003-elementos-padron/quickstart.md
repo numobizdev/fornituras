@@ -6,9 +6,9 @@ Guía de validación end-to-end. No incluye código de implementación; referenc
 
 ## Prerrequisitos
 
-- SQL Server 2022 accesible (TDE habilitado; **secure enclaves** si se valida búsqueda parcial
-  sobre PII cifrada — ver research §1). Para desarrollo, Testcontainers levanta MSSQL.
-- Backend `fornituras-api/` con la migración Flyway de `officers` + catálogos aplicada.
+- SQL Server 2022 accesible. La PII se cifra **a nivel de aplicación** (AES-GCM + blind index HMAC,
+  ADR 0006); no requiere Always Encrypted ni enclaves.
+- Backend `fornituras-api/` con las migraciones Flyway de `officers` + catálogos (`V12`, `V15`) aplicadas.
 - Frontend `sigefor/` con la feature `elementos` (listado ya andamiado; formulario de alta nuevo).
 - Sesión iniciada (login por email/JWT ya existente) con un usuario `ADMIN` y uno `CAPTURISTA`
   para probar enmascaramiento.
@@ -17,10 +17,9 @@ Guía de validación end-to-end. No incluye código de implementación; referenc
 
 ```
 DB_HOST= / DB_PORT= / DB_NAME= / DB_USER= / DB_PASSWORD=
-SQLSERVER_AE_ENABLED=         # columnEncryptionSetting=Enabled en la cadena de conexión
-AE_CMK_PROVIDER=              # proveedor del Column Master Key (gestor de secretos)
+PII_ENCRYPTION_KEY=           # clave AES-GCM del cifrado de PII a nivel app (ADR 0006)
 OFFICER_BLIND_INDEX_KEY=      # clave HMAC del blind index de CURP/RFC
-PHOTO_STORAGE_TARGET=         # destino del storage cifrado de fotos
+PHOTO_STORAGE_TARGET=         # destino del storage cifrado de fotos (gated por ADR 0003)
 ```
 
 ## Arrancar
@@ -42,9 +41,9 @@ npm start
 
 2. **Búsqueda y paginación** (US1 / SC-001)
    - Cargar varios elementos; `GET /officers?q=PM-1042` → devuelve el correcto.
-   - `GET /officers?municipioId=7&page=0&size=20` → solo ese municipio, paginado.
-   - Búsqueda parcial por apellido (`q=GARC`) → coincidencias (requiere enclave; si no hay
-     enclave, validar el fallback definido en el ADR).
+   - `GET /officers?municipio=Centro&page=0&size=20` → solo ese municipio (texto libre, `LIKE`), paginado.
+   - Búsqueda exacta de CURP/RFC (`q=<curp>`) → coincidencia vía blind index. La búsqueda por nombre
+     parcial **no está disponible** (cifrado no determinista, ADR 0006).
 
 3. **Enmascaramiento por rol** (FR-005 / SC-004)
    - `GET /officers/{id}` como **CAPTURISTA** → CURP/RFC enmascarados o ausentes.
@@ -58,8 +57,8 @@ npm start
    - Tras alta/edición, verificar `CREATE_OFFICER` / `UPDATE_OFFICER`.
 
 5. **Cifrado en reposo** (FR-007 / SC-003)
-   - Consultar la tabla `officers` con una conexión **sin** Always Encrypted habilitado → las
-     columnas PII se ven como **cifradas** (no texto claro).
+   - Consultar la tabla `officers` directamente en BD → las columnas PII (`nombre`, apellidos,
+     `curp`, `rfc`) se ven **cifradas** a nivel app (no texto claro); `curp_idx`/`rfc_idx` son HMAC.
 
 6. **Sin PII en lugares prohibidos** (FR-008 / SC-005)
    - Revisar logs y URLs: ni CURP/RFC/nombre ni la foto aparecen en logs, query strings

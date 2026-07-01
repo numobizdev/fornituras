@@ -4,21 +4,29 @@
 
 **Input**: Feature specification from `specs/005-almacenes/spec.md`
 
+> **Estado: IMPLEMENTADO.** Plan **regenerado** (2026-06-30) al modelo real: tras ADR 0007, la
+> clasificación `tipo` es una **FK a `catalog_item`** (`tipo_item_id`, catálogo `TIPO_ALMACEN`) y
+> `municipio`/`estado` son **texto libre** (ya no FK a `municipio`). Se retiró el enum `WarehouseType`
+> y el módulo `equipmenttypes` (sustituido por `catalog`).
+
 ## Summary
 
 Construir el módulo de **almacenes** como **entidad operativa / dato maestro** (no catálogo plano):
-ubicaciones físicas de resguardo con **clave de negocio única** (`codigo`), **nombre** único,
-**tipo**, **ubicación** (municipio + dirección + geolocalización opcional), **responsable**
-(`user`), **contacto institucional** y **cupo**. Es prerequisito del alta de fornituras (**001**,
-almacén obligatorio) y del origen/destino de traslados (**007**). CRUD con unicidad normalizada y
-**desactivación** (no borrado) cuando el almacén tiene fornituras o traslados asociados.
+ubicaciones físicas de resguardo con **clave de negocio única** (`codigo`), **nombre** único, **tipo
+de almacén** (FK al catálogo `TIPO_ALMACEN`), **ubicación** (municipio/estado texto libre + dirección
++ geolocalización opcional), **responsable** (`user`), **contacto institucional** y **cupo**. Es
+prerequisito del alta de fornituras (**001**, almacén obligatorio) y del origen/destino de traslados
+(**007**). CRUD con unicidad normalizada y **desactivación** (no borrado) cuando el almacén tiene
+fornituras o traslados asociados.
 
 Sin PII de elementos, pero **la ubicación/responsable de una armería es información sensible**: el
 eje es **integridad referencial** + **autorización por rol sobre campos sensibles** + **auditoría**.
 El detalle de la entidad vive en [`data-model.md`](./data-model.md).
 
-Enfoque: módulo backend `warehouses` en Spring Boot (controller/service/repository/entity/enum/dto +
-mapper), migración Flyway con `warehouse`, y feature `almacenes` en el frontend `sigefor/`.
+Enfoque: módulo backend `warehouses` en Spring Boot (controller/service/repository/entity/dto +
+mapper, con el puerto `WarehouseUsageQuery`), migración Flyway `V10__create_warehouse.sql` (y el
+repunte a `tipo_item_id`/texto libre en `V15__generic_catalog.sql`), y feature `almacenes` en el
+frontend `sigefor/`. El `tipo` se resuelve contra el catálogo `TIPO_ALMACEN` (módulo `catalog`).
 
 ## Technical Context
 
@@ -28,9 +36,10 @@ mapper), migración Flyway con `warehouse`, y feature `almacenes` en el frontend
 (`flyway-sqlserver`), `mssql-jdbc`. Frontend: servicios HTTP + componentes standalone Ionic.
 
 **Storage**: SQL Server 2022. Tabla `warehouse` (`codigo` único, `nombre`/`nombre_normalizado`
-único, `tipo`, `municipio_id` FK, dirección + geolocalización, `responsable_id` FK → `users`,
-contacto, `capacidad`, `active`). Sin Always Encrypted (no hay PII de elementos); los campos
-sensibles (dirección/geo/responsable) se protegen por RBAC, no por cifrado de columna.
+único, `tipo_item_id` FK → `catalog_item` del catálogo `TIPO_ALMACEN`, `municipio`/`estado` **texto
+libre**, dirección + geolocalización, `responsable_id` FK → `users`, contacto, `capacidad`,
+`active`). Sin Always Encrypted (no hay PII de elementos); los campos sensibles
+(dirección/geo/responsable) se protegen por RBAC, no por cifrado de columna.
 
 **Testing**: JUnit 5 + Spring Boot Test; Testcontainers (MSSQL) para integración y migración;
 contrato y autorización. Frontend: pruebas de servicio con `HttpTestingController`.
@@ -86,14 +95,14 @@ specs/005-almacenes/
 fornituras-api/
 └── src/
     ├── main/java/com/numobiz/solutions/fornituras/modules/warehouses/
-    │   ├── controller/     # WarehouseController
-    │   ├── service/        # WarehouseService (desactivación, unicidad, conteo de uso, filtrado por rol)
+    │   ├── controller/     # WarehouseController (@PreAuthorize por endpoint)
+    │   ├── service/        # WarehouseService + WarehouseUsageQuery/DefaultWarehouseUsageQuery (conteo de uso)
     │   ├── repository/     # WarehouseRepository
-    │   ├── entity/         # Warehouse, WarehouseType (enum)
+    │   ├── entity/         # Warehouse (tipo_item_id FK, municipio/estado texto libre)
     │   ├── dto/            # WarehouseCreateRequest, WarehouseSummary, WarehouseDetail
-    │   └── mapper/         # WarehouseMapper (MapStruct, patrón equipmenttypes)
-    ├── main/resources/db/migration/   # V9__create_warehouse.sql (Flyway)
-    └── test/java/.../modules/warehouses/
+    │   └── mapper/         # WarehouseMapper (entity↔DTO)
+    ├── main/resources/db/migration/   # V10__create_warehouse.sql (+ repunte en V15)
+    └── test/java/.../modules/warehouses/   # WarehouseServiceTest
 
 sigefor/
 └── src/app/features/almacenes/
@@ -102,16 +111,16 @@ sigefor/
     └── data/warehouses.service.ts
 ```
 
-**Structure Decision**: módulo backend `warehouses/` siguiendo el patrón de `equipmenttypes/`
-(entidad + enum + DTOs Summary/Detail + mapper MapStruct + `NameNormalizer` reutilizado). La
-verificación "en uso" consulta `equipment` (001) y `transfer` (007); las FK `municipio_id` (003) y
-`responsable_id` (`users`, ya existe) se cablean según disponibilidad. Mientras 001/003/007 no
-existan, las reglas se implementan tras puertos que devuelven 0/nulo y su test de integración se
-completa al integrar esas features.
+**Structure Decision**: módulo backend `warehouses/` (entidad + DTOs Summary/Detail + mapper +
+normalizador de `common/text` reutilizado). El **tipo** se resuelve contra el catálogo `TIPO_ALMACEN`
+(módulo `catalog`, `requireActiveItem`). La verificación "en uso" consulta `equipment` (001) y
+`transfer` (007) a través del puerto `WarehouseUsageQuery`; `responsable_id` (`users`) ya existe;
+`municipio`/`estado` son texto libre (sin FK).
 
-> **Orden de migración**: este plan asume `V9` después de `V8` (tipos, feature 006). Si 005 se
-> implementa antes que 006, ajustar el número de versión Flyway al siguiente disponible; nunca
-> reutilizar ni renumerar una migración ya aplicada.
+> **Orden de migración (real)**: `V10__create_warehouse.sql` creó la tabla (con enum `tipo` y
+> `municipio_id` iniciales); `V15__generic_catalog.sql` repuntó `tipo`→`tipo_item_id` (FK a
+> `catalog_item`) y `municipio_id`→`municipio`/`estado` de texto libre (ADR 0007). Nunca reutilizar
+> ni renumerar una migración ya aplicada.
 
 ## Phase 0 — Research
 
@@ -123,8 +132,9 @@ Sin incógnitas técnicas. Decisiones inline:
 - **Borrado vs desactivación**: nunca borrado físico de un almacén en uso; columna `active`.
 - **Conteo de uso**: el bloqueo de eliminación consulta fornituras (001) y traslados (007); por orden
   de implementación, la consulta se aísla tras un puerto que devuelve 0 hasta que esas tablas existan.
-- **Reutilización**: `municipio` (003) como catálogo geográfico; `user` como responsable;
-  `NameNormalizer` y el patrón MapStruct de `equipmenttypes`.
+- **Reutilización**: catálogo `TIPO_ALMACEN` (módulo `catalog`) para el tipo; `user` como
+  responsable; normalizador de `common/text`. `municipio`/`estado` como **texto libre** (ADR 0007),
+  no catálogo geográfico.
 - **Sensibilidad por campo**: dirección/geo/responsable/contacto solo a ADMIN/almacén → DTOs
   `Summary` (no sensible) vs `Detail` (sensible, filtrado por rol).
 
@@ -147,4 +157,4 @@ referencial y auditoría cubiertas. **Gate sigue en PASA.**
 
 > Sin violaciones de la constitución. Entidad operativa con sensibilidad por campo; la complejidad
 > añadida (más columnas, FKs, RBAC por DTO) es inherente al dominio, no estructural — reutiliza
-> patrones ya presentes en `equipmenttypes`.
+> patrones ya presentes en otros módulos (`catalog`, `officers`) y el catálogo `TIPO_ALMACEN`.

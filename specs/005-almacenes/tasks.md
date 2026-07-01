@@ -8,8 +8,13 @@ description: "Task list — Almacenes (005)"
 
 **Prerequisites**: [plan.md](./plan.md), [spec.md](./spec.md), [data-model.md](./data-model.md)
 
-**Tests**: incluidos. Pruebas de unicidad (`codigo` + `nombre`), integridad referencial (no eliminar
-en uso), **autorización por campo sensible** (Summary vs Detail) y auditoría.
+> **Estado: IMPLEMENTADO** (regenerado 2026-06-30). Refleja el **modelo real** tras ADR 0007: el
+> `tipo` es una **FK a `catalog_item`** (`tipo_item_id`, catálogo `TIPO_ALMACEN`) y `municipio`/
+> `estado` son **texto libre** (sin FK). Se retiró el enum `WarehouseType` y el módulo
+> `equipmenttypes`. `[X]` = construido; `[~]` = diferido; `[ ]` = pendiente real.
+
+**Tests**: unicidad (`codigo` + `nombre`), integridad referencial (no eliminar en uso), resolución
+del tipo contra `TIPO_ALMACEN`, **autorización por campo sensible** (Summary vs Detail) y auditoría.
 
 **Organization**: tareas agrupadas por user story para implementación y prueba independientes.
 
@@ -32,14 +37,14 @@ en uso), **autorización por campo sensible** (Summary vs Detail) y auditoría.
 
 **⚠️ CRITICAL**: ninguna user story puede empezar hasta completar esta fase.
 
-- [X] T003 [P] Crear el enum `WarehouseType` (`CENTRAL/REGIONAL/MOVIL/TEMPORAL`) en `<be>/warehouses/entity/WarehouseType.java`
-- [X] T003b Crear la entidad `Warehouse` con **todos los campos** de [data-model.md](./data-model.md) (identidad `codigo`/`nombre`/`nombre_normalizado`; `tipo`; ubicación `municipio_id`/`direccion`/`cp`/`latitud`/`longitud`; `responsable_id`; contacto; `capacidad`; `observaciones`; `active`) en `<be>/warehouses/entity/Warehouse.java`
-- [X] T004 Crear la migración Flyway `V{n}__create_warehouse.sql` (`UNIQUE(codigo)`, `UNIQUE(nombre_normalizado)`; FK `municipio_id`→`municipio` —nullable hasta 003— y `responsable_id`→`users`; índice por `active`; `tipo` con `CHECK`) en `fornituras-api/src/main/resources/db/migration/` — usar el siguiente número libre (ver nota de orden en el plan)
-- [X] T005 [P] Definir DTOs en `<be>/warehouses/dto/`: `WarehouseCreateRequest` (todos los campos editables), `WarehouseSummary` (**no sensible**: id/codigo/nombre/tipo/active/ocupacion), `WarehouseDetail` (**incluye sensibles**: ubicación/responsable/contacto/capacidad)
-- [X] T006 [P] Reusar `NameNormalizer` (módulo `equipmenttypes`) para normalizar `nombre` y `codigo` (trim/colapsar espacios/casefold) en `<be>/warehouses/service/`
-- [X] T006b [P] Crear `WarehouseMapper` (MapStruct, patrón `EquipmentTypeMapper`) entity↔DTO en `<be>/warehouses/mapper/`
-- [X] T007 Configurar **autorización por rol** para `/warehouses/**`: CRUD y `GET /{id}` (Detail con campos sensibles) restringidos a ADMIN/almacén; `GET /` (Summary) a roles operativos; rechazo por defecto
-- [X] T008 [P] Reusar el escritor de **auditoría** (012) para `CREATE/UPDATE/DEACTIVATE_WAREHOUSE` y **cambio de responsable**; si 012 no existe aún, reusar `CatalogAuditWriter`/escritor mínimo a `audit_log`
+- [X] T003 Crear la entidad `Warehouse` con **todos los campos** de [data-model.md](./data-model.md): identidad (`codigo`/`nombre`/`nombre_normalizado`); clasificación `tipo_item_id` (FK → `catalog_item`); ubicación `municipio`/`estado` (**texto libre**), `direccion`/`cp`/`latitud`/`longitud`; `responsable_id`; contacto; `capacidad`; `observaciones`; `active`, en `<be>/warehouses/entity/Warehouse.java`
+- [X] T004 Crear la migración Flyway `V10__create_warehouse.sql` (`UNIQUE(codigo)`, `UNIQUE(nombre_normalizado)`; `responsable_id`→`users`; índice por `active`) en `fornituras-api/src/main/resources/db/migration/`
+- [X] T005 Repuntar `warehouse` en `V15__generic_catalog.sql`: `tipo` (enum) → `tipo_item_id` (FK → `catalog_item` de `TIPO_ALMACEN`) y `municipio_id` (FK) → `municipio`/`estado` de **texto libre** (ADR 0007), en `fornituras-api/src/main/resources/db/migration/`
+- [X] T006 [P] Definir DTOs en `<be>/warehouses/dto/`: `WarehouseCreateRequest` (todos los campos editables, con `tipoItemId`), `WarehouseSummary` (**no sensible**: id/codigo/nombre/tipoItemId/active/ocupacion), `WarehouseDetail` (**incluye sensibles**: ubicación/responsable/contacto/capacidad)
+- [X] T007 [P] Reusar el normalizador de `common/text` para `nombre` y `codigo` (trim/colapsar espacios/casefold/sin acentos) desde `<be>/warehouses/service/`
+- [X] T008 [P] Crear `WarehouseMapper` (entity↔DTO) en `<be>/warehouses/mapper/`
+- [X] T009 Configurar **autorización por rol** para `/warehouses/**`: CRUD y `GET /{id}` (Detail con campos sensibles) restringidos a ADMIN/almacén; `GET /` (Summary) a roles operativos; rechazo por defecto (`@PreAuthorize` por endpoint)
+- [ ] T010 [P] Cablear el escritor de **auditoría** (012) para `CREATE/UPDATE/DEACTIVATE_WAREHOUSE` y **cambio de responsable** — pendiente hasta que 012 exista
 
 **Checkpoint**: fundamento listo.
 
@@ -49,34 +54,35 @@ en uso), **autorización por campo sensible** (Summary vs Detail) y auditoría.
 
 **Goal**: crear/consultar/editar/desactivar almacenes; impedir borrado con fornituras/traslados; solo activos en 001/007.
 
-**Independent Test**: crear almacén → seleccionable en alta y traslados; eliminar uno con fornituras → bloqueado con opción de desactivar; desactivado → no aparece como destino.
+**Independent Test**: crear almacén (con tipo de `TIPO_ALMACEN`) → seleccionable en alta y traslados; eliminar uno con fornituras → bloqueado con opción de desactivar; desactivado → no aparece como destino.
 
 ### Tests for User Story 1
 
-- [~] T009 [P] [US1] Test de contrato `GET/POST/PUT /warehouses` + `GET /{id}` + `PATCH .../deactivate` (paginación, validación, 409 por `codigo`/`nombre` duplicado) en `<bet>/warehouses/WarehouseContractTest.java` — **diferido**: ver nota de infraestructura de pruebas
-- [~] T010 [P] [US1] Test de integración (Testcontainers MSSQL): unicidad de `codigo` y `nombre` normalizado, FK `responsable_id`, y **bloqueo de borrado de almacén en uso** en `<bet>/warehouses/WarehouseIntegrationTest.java` — **diferido**: el proyecto aún no tiene Testcontainers; cubierto a nivel unitario por `WarehouseServiceTest`
-- [~] T011 [P] [US1] Test de autorización: rol operativo ve solo `Summary` (sin campos sensibles) en `GET /`; `GET /{id}` y CRUD solo ADMIN/almacén en `<bet>/warehouses/WarehouseAuthTest.java` — **diferido**: autorización aplicada de forma declarativa (`@PreAuthorize` por endpoint en `WarehouseController`)
+- [~] T011 [P] [US1] Test de contrato `GET/POST/PUT /warehouses` + `GET /{id}` + `PATCH .../deactivate` (paginación, validación, 409 por `codigo`/`nombre` duplicado) en `<bet>/warehouses/WarehouseContractTest.java` — **diferido**
+- [~] T012 [P] [US1] Test de integración (carga de contexto + Flyway): unicidad de `codigo`/`nombre`, FK `responsable_id`, resolución de `tipo_item_id` contra `TIPO_ALMACEN` y **bloqueo de borrado en uso** en `<bet>/warehouses/WarehouseIntegrationTest.java` — **diferido**; cubierto a nivel unitario por `WarehouseServiceTest`
+- [~] T013 [P] [US1] Test de autorización: rol operativo ve solo `Summary`; `GET /{id}` y CRUD solo ADMIN/almacén en `<bet>/warehouses/WarehouseAuthTest.java` — **diferido**; autorización declarativa (`@PreAuthorize`)
+- [X] T014 [P] [US1] `WarehouseServiceTest` (unicidad, desactivación, conteo de uso vía puerto) en `<bet>/warehouses/WarehouseServiceTest.java`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implementar `WarehouseRepository` (paginación, filtros `active`/`tipo`, `existsByCodigo` y `existsByNombreNormalizado`) en `<be>/warehouses/repository/`
-- [X] T013 [US1] Implementar `WarehouseService` (alta con unicidad `codigo`+`nombre`, edición, **desactivar en vez de borrar** si está en uso, resolución de `municipio`/`responsable`, auditoría) con un puerto `WarehouseUsageQuery` que cuenta fornituras/traslados asociados en `<be>/warehouses/service/`
-- [X] T013b [US1] Implementar el **filtrado por rol** que decide `Summary` vs `Detail` (campos sensibles) — resuelto a nivel de endpoint: `GET /` devuelve `Summary` (cualquier rol) y `GET /{id}` devuelve `Detail` restringido a ADMIN vía `@PreAuthorize` en `WarehouseController`
-- [X] T014 [US1] Implementar `WarehouseController` (`GET` paginado + filtros, `GET /{id}` Detail, `POST`, `PUT`, `PATCH /deactivate`) en `<be>/warehouses/controller/`
-- [X] T015 [US1] Añadir **Bean Validation** a `WarehouseCreateRequest` (`codigo`/`nombre` requeridos y únicos; `tipo` requerido válido; rango de `latitud`/`longitud`; formato de `email_contacto`; límites de longitud) en `<be>/warehouses/dto/`
-- [X] T016 [P] [US1] Frontend: `warehouses.service.ts` (list/get/create/update/deactivate, tipos para Summary/Detail) en `<fe>/almacenes/data/`
-- [X] T017 [US1] Frontend: página de listado (paginada, filtros activo/inactivo y tipo; muestra codigo/nombre/tipo/ocupacion) en `<fe>/almacenes/pages/almacenes/`
-- [X] T018 [US1] Frontend: página `almacen-form` con secciones **identidad** (codigo/nombre/tipo), **ubicación** (municipio/direccion/cp/geo), **responsable y contacto**, **operativo** (capacidad/observaciones) en `<fe>/almacenes/pages/almacen-form/`
+- [X] T015 [US1] Implementar `WarehouseRepository` (paginación, filtros `active`/`tipoItemId`, `existsByCodigo` y `existsByNombreNormalizado`) en `<be>/warehouses/repository/`
+- [X] T016 [US1] Implementar `WarehouseService` (alta con unicidad `codigo`+`nombre`, edición, **desactivar en vez de borrar** si está en uso, **resolución del `tipoItemId` contra `TIPO_ALMACEN`** vía `CatalogService`, auditoría) en `<be>/warehouses/service/`
+- [X] T017 [US1] Implementar el puerto `WarehouseUsageQuery` + `DefaultWarehouseUsageQuery` (cuenta fornituras/traslados asociados) en `<be>/warehouses/service/`
+- [X] T018 [US1] Implementar `WarehouseController` (`GET` paginado + filtros, `GET /{id}` Detail restringido, `POST`, `PUT`, `PATCH /deactivate`) en `<be>/warehouses/controller/`
+- [X] T019 [US1] Añadir **Bean Validation** a `WarehouseCreateRequest` (`codigo`/`nombre` requeridos; `tipoItemId` requerido; rango de `latitud`/`longitud`; formato de `email_contacto`; límites de longitud) en `<be>/warehouses/dto/`
+- [X] T020 [P] [US1] Frontend: `warehouses.service.ts` (list/get/create/update/deactivate; tipos Summary/Detail; tipo de almacén desde `core/catalog` con `CATALOG_CODES.TIPO_ALMACEN`) en `<fe>/almacenes/data/`
+- [X] T021 [US1] Frontend: página de listado (paginada, filtros activo/inactivo y tipo; muestra codigo/nombre/tipo/ocupacion) en `<fe>/almacenes/pages/almacenes/`
+- [X] T022 [US1] Frontend: página `almacen-form` con secciones **identidad** (codigo/nombre/tipo), **ubicación** (municipio/estado/direccion/cp/geo), **responsable y contacto**, **operativo** (capacidad/observaciones) en `<fe>/almacenes/pages/almacen-form/`
 
-**Checkpoint**: catálogo operativo; 001 y 007 pueden consumir almacenes activos.
+**Checkpoint**: almacenes operativos; 001 y 007 consumen almacenes activos.
 
 ---
 
 ## Phase 4: Polish & Cross-Cutting Concerns
 
-- [X] T019 [P] Endurecimiento: errores que no filtran detalles internos; validación de entrada estricta en `<be>/warehouses/`
-- [X] T020 [P] Tests unitarios de normalización y regla de desactivación en `<bet>/warehouses/`
-- [~] T021 Validar el quickstart (crear, bloquear borrado en uso, desactivar) y registrar resultados — **pendiente**: requiere entorno con BD SQL Server levantada
+- [X] T023 [P] Endurecimiento: errores que no filtran detalles internos; validación de entrada estricta en `<be>/warehouses/`
+- [X] T024 [P] Tests unitarios de normalización y regla de desactivación en `<bet>/warehouses/`
+- [~] T025 Validar el quickstart (crear, bloquear borrado en uso, desactivar) y registrar resultados — **pendiente**: requiere entorno con BD SQL Server levantada
 
 ---
 
@@ -84,15 +90,15 @@ en uso), **autorización por campo sensible** (Summary vs Detail) y auditoría.
 
 - **Setup → Foundational (BLOQUEA) → US1 (MVP) → Polish.**
 - La regla "no eliminar en uso" depende de FKs de **001**/**007**; el puerto `WarehouseUsageQuery`
-  devuelve 0 hasta que existan, y su test se completa al integrarlas.
-- La FK `municipio_id` depende del catálogo `municipio` (**003**); queda **nullable** y se cablea al
-  implementarse 003. La FK `responsable_id` → `users` ya está disponible.
+  encapsula el conteo.
+- El `tipo_item_id` depende del catálogo `TIPO_ALMACEN` (**006**, módulo `catalog`). La FK
+  `responsable_id` → `users` ya está disponible. `municipio`/`estado` son texto libre (sin dependencia).
 
 ### Parallel Opportunities
 
 - Setup: T002 en paralelo con T001.
-- Foundational: T003, T005, T006, T006b, T008 en paralelo; T003b tras T003; T004 tras T003b.
-- US1: tests T009–T011 en paralelo; T016 en paralelo con backend.
+- Foundational: T006, T007, T008 en paralelo; T004 antes de T005 (repunte tras creación).
+- US1: tests T011–T013 en paralelo; T020 en paralelo con el backend.
 
 ---
 
@@ -100,6 +106,7 @@ en uso), **autorización por campo sensible** (Summary vs Detail) y auditoría.
 
 - [P] = archivos distintos, sin dependencias.
 - **Entidad operativa** (no catálogo) sin PII de elementos; disciplina en unicidad (`codigo`+`nombre`),
-  integridad referencial (FK `municipio`/`responsable`, no borrar en uso) y **autorización por campo
+  integridad referencial (tipo contra `TIPO_ALMACEN`, no borrar en uso) y **autorización por campo
   sensible** (Summary vs Detail).
-- Commit por tarea o grupo lógico; TDD (tests en rojo antes de implementar).
+- **Deuda visible:** T010 (auditoría), T011–T013 (tests de contrato/integración/auth dedicados),
+  T025 (validación de quickstart con BD).

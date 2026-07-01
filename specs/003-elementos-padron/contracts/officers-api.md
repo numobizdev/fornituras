@@ -16,8 +16,9 @@ Roles: `ADMIN`, `CAPTURISTA` (lectura). PII enmascarada según rol.
 
 **Query params:**
 - `q` (opcional): texto libre. El servidor decide la estrategia: igualdad por blind index si
-  parece CURP/RFC, igualdad por `placa`, o `LIKE` confidencial por nombre/apellidos.
-- `municipioId` (opcional), `sexoId` (opcional): filtros por catálogo.
+  parece CURP/RFC, o igualdad/parcial por `placa`. La búsqueda por **nombre parcial no está
+  disponible** (PII cifrada a nivel app, no determinista — ADR 0006).
+- `municipio` (opcional, **texto libre**, `LIKE`), `sexoId` (opcional, catálogo): filtros.
 - `page`, `size`: paginación.
 
 **200** → `ApiResponse<Page<OfficerSummary>>`
@@ -28,7 +29,8 @@ Roles: `ADMIN`, `CAPTURISTA` (lectura). PII enmascarada según rol.
   "id": 123,
   "nombreCompleto": "GARCÍA LÓPEZ, JUAN",   // o enmascarado según rol
   "placa": "PM-1042",
-  "municipio": "Centro",
+  "municipio": "Centro",                       // texto libre
+  "estado": "Tabasco",                         // texto libre
   "tipoSangre": "O+",                          // null/enmascarado si no autorizado
   "fotoThumbUrl": "/api/officers/123/foto?variant=thumb" // requiere authz; null si no
 }
@@ -48,9 +50,10 @@ Roles: `ADMIN`, `CAPTURISTA` (alta). Validación en el borde.
   "nombre": "JUAN",             // requerido
   "apellidoPaterno": "GARCÍA",  // requerido
   "apellidoMaterno": "LÓPEZ",   // opcional
-  "sexoId": 1,                   // requerido (catálogo)
-  "tipoSangreId": 3,             // opcional (catálogo)
-  "municipioId": 7,              // requerido (catálogo)
+  "sexoId": 1,                   // requerido (catálogo plano)
+  "tipoSangreId": 3,             // opcional (catálogo plano)
+  "municipio": "Centro",         // opcional (texto libre)
+  "estado": "Tabasco",           // opcional (texto libre)
   "curp": "GALJ900101HDFXXX01",  // [PENDIENTE ADR 0003] — solo si habilitado
   "rfc": "GALJ900101AB1"         // [PENDIENTE ADR 0003] — solo si habilitado
   // la foto se sube por endpoint aparte (multipart), ver abajo

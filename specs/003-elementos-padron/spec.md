@@ -100,9 +100,11 @@ solo los elementos de ese municipio y respeta el enmascaramiento de PII.
   enmascaran.
 - **FR-006**: Todo acceso a la ficha completa de un elemento y toda alta/edición MUST quedar
   **auditados** (quién, qué elemento, cuándo) sin escribir PII en el log (Principio V).
-- **FR-007**: Las columnas con PII (nombre completo, CURP, RFC, foto, tipo de sangre) MUST
-  almacenarse con **Always Encrypted** y la foto en almacenamiento cifrado con acceso
-  autorizado (Constitución §Cifrado en reposo).
+- **FR-007**: Las columnas con PII (nombre completo, CURP, RFC) MUST almacenarse **cifradas en
+  reposo** y la foto en almacenamiento cifrado con acceso autorizado (Constitución §Cifrado en
+  reposo). Mecanismo actual: **cifrado a nivel de aplicación** (AES-GCM + blind index para igualdad
+  de CURP/RFC), ver [ADR 0006](../../docs/04-decisiones/0006-cifrado-pii-nivel-aplicacion.md); Always
+  Encrypted queda como reversión futura.
 - **FR-008**: El sistema MUST NOT exponer PII en URLs, parámetros de búsqueda cacheables, ni en
   el código QR de ninguna fornitura asignada (Principio II).
 - **FR-009**: El sistema MUST soportar la **finalidad declarada** y la **minimización**: no se
@@ -114,8 +116,10 @@ solo los elementos de ese municipio y respeta el enmascaramiento de PII.
   apellidos, sexo, tipo de sangre, identificador (placa/serie), municipio, fotografía y
   (sujeto a política de PII) CURP/RFC. **Contiene PII de alta sensibilidad.** Ver
   [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).
-- **Sexo**, **Tipo de sangre**: catálogos (modelados con la estructura genérica `catalog →
-  catalog_item` de la spec **006**; `code` = `SEXO`, `TIPO_SANGRE`).
+- **Sexo**, **Tipo de sangre**: catálogos controlados. **Hoy** son tablas planas (`sexo` con
+  `nombre`; `tipo_sangre` con `etiqueta`), referenciadas por FK desde `officer`. Su migración a la
+  estructura genérica `catalog → catalog_item` (spec **006**, `code` = `SEXO`/`TIPO_SANGRE`) es un
+  **candidato pendiente** (ADR 0007), aún no realizado.
 - **Municipio**, **Estado**: **texto libre** (decisión 2026-06-30; ya no son catálogo ni FK).
 
 ## Decisión abierta: alcance de PII *(NEEDS CLARIFICATION → ADR pendiente)*
@@ -123,19 +127,18 @@ solo los elementos de ese municipio y respeta el enmascaramiento de PII.
 `Requerimientos.MD` pide capturar **CURP, RFC, placa, tipo de sangre, foto y municipio**. La
 Constitución (Principio I) y `docs/02-seguridad.md` exigen **minimizar PII**. Hay dos posturas:
 
-- **Postura A — Capturar todo con controles.** Recolectar el conjunto completo, marcando
-  CURP/RFC/nombre/tipo de sangre/foto como **Always Encrypted**, con RBAC estricto, auditoría
-  de acceso y política de retención/ARCO. Cumple el requerimiento; asume el riesgo con
-  controles fuertes.
+- **Postura A — Capturar todo con controles.** Recolectar el conjunto completo, con CURP/RFC/nombre
+  **cifrados en reposo** (a nivel de aplicación, ADR 0006), RBAC estricto, auditoría de acceso y
+  política de retención/ARCO. Cumple el requerimiento; asume el riesgo con controles fuertes.
 - **Postura B — Minimizar.** Recolectar solo lo imprescindible para identificar y asignar
   (identificador/placa, nombre, municipio, foto), y **diferir CURP/RFC** hasta justificar su
   finalidad concreta. Cumple mejor el principio de minimización; choca con el requerimiento.
 
 **Recomendación (a confirmar por el responsable y registrar como ADR `0003-pii-elementos`):**
 adoptar una **Postura A acotada**: capturar CURP/RFC/foto **solo si existe finalidad declarada
-y base legal** (control de dotación + identificación inequívoca del resguardatario), con
-**Always Encrypted**, RBAC, enmascaramiento por defecto, auditoría de todo acceso a la ficha
-completa, y política de retención/ARCO. Mientras no exista el ADR, estos campos se tratan como
+y base legal** (control de dotación + identificación inequívoca del resguardatario), con **cifrado en
+reposo** (a nivel de aplicación, ADR 0006), RBAC, enmascaramiento por defecto, auditoría de todo
+acceso a la ficha completa, y política de retención/ARCO. Mientras no exista el ADR, estos campos se tratan como
 **[PENDIENTE]**: el esquema los contempla pero su captura permanece deshabilitada o restringida
 a un único rol. La decisión final corresponde al área legal del cliente (LFPDPPP / LGPDPPSO).
 
@@ -146,16 +149,17 @@ a un único rol. La decisión final corresponde al área legal del cliente (LFPD
 - **SC-001**: Una búsqueda por placa/CURP/RFC/nombre devuelve el elemento correcto, paginada y
   en menos de 2 segundos con decenas de miles de registros.
 - **SC-002**: El 100% de los accesos a la ficha completa de un elemento quedan auditados.
-- **SC-003**: El 100% de los campos PII están cifrados en reposo (Always Encrypted / storage
-  cifrado para la foto).
+- **SC-003**: El 100% de los campos PII están cifrados en reposo (cifrado a nivel de aplicación,
+  ADR 0006 / storage cifrado para la foto).
 - **SC-004**: Ningún rol sin autorización visualiza CURP/RFC ni descarga la foto.
 - **SC-005**: Cero PII en logs, URLs o el contenido de cualquier QR.
 
 ## Assumptions
 
-- Los catálogos **sexo** y **tipo de sangre** se modelan con la estructura genérica `catalog →
-  catalog_item` (spec **006**). **Municipio** y **estado** se capturan como **texto libre** (ya no
-  son catálogo).
+- Los catálogos **sexo** y **tipo de sangre** son hoy **tablas planas** (`sexo`/`tipo_sangre`);
+  migrarlas a la estructura genérica `catalog → catalog_item` (spec **006**) es un candidato
+  pendiente (ADR 0007). **Municipio** y **estado** se capturan como **texto libre** (ya no son
+  catálogo).
 - La asignación de fornituras a elementos se especifica en **004-asignacion-resguardos**.
 - La política exacta de PII (qué se captura) queda sujeta al ADR `0003-pii-elementos`.
 

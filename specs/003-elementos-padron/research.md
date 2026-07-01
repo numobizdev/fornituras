@@ -3,6 +3,14 @@
 Decisiones técnicas y alternativas para implementar el padrón cumpliendo el cifrado de PII y la
 búsqueda. Formato: Decisión / Justificación / Alternativas.
 
+> **Superado por ADR 0006 (2026-06-30).** Esta exploración recomendaba **Always Encrypted + secure
+> enclaves**. La implementación adoptó **cifrado a nivel de aplicación** (AES-GCM +
+> `EncryptedStringConverter`) con **blind index HMAC** para igualdad de CURP/RFC; la búsqueda por
+> nombre parcial queda diferida (cifrado no determinista) y `placa` va en claro. Ver
+> [ADR 0006](../../docs/04-decisiones/0006-cifrado-pii-nivel-aplicacion.md). Además, `municipio`/
+> `estado` son **texto libre** (ADR 0007), no catálogo. El texto abajo se conserva como análisis
+> histórico de la decisión.
+
 ## 1. Búsqueda sobre columnas de PII cifradas (decisión central)
 
 **Contexto.** La spec exige búsqueda por texto sobre **nombre, CURP, RFC y placa** (FR-001) y la

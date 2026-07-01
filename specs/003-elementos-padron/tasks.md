@@ -41,10 +41,10 @@ son parte del entregable, no opcionales.
 
 **⚠️ CRITICAL**: ninguna user story puede empezar hasta completar esta fase.
 
-- [X] T004 [P] Crear entidades de catálogo `Sexo`, `TipoSangre`, `Municipio` en `<be>/officers/entity/`
-- [X] T005 Crear la entidad `Officer` (placa única; `nombre`/apellidos con Always Encrypted; `curp`/`rfc` + columnas blind index `curp_idx`/`rfc_idx`; FKs de catálogo; `foto_url`; `status`) en `<be>/officers/entity/Officer.java` (ver [data-model.md](./data-model.md))
-- [X] T006 Crear la migración Flyway `V{n}__create_officers_and_catalogs.sql` (tablas `officers`, `sexo`, `tipo_sangre`, `municipio`; columnas Always Encrypted; `UNIQUE(placa)`; índices `*_idx`, `municipio_id`, `sexo_id`, `status`) en `fornituras-api/src/main/resources/db/migration/`
-- [X] T007 [P] Sembrar catálogos (`sexo`, `tipo_sangre` O±/A±/B±/AB±, `municipio` del estado del cliente) en la migración o un seeder
+- [X] T004 [P] Crear entidades de catálogo **plano** `Sexo`, `TipoSangre` en `<be>/officers/entity/` (municipio/estado son **texto libre**, sin entidad; ADR 0007)
+- [X] T005 Crear la entidad `Officer` (placa única; `nombre`/apellidos + `curp`/`rfc` con **cifrado a nivel app** vía `EncryptedStringConverter`; columnas blind index `curp_idx`/`rfc_idx`; FKs `sexo_id`/`tipo_sangre_id`; `municipio`/`estado` texto libre; `foto_url`; `status`) en `<be>/officers/entity/Officer.java` (ver [data-model.md](./data-model.md))
+- [X] T006 Crear la migración Flyway `V12__create_officers_and_catalogs.sql` (tablas `officers`, `sexo`, `tipo_sangre`; `UNIQUE(placa)`; índices `*_idx`, `sexo_id`, `status`). Nota: `municipio_id` (FK) se creó aquí y se **repuntó a `municipio`/`estado` texto libre en `V15`** (ADR 0007)
+- [X] T007 [P] Sembrar catálogos planos (`sexo` MASCULINO/FEMENINO, `tipo_sangre` O±/A±/B±/AB±) en la migración
 - [X] T008 [P] Implementar utilidad de **normalización** (trim/upper/sin espacios) para `placa`, `curp`, `rfc` en `<be>/officers/service/`
 - [X] T009 [P] Implementar el helper de **blind index** `HMAC(OFFICER_BLIND_INDEX_KEY, normalize(valor))` para CURP/RFC en `<be>/officers/service/` (clave desde entorno; nunca en repo — Principio III; ADR 0004)
 - [X] T010 [P] Definir DTOs `OfficerCreateRequest`, `OfficerSummary`, `OfficerDetail` en `<be>/officers/dto/`
@@ -67,16 +67,16 @@ genera registro de auditoría.
 
 ### Tests for User Story 1
 
-- [~] T014 [P] [US1] Test de contrato `GET /officers` (paginación + `q` + `municipioId`/`sexoId`) en `<bet>/officers/OfficerListContractTest.java`
+- [~] T014 [P] [US1] Test de contrato `GET /officers` (paginación + `q` + `municipio` texto/`sexoId`) en `<bet>/officers/OfficerListContractTest.java`
 - [~] T015 [P] [US1] Test de integración (Testcontainers MSSQL): búsqueda por placa, filtro por municipio, paginación en `<bet>/officers/OfficerListIntegrationTest.java`
 - [~] T016 [P] [US1] Test de autorización: `CAPTURISTA` recibe CURP/RFC enmascarados; `ADMIN` completo en `<bet>/officers/OfficerMaskingTest.java`
 - [~] T017 [P] [US1] Test de auditoría: `GET /officers/{id}` escribe `VIEW_OFFICER` sin PII en `<bet>/officers/OfficerAuditTest.java`
 
 ### Implementation for User Story 1
 
-- [X] T018 [US1] Implementar `OfficerRepository` con consulta paginada + filtros (municipio, sexo) y búsqueda por blind index/placa en `<be>/officers/repository/OfficerRepository.java`
-- [X] T019 [US1] Implementar la **estrategia de búsqueda** en `OfficerService` (detectar CURP/RFC → blind index; placa → igualdad; nombre/apellidos → `LIKE` confidencial por enclave; fallback ADR 0004) en `<be>/officers/service/OfficerService.java`
-- [X] T020 [US1] Implementar `GET /officers` (Pageable, `q`, `municipioId`, `sexoId`) devolviendo `OfficerSummary` en `<be>/officers/controller/OfficerController.java`
+- [X] T018 [US1] Implementar `OfficerRepository` con consulta paginada + filtros (`municipio` texto `LIKE`, `sexo_id`) y búsqueda por blind index/placa en `<be>/officers/repository/OfficerRepository.java`
+- [X] T019 [US1] Implementar la **estrategia de búsqueda** en `OfficerService` (detectar CURP/RFC → blind index; placa → igualdad; `municipio` → `LIKE` sobre texto en claro; nombre parcial **diferido** por cifrado no determinista, ADR 0006) en `<be>/officers/service/OfficerService.java`
+- [X] T020 [US1] Implementar `GET /officers` (Pageable, `q`, `municipio`, `sexoId`) devolviendo `OfficerSummary` en `<be>/officers/controller/OfficerController.java`
 - [X] T021 [US1] Implementar `GET /officers/{id}` (ficha `OfficerDetail` enmascarada por rol) con **side effect de auditoría** `VIEW_OFFICER` en `<be>/officers/controller/OfficerController.java`
 - [X] T022 [US1] Garantizar **cero PII en logs/URLs**: omitir/hashear `q` si pudo contener PII en `<be>/officers/service/`
 - [X] T023 [P] [US1] Frontend: `officers.service.ts` (GET listado con params + GET ficha) en `<fe>/elementos/data/officers.service.ts`
