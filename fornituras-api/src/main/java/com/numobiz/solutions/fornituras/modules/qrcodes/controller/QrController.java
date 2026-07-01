@@ -1,5 +1,6 @@
 package com.numobiz.solutions.fornituras.modules.qrcodes.controller;
 
+import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.dto.ApiResponse;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.CodigoQrResponseDTO;
 import com.numobiz.solutions.fornituras.modules.qrcodes.dto.GenerateQrForm;
@@ -41,11 +42,14 @@ public class QrController {
 	private final LoteQrService loteQrService;
 	private final QrPdfService qrPdfService;
 	private final QrZipService qrZipService;
+	private final AuditWriter audit;
 
-	public QrController(LoteQrService loteQrService, QrPdfService qrPdfService, QrZipService qrZipService) {
+	public QrController(LoteQrService loteQrService, QrPdfService qrPdfService, QrZipService qrZipService,
+			AuditWriter audit) {
 		this.loteQrService = loteQrService;
 		this.qrPdfService = qrPdfService;
 		this.qrZipService = qrZipService;
+		this.audit = audit;
 	}
 
 	@PostMapping("/lotes")
@@ -90,6 +94,7 @@ public class QrController {
 		LoteQR lote = loteQrService.findById(id);
 		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos);
+		audit.record("EXPORT_QR_PDF", id);
 		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
 	}
 
@@ -101,6 +106,7 @@ public class QrController {
 		LoteQR lote = loteQrService.findById(id);
 		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] zip = qrZipService.generateZip(lote, codigos);
+		audit.record("EXPORT_QR_ZIP", id);
 		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));
 	}
 
@@ -114,6 +120,7 @@ public class QrController {
 		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] pdf = qrPdfService.generatePdf(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
+		audit.record("EXPORT_QR_PDF", id);
 		return fileResponse(id, pdf, "pdf", MediaType.APPLICATION_PDF);
 	}
 
@@ -127,6 +134,7 @@ public class QrController {
 		List<String> codigos = loteQrService.listCodigos(id);
 		byte[] zip = qrZipService.generateZip(lote, codigos, form.qrSizeCm(), form.paddingCm(), form.labelPosition(),
 				form.mostrarBordes());
+		audit.record("EXPORT_QR_ZIP", id);
 		return fileResponse(id, zip, "zip", MediaType.parseMediaType("application/zip"));
 	}
 

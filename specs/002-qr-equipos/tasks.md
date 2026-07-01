@@ -42,7 +42,11 @@ Pasada de verificación sobre el módulo `qrcodes` implementado. **No se modific
   `@PreAuthorize` y `SecurityConfig` lo declara `permitAll()` → generar lotes, **listar/enumerar todos
   los códigos** y descargar PDF/ZIP **sin autenticación** (rutas `/sigefor/qr/**`). Contradice
   FR-007/FR-010 y es justo el riesgo de enumeración de ADR 0005. **Pendiente de decisión.**
-- **T010 (auditoría) y T011 (rate limiting): NO implementados** — sin `AuditWriter`/Bucket4j en el módulo.
+- **T010 (auditoría): HECHO (2026-07-01)** — `LoteQrService.generate` → `GENERATE_QR_BATCH`;
+  `QrController` export → `EXPORT_QR_PDF`/`EXPORT_QR_ZIP`. Suite completa 225/225 verde.
+- **T011 (rate limiting): NO implementado** — sin Bucket4j en el módulo; nota: el `QrController` no
+  expone resolución pública `by-código` (esa vive en 014/004), así que el riesgo de enumeración
+  aplica sobre todo al UI web no autenticado (T014), no al REST ya protegido.
 - **Tests de contrato faltantes:** T004 (`LoteCreateContractTest`), T006 (`QrExportTest`),
   T008 (`LoteQueryTest`) no existen; el export sí está cubierto por los tests de servicio PDF/ZIP.
 
@@ -90,7 +94,7 @@ Pasada de verificación sobre el módulo `qrcodes` implementado. **No se modific
 
 - [X] T009 [US-sec] Añadir **autorización por rol** a los endpoints `/api/v1/qr/**` (hoy solo autenticación) — HECHO: `QrController` con `@PreAuthorize(RolePolicy.WRITE_INVENTORY)` (matriz de 013/T020)
 - [ ] T014 [US-sec] ⚠️ **Cerrar exposición del UI Thymeleaf `QrWebController` (`/qr/**`)**: hoy es `permitAll()` en `SecurityConfig` y sin `@PreAuthorize` → permite generar, enumerar y descargar QR **sin sesión**. Decidir: (a) asegurarlo (autenticación + rol, quitar de `permitAll`) o (b) eliminar el UI legacy si el frontend `sigefor/` cubre el caso. **Requiere decisión del usuario.**
-- [ ] T010 [P] [US-sec] Auditar **generación y exportación** de lotes (actor, lote, cantidad, cuándo) reutilizando el escritor de la feature **012** en `<be>/qrcodes/service/`
+- [X] T010 [P] [US-sec] Auditar **generación y exportación** de lotes reutilizando el `AuditWriter` (012) — HECHO: `LoteQrService.generate` registra `GENERATE_QR_BATCH`; `QrController` registra `EXPORT_QR_PDF`/`EXPORT_QR_ZIP` (descarga y export con ajustes). Suite 225/225 verde.
 - [ ] T011 [P] [US-sec] Añadir **rate limiting** a la resolución/consulta de códigos para mitigar enumeración (riesgo conocido sin firma, ADR 0005) en `<be>/qrcodes/`
 
 ---

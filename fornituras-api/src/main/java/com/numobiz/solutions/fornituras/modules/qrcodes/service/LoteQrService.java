@@ -1,5 +1,6 @@
 package com.numobiz.solutions.fornituras.modules.qrcodes.service;
 
+import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.NotFoundException;
 import com.numobiz.solutions.fornituras.config.QrProperties;
@@ -21,14 +22,17 @@ public class LoteQrService {
 	private final LoteQrRepository loteQrRepository;
 	private final QrCodeGeneratorService qrCodeGeneratorService;
 	private final QrProperties qrProperties;
+	private final AuditWriter audit;
 
 	public LoteQrService(
 			LoteQrRepository loteQrRepository,
 			QrCodeGeneratorService qrCodeGeneratorService,
-			QrProperties qrProperties) {
+			QrProperties qrProperties,
+			AuditWriter audit) {
 		this.loteQrRepository = loteQrRepository;
 		this.qrCodeGeneratorService = qrCodeGeneratorService;
 		this.qrProperties = qrProperties;
+		this.audit = audit;
 	}
 
 	@Transactional
@@ -56,6 +60,7 @@ public class LoteQrService {
 		lote.setLabelPosition(form.labelPosition());
 		lote.setMostrarBordes(form.mostrarBordes());
 		lote = loteQrRepository.save(lote);
+		audit.record("GENERATE_QR_BATCH", lote.getId());
 
 		long totalDurationMs = (System.nanoTime() - totalStart) / 1_000_000;
 		log.info(
