@@ -30,15 +30,14 @@ de prenda tiene hoy un único valor, "Fornitura".
 Derivado de las dependencias declaradas en cada `plan.md` (los puertos permiten desarrollar y
 testear antes de que existan las features de las que se depende):
 
-1. **Catálogos base:** 006-tipos-fornitura, 005-almacenes (prerequisito de 001/007).
+1. **Catálogos base:** 006-tipos-fornitura, 015-catalogos-sexo-sangre (migración temprana, antes de sumar consumidores), 005-almacenes (prerequisito de 001/007).
 2. **Núcleo de inventario:** 001-inventario-equipos (cimiento; expone resolución `codigo → fornitura`).
 3. **Transversales tempranos:** 012-auditoria (puerto `AuditWriter` que todas consumen), 014-escaneo-qr (componente de captura).
 4. **PII y núcleo operativo:** 003-elementos-padron (ya con tasks), 004-asignacion-resguardos.
 5. **Operación de equipo:** 007-traslados, 008-incidencias, 009-bajas.
 6. **Lectura/control:** 010-dashboard, 011-reportes.
 7. **Gobierno de acceso:** 013-usuarios (extiende la auth; expansión de roles y MFA **gated por ADR**).
-8. **Deuda gestionada:** 002-qr-equipos (verificación + cierre de brechas; firma abierta en ADR 0005),
-   015-catalogos-sexo-sangre (migrar `SEXO`/`TIPO_SANGRE` al catálogo genérico; depende de 006).
+8. **Deuda gestionada:** 002-qr-equipos (verificación + cierre de brechas; firma abierta en ADR 0005).
 
 > No es un orden estricto: las features con puertos (p. ej. 004 sobre 001/003, 009 sobre 004/007)
 > pueden avanzarse en paralelo y cerrar su integración real al existir la dependencia.

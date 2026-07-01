@@ -18,7 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * CRUD genérico de catálogos (ADR 0007). Un solo servicio administra los valores de cualquier
@@ -145,6 +148,15 @@ public class CatalogService {
 			return null;
 		}
 		return itemRepository.findById(itemId).map(CatalogItem::getNombre).orElse(null);
+	}
+
+	/** Resuelve en lote los nombres de varios valores (id → nombre); evita N+1 en listados. */
+	public Map<Long, String> resolveNames(Collection<Long> itemIds) {
+		if (itemIds == null || itemIds.isEmpty()) {
+			return Map.of();
+		}
+		return itemRepository.findAllById(itemIds).stream()
+				.collect(Collectors.toMap(CatalogItem::getId, CatalogItem::getNombre));
 	}
 
 	private void apply(CatalogItem item, CatalogItemCreateRequest request, String normalized) {

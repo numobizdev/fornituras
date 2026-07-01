@@ -6,16 +6,14 @@ import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.ConflictException;
 import com.numobiz.solutions.fornituras.common.exception.NotFoundException;
 import com.numobiz.solutions.fornituras.common.text.CodeNormalizer;
+import com.numobiz.solutions.fornituras.modules.catalog.CatalogCodes;
+import com.numobiz.solutions.fornituras.modules.catalog.service.CatalogService;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerCreateRequest;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerDetail;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerSummary;
 import com.numobiz.solutions.fornituras.modules.officers.entity.Officer;
-import com.numobiz.solutions.fornituras.modules.officers.entity.Sexo;
-import com.numobiz.solutions.fornituras.modules.officers.entity.TipoSangre;
 import com.numobiz.solutions.fornituras.modules.officers.mapper.OfficerMapper;
 import com.numobiz.solutions.fornituras.modules.officers.repository.OfficerRepository;
-import com.numobiz.solutions.fornituras.modules.officers.repository.SexoRepository;
-import com.numobiz.solutions.fornituras.modules.officers.repository.TipoSangreRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,13 +31,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Lógica del padrón de elementos. Centraliza lo sensible: búsqueda sobre datos cifrados (placa en
  * claro + blind index para CURP/RFC), <b>enmascaramiento de PII por rol</b> (el cliente nunca
  * decide la visibilidad) y <b>auditoría</b> del acceso a la ficha completa y de las altas. La PII
  * en claro (nombre/apellidos/CURP/RFC) se cifra en reposo vía el converter de la entidad (ADR 0006).
+ *
+ * <p>Sexo y tipo de sangre se resuelven contra el catálogo genérico ({@code SEXO}/{@code TIPO_SANGRE},
+ * ADR 0007) mediante {@link CatalogService}, no contra tablas propias.
  */
 @Service
 @Transactional(readOnly = true)
@@ -50,22 +50,19 @@ public class OfficerService {
 	private final OfficerRepository repository;
 	private final OfficerMapper mapper;
 	private final BlindIndexer blindIndexer;
-	private final SexoRepository sexoRepository;
-	private final TipoSangreRepository tipoSangreRepository;
+	private final CatalogService catalogService;
 	private final AuditWriter audit;
 
 	public OfficerService(
 			OfficerRepository repository,
 			OfficerMapper mapper,
 			BlindIndexer blindIndexer,
-			SexoRepository sexoRepository,
-			TipoSangreRepository tipoSangreRepository,
+			CatalogService catalogService,
 			AuditWriter audit) {
 		this.repository = repository;
 		this.mapper = mapper;
 		this.blindIndexer = blindIndexer;
-		this.sexoRepository = sexoRepository;
-		this.tipoSangreRepository = tipoSangreRepository;
+		this.catalogService = catalogService;
 		this.audit = audit;
 	}
 
@@ -73,16 +70,15 @@ public class OfficerService {
 		Page<Officer> page = repository.findAll(filterBy(q, municipio, sexoId), pageable);
 		List<Officer> content = page.getContent();
 
-		Map<Long, String> sexoNames = resolve(
-				ids(content, Officer::getSexoId), sexoRepository::findAllById, Sexo::getId, Sexo::getNombre);
-		Map<Long, String> tipoSangreLabels = resolve(
-				ids(content, Officer::getTipoSangreId), tipoSangreRepository::findAllById,
-				TipoSangre::getId, TipoSangre::getEtiqueta);
+		Set<Long> catalogIds = new HashSet<>();
+		catalogIds.addAll(ids(content, Officer::getSexoId));
+		catalogIds.addAll(ids(content, Officer::getTipoSangreId));
+		Map<Long, String> names = catalogService.resolveNames(catalogIds);
 
 		return page.map(o -> mapper.toSummary(
 				o,
-				sexoNames.get(o.getSexoId()),
-				o.getTipoSangreId() == null ? null : tipoSangreLabels.get(o.getTipoSangreId())));
+				names.get(o.getSexoId()),
+				o.getTipoSangreId() == null ? null : names.get(o.getTipoSangreId())));
 	}
 
 	/** Devuelve la ficha (enmascarada por rol) y <b>audita</b> el acceso (FR-006). */
@@ -133,25 +129,17 @@ public class OfficerService {
 		return toDetail(saved);
 	}
 
+	/** El sexo y el tipo de sangre deben ser valores activos de sus catálogos (SEXO/TIPO_SANGRE). */
 	private void validateCatalogs(Long sexoId, Long tipoSangreId) {
-		Sexo sexo = sexoRepository.findById(sexoId)
-				.orElseThrow(() -> new BadRequestException("Sexo no encontrado: " + sexoId));
-		if (!sexo.isActive()) {
-			throw new BadRequestException("El sexo seleccionado está inactivo.");
-		}
+		catalogService.requireActiveItem(sexoId, CatalogCodes.SEXO);
 		if (tipoSangreId != null) {
-			TipoSangre tipoSangre = tipoSangreRepository.findById(tipoSangreId)
-					.orElseThrow(() -> new BadRequestException("Tipo de sangre no encontrado: " + tipoSangreId));
-			if (!tipoSangre.isActive()) {
-				throw new BadRequestException("El tipo de sangre seleccionado está inactivo.");
-			}
+			catalogService.requireActiveItem(tipoSangreId, CatalogCodes.TIPO_SANGRE);
 		}
 	}
 
 	private OfficerDetail toDetail(Officer officer) {
-		String sexoNombre = sexoRepository.findById(officer.getSexoId()).map(Sexo::getNombre).orElse(null);
-		String tipoSangreEtiqueta = officer.getTipoSangreId() == null ? null
-				: tipoSangreRepository.findById(officer.getTipoSangreId()).map(TipoSangre::getEtiqueta).orElse(null);
+		String sexoNombre = catalogService.resolveName(officer.getSexoId());
+		String tipoSangreEtiqueta = catalogService.resolveName(officer.getTipoSangreId());
 		return mapper.toDetail(officer, sexoNombre, tipoSangreEtiqueta, canViewPii());
 	}
 
@@ -208,16 +196,5 @@ public class OfficerService {
 			}
 		}
 		return result;
-	}
-
-	private <T> Map<Long, String> resolve(
-			Set<Long> ids,
-			Function<Iterable<Long>, List<T>> finder,
-			Function<T, Long> idExtractor,
-			Function<T, String> nameExtractor) {
-		if (ids.isEmpty()) {
-			return Map.of();
-		}
-		return finder.apply(ids).stream().collect(Collectors.toMap(idExtractor, nameExtractor));
 	}
 }

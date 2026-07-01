@@ -3,13 +3,13 @@ package com.numobiz.solutions.fornituras.modules.officers;
 import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.crypto.BlindIndexer;
 import com.numobiz.solutions.fornituras.common.exception.ConflictException;
+import com.numobiz.solutions.fornituras.modules.catalog.CatalogCodes;
+import com.numobiz.solutions.fornituras.modules.catalog.entity.CatalogItem;
+import com.numobiz.solutions.fornituras.modules.catalog.service.CatalogService;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerCreateRequest;
 import com.numobiz.solutions.fornituras.modules.officers.entity.Officer;
-import com.numobiz.solutions.fornituras.modules.officers.entity.Sexo;
 import com.numobiz.solutions.fornituras.modules.officers.mapper.OfficerMapper;
 import com.numobiz.solutions.fornituras.modules.officers.repository.OfficerRepository;
-import com.numobiz.solutions.fornituras.modules.officers.repository.SexoRepository;
-import com.numobiz.solutions.fornituras.modules.officers.repository.TipoSangreRepository;
 import com.numobiz.solutions.fornituras.modules.officers.service.OfficerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,9 +37,7 @@ class OfficerServiceTest {
 	@Mock
 	private BlindIndexer blindIndexer;
 	@Mock
-	private SexoRepository sexoRepository;
-	@Mock
-	private TipoSangreRepository tipoSangreRepository;
+	private CatalogService catalogService;
 	@Mock
 	private AuditWriter audit;
 
@@ -67,7 +65,7 @@ class OfficerServiceTest {
 	@Test
 	void create_persistsNormalizedPlacaAndAudits() {
 		when(repository.existsByPlacaNormalizada("ABC123")).thenReturn(false);
-		when(sexoRepository.findById(1L)).thenReturn(Optional.of(sexo()));
+		when(catalogService.requireActiveItem(1L, CatalogCodes.SEXO)).thenReturn(new CatalogItem());
 		when(repository.save(any(Officer.class))).thenAnswer(i -> i.getArgument(0));
 
 		service.create(req("  abc-123 ", null));
@@ -92,14 +90,6 @@ class OfficerServiceTest {
 
 	private OfficerCreateRequest req(String placa, String curp) {
 		return new OfficerCreateRequest("Juan", "Pérez", null, placa, 1L, null, "Centro", null, curp, null, null);
-	}
-
-	private Sexo sexo() {
-		Sexo sexo = new Sexo();
-		sexo.setId(1L);
-		sexo.setNombre("MASCULINO");
-		sexo.setActive(true);
-		return sexo;
 	}
 
 	private Officer officer() {
