@@ -1,8 +1,6 @@
 
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { filter, map, startWith } from 'rxjs/operators';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonApp,
   IonContent,
@@ -36,6 +34,8 @@ import {
   linkSharp,
   logOutOutline,
   logOutSharp,
+  megaphoneOutline,
+  megaphoneSharp,
   peopleOutline,
   peopleSharp,
   personCircleOutline,
@@ -74,7 +74,6 @@ import { AuthService } from './core/services/auth.service';
   ],
 })
 export class AppComponent {
-  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
   public readonly currentUser = this.authService.currentUser;
@@ -85,21 +84,12 @@ export class AppComponent {
     return APP_NAV_ITEMS.filter((item) => !item.roles || (role != null && item.roles.includes(role)));
   });
 
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
-      map((event) => event.urlAfterRedirects),
-      startWith(this.router.url),
-    ),
-    { initialValue: this.router.url },
-  );
-
-  public readonly showMenu = computed(() => {
-    const url = this.currentUrl();
-    return !url.startsWith('/login') &&
-      !url.startsWith('/forgot-password') &&
-      !url.startsWith('/reset-password');
-  });
+  /**
+   * El shell autenticado (menú lateral) se monta SOLO con sesión válida, derivándolo del estado de
+   * sesión y no de la URL (FR-016). Un visitante sin sesión (landing, login, recuperación) nunca ve el
+   * menú. La sesión se restaura en el arranque (`provideAppInitializer`), así que es fiable al renderizar.
+   */
+  public readonly showMenu = computed(() => this.authService.isAuthenticated());
 
   constructor() {
     addIcons({
@@ -119,6 +109,8 @@ export class AppComponent {
       linkSharp,
       logOutOutline,
       logOutSharp,
+      megaphoneOutline,
+      megaphoneSharp,
       pricetagsOutline,
       pricetagsSharp,
       businessOutline,

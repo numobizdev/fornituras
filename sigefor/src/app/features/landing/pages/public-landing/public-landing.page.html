@@ -1,0 +1,28 @@
+<ion-content class="public-landing" [fullscreen]="true">
+  <div class="public-landing__container">
+    <div class="public-landing__brand">
+      <h1 class="public-landing__brand-title">SIGEFOR</h1>
+      <div class="public-landing__brand-accent" aria-hidden="true"></div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="public-landing__state">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    } @else {
+      @if (sections().length > 0) {
+        <app-landing-sections [sections]="sections()"></app-landing-sections>
+      } @else if (hasError()) {
+        <p class="public-landing__state">
+          No se pudo cargar el contenido. Puede iniciar sesión para continuar.
+        </p>
+      } @else {
+        <p class="public-landing__state">Sistema de Gestión de Blindajes</p>
+      }
+
+      <ion-button class="public-landing__cta" expand="block" color="primary" [routerLink]="['/login']">
+        Acceder
+      </ion-button>
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,220 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Contenido de bienvenida</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="scope()" (ionChange)="onScopeChange($any($event.detail.value))">
+      <ion-segment-button value="HOME">
+        <ion-label>Inicio</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="PUBLIC">
+        <ion-label>Pública</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (isLoading()) {
+    <div class="admin-state">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (sections().length === 0) {
+    <div class="admin-state">
+      <p>No hay secciones para esta cara. Crea la primera con el botón +.</p>
+    </div>
+  } @else {
+    <ion-list>
+      @for (section of sections(); track section.id; let i = $index) {
+        <ion-item lines="full">
+          <ion-badge slot="start" [color]="section.active ? 'success' : 'medium'">
+            {{ section.active ? 'Activa' : 'Inactiva' }}
+          </ion-badge>
+          <ion-label>
+            <h2>{{ section.titulo || section.type }}</h2>
+            <ion-note>{{ section.type }} · orden {{ section.orden }}</ion-note>
+          </ion-label>
+
+          <ion-button
+            slot="end"
+            fill="clear"
+            [disabled]="i === 0"
+            (click)="moveUp(i)"
+            aria-label="Subir"
+          >
+            <ion-icon slot="icon-only" name="arrow-up-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            slot="end"
+            fill="clear"
+            [disabled]="i === sections().length - 1"
+            (click)="moveDown(i)"
+            aria-label="Bajar"
+          >
+            <ion-icon slot="icon-only" name="arrow-down-outline"></ion-icon>
+          </ion-button>
+          <ion-button slot="end" fill="clear" (click)="openEdit(section)" aria-label="Editar">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            slot="end"
+            fill="clear"
+            [color]="section.active ? 'danger' : 'success'"
+            (click)="toggleActive(section)"
+            [attr.aria-label]="section.active ? 'Desactivar' : 'Activar'"
+          >
+            <ion-icon slot="icon-only" name="power-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="openNew()" aria-label="Nueva sección">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-modal [isOpen]="isModalOpen()" (didDismiss)="closeModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ modalTitle() }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()" aria-label="Cerrar">
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ion-item lines="full">
+            <ion-select
+              label="Tipo"
+              labelPlacement="stacked"
+              formControlName="type"
+              (ionChange)="onTypeChange()"
+            >
+              @for (t of sectionTypes; track t) {
+                <ion-select-option [value]="t">{{ t }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-input
+              label="Título"
+              labelPlacement="stacked"
+              formControlName="titulo"
+              maxlength="160"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-input
+              label="Subtítulo"
+              labelPlacement="stacked"
+              formControlName="subtitulo"
+              maxlength="240"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-textarea
+              label="Cuerpo"
+              labelPlacement="stacked"
+              formControlName="cuerpo"
+              [autoGrow]="true"
+              maxlength="2000"
+            ></ion-textarea>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-input
+              label="URL de imagen (opcional)"
+              labelPlacement="stacked"
+              formControlName="imagenUrl"
+              placeholder="/assets/... o https://..."
+              maxlength="512"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-input
+              label="Etiqueta del botón (CTA)"
+              labelPlacement="stacked"
+              formControlName="ctaLabel"
+              maxlength="80"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-input
+              label="Destino del botón (CTA)"
+              labelPlacement="stacked"
+              formControlName="ctaUrl"
+              placeholder="/login o https://..."
+              maxlength="512"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-input
+              label="Orden"
+              labelPlacement="stacked"
+              type="number"
+              formControlName="orden"
+            ></ion-input>
+          </ion-item>
+
+          @if (isQuickLinks) {
+            <div class="quicklinks-editor" formArrayName="quickLinks">
+              <div class="quicklinks-editor__head">
+                <h3>Accesos rápidos</h3>
+                <ion-button size="small" fill="outline" type="button" (click)="addQuickLink()">
+                  <ion-icon slot="start" name="add"></ion-icon>
+                  Añadir
+                </ion-button>
+              </div>
+              @for (group of quickLinks.controls; track $index; let i = $index) {
+                <div class="quicklink-row" [formGroupName]="i">
+                  <ion-item lines="none">
+                    <ion-input label="Etiqueta" labelPlacement="stacked" formControlName="label" maxlength="60"></ion-input>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <ion-input label="Destino" labelPlacement="stacked" formControlName="url" placeholder="/..." maxlength="512"></ion-input>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <ion-input label="Icono (opcional)" labelPlacement="stacked" formControlName="icon" maxlength="60"></ion-input>
+                  </ion-item>
+                  <ion-button fill="clear" color="danger" type="button" (click)="removeQuickLink(i)" aria-label="Quitar acceso">
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              }
+            </div>
+          }
+
+          <ion-button
+            class="admin-submit"
+            expand="block"
+            type="submit"
+            color="primary"
+            [disabled]="isSaving()"
+          >
+            @if (isSaving()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Guardar
+            }
+          </ion-button>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

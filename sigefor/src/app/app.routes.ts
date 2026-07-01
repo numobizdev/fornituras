@@ -1,7 +1,19 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
+  {
+    // Raíz: landing pública para visitantes; un usuario autenticado se redirige a /inicio (FR-014/015).
+    path: '',
+    pathMatch: 'full',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/landing/pages/public-landing/public-landing.page').then(
+        (m) => m.PublicLandingPage,
+      ),
+  },
   {
     path: '',
     loadChildren: () =>
@@ -11,11 +23,6 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
-      {
-        path: '',
-        redirectTo: 'inicio',
-        pathMatch: 'full',
-      },
       {
         path: 'inicio',
         loadChildren: () =>
@@ -76,10 +83,18 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/usuarios/usuarios.routes').then((m) => m.USUARIOS_ROUTES),
       },
+      {
+        path: 'landing-admin',
+        canActivate: [adminGuard],
+        loadChildren: () =>
+          import('./features/landing/landing.routes').then((m) => m.LANDING_ROUTES),
+      },
     ],
   },
   {
+    // Cualquier ruta desconocida vuelve a la raíz: los invitados aterrizan en la landing (no en el
+    // shell autenticado) y los usuarios con sesión, en su inicio (FR-015).
     path: '**',
-    redirectTo: 'login',
+    redirectTo: '',
   },
 ];

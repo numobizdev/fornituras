@@ -1,0 +1,47 @@
+.public-landing {
+  --background: var(--gobmx-fondo-suave);
+}
+
+.public-landing__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.public-landing__brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.public-landing__brand-title {
+  margin: 0;
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gobmx-guinda);
+}
+
+.public-landing__brand-accent {
+  height: 4px;
+  width: 48px;
+  margin: 14px auto 0;
+  background: var(--gobmx-dorado);
+  border-radius: 2px;
+}
+
+.public-landing__state {
+  text-align: center;
+  color: var(--gobmx-gris);
+  padding: 24px 0;
+}
+
+.public-landing__cta {
+  margin-top: 16px;
+  max-width: 420px;
+  width: 100%;
+  align-self: center;
+}
