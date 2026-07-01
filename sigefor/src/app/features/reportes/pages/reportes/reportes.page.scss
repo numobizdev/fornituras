@@ -1,0 +1,73 @@
+// Color semántico institucional (docs/05-ui-ux.md §3), reutilizado del tablero (010).
+:host {
+  --status-total: #611232;
+  --status-disponible: #198754;
+  --status-asignado: #0d6efd;
+  --status-mantenimiento: #ffc107;
+  --status-proximo-vencer: #fd7e14;
+  --status-caducado: #dc3545;
+  --status-inactivo: #6c757d;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.total-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-border-color);
+  border-left: 4px solid var(--accent);
+
+  .total-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ion-text-color);
+  }
+
+  .total-label {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.pii-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.state-message {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ion-color-medium);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+
+  .pager-info {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+ion-list-header ion-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
