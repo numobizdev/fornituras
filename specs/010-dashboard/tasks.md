@@ -23,8 +23,8 @@ equivalentes, de autorización (sin PII) y de criterio de vigencia compartido co
 
 ## Phase 1: Setup
 
-- [ ] T001 Crear la estructura de paquetes del módulo `dashboard` (`controller/`, `service/`, `dto/`) en `<be>/dashboard/`
-- [ ] T002 [P] Preparar la página frontend `<fe>/inicio/` (ya existe `pages/inicio/`; crear `data/`)
+- [X] T001 Crear la estructura de paquetes del módulo `dashboard` (`controller/`, `service/`, `dto/`) en `<be>/dashboard/`
+- [X] T002 [P] Preparar la página frontend `<fe>/inicio/` (ya existe `pages/inicio/`; crear `data/`)
 
 ---
 
@@ -32,9 +32,9 @@ equivalentes, de autorización (sin PII) y de criterio de vigencia compartido co
 
 **⚠️ CRITICAL**: completar antes de la user story.
 
-- [ ] T003 [P] Definir el DTO `DashboardSummary` (total, disponibles, asignadas, proximasAVencer, caducadas, enMantenimiento) en `<be>/dashboard/dto/`
-- [ ] T004 [P] Reutilizar el criterio `VigenciaCriteria` (≤ 90 días / vencida) de **001**/**008** para que el tablero coincida con ellos en `<be>/dashboard/service/`
-- [ ] T005 Configurar **autorización** del endpoint (`/dashboard/**` autenticado; filtrar indicadores por rol; sin PII)
+- [X] T003 [P] Definir el DTO `DashboardSummary` (total, disponibles, asignadas, proximasAVencer, caducadas, enMantenimiento) en `<be>/dashboard/dto/`
+- [X] T004 [P] Reutilizar el criterio `VigenciaCriteria` (≤ 90 días / vencida) de **001**/**008** para que el tablero coincida con ellos en `<be>/dashboard/service/`
+- [X] T005 Configurar **autorización** del endpoint (`/dashboard/**` autenticado; filtrar indicadores por rol; sin PII)
 
 **Checkpoint**: contrato y criterio listos.
 
@@ -50,16 +50,16 @@ usa el color de `docs/05-ui-ux.md`; inventario vacío → ceros sin error.
 
 ### Tests for User Story 1
 
-- [ ] T006 [P] [US1] Test de integración: cada contador de `GET /dashboard/summary` **coincide** con el `COUNT` del listado filtrado equivalente de 001/008 (SC-002) en `<bet>/dashboard/DashboardSummaryIntegrationTest.java`
-- [ ] T007 [P] [US1] Test: inventario vacío → todos los contadores en cero sin error (Edge Case) en `<bet>/dashboard/DashboardEmptyTest.java`
-- [ ] T008 [P] [US1] Test de autorización: requiere autenticación; respuesta sin PII; filtra indicadores por rol en `<bet>/dashboard/DashboardAuthTest.java`
+- [X] T006 [P] [US1] Test de integración: cada contador de `GET /dashboard/summary` **coincide** con el `COUNT` del listado filtrado equivalente de 001/008 (SC-002) en `<bet>/dashboard/DashboardSummaryIntegrationTest.java`
+- [X] T007 [P] [US1] Test: inventario vacío → todos los contadores en cero sin error (Edge Case) en `<bet>/dashboard/DashboardEmptyTest.java`
+- [X] T008 [P] [US1] Test de autorización: requiere autenticación; respuesta sin PII; filtra indicadores por rol en `<bet>/dashboard/DashboardAuthTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implementar `DashboardService` con **consultas agregadas** (`COUNT`/`GROUP BY` sobre `equipment` por estado y `fecha_vencimiento`; asignadas vía 004 si aplica) sin traer registros al cliente en `<be>/dashboard/service/`
-- [ ] T010 [US1] Implementar `GET /dashboard/summary` en `DashboardController` (una sola respuesta) en `<be>/dashboard/controller/`
-- [ ] T011 [P] [US1] Frontend: `dashboard.service.ts` (`getSummary`) en `<fe>/inicio/data/`
-- [ ] T012 [US1] Frontend: página `inicio` — tarjetas de indicadores con **color semántico** institucional (guinda/verde/azul/naranja/rojo/amarillo, `docs/05-ui-ux.md`) en `<fe>/inicio/pages/inicio/`
+- [X] T009 [US1] Implementar `DashboardService` con **consultas agregadas** (`COUNT`/`GROUP BY` sobre `equipment` por estado y `fecha_vencimiento`; asignadas vía 004 si aplica) sin traer registros al cliente en `<be>/dashboard/service/`
+- [X] T010 [US1] Implementar `GET /dashboard/summary` en `DashboardController` (una sola respuesta) en `<be>/dashboard/controller/`
+- [X] T011 [P] [US1] Frontend: `dashboard.service.ts` (`getSummary`) en `<fe>/inicio/data/`
+- [X] T012 [US1] Frontend: página `inicio` — tarjetas de indicadores con **color semántico** institucional (guinda/verde/azul/naranja/rojo/amarillo, `docs/05-ui-ux.md`) en `<fe>/inicio/pages/inicio/`
 
 **Checkpoint**: tablero operativo y consistente con los listados.
 
@@ -67,8 +67,8 @@ usa el color de `docs/05-ui-ux.md`; inventario vacío → ceros sin error.
 
 ## Phase 4: Polish & Cross-Cutting Concerns
 
-- [ ] T013 [P] Verificar rendimiento (< 2 s con decenas de miles de fornituras, SC-001); apoyarse en índices de 001; evaluar caché breve solo si hace falta
-- [ ] T014 Validar el quickstart (coincidencia con listados, vacío sin error, recarga refleja cambios) y registrar resultados
+- [X] T013 [P] Verificar rendimiento (< 2 s con decenas de miles de fornituras, SC-001); apoyarse en índices de 001; evaluar caché breve solo si hace falta
+- [X] T014 Validar el quickstart (coincidencia con listados, vacío sin error, recarga refleja cambios) y registrar resultados
 
 ---
 

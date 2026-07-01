@@ -32,4 +32,33 @@ public interface EquipmentRepository
 	/** Ids de las fornituras de un tipo dado; sirve para filtrar por tipo sin acoplar otros módulos a la entidad. */
 	@Query("select e.id from Equipment e where e.equipmentTypeId = :typeId")
 	List<Long> findIdsByEquipmentTypeId(@Param("typeId") Long typeId);
+
+	/**
+	 * Conteo de fornituras agrupado por estado operativo, en una sola consulta agregada. Base del
+	 * tablero (010): evita traer registros al cliente y coincide con el {@code COUNT} de cada listado
+	 * filtrado por estado.
+	 */
+	@Query("select e.status as status, count(e) as total from Equipment e group by e.status")
+	List<StatusTally> tallyByStatus();
+
+	/**
+	 * Fornituras caducadas: vencimiento estrictamente anterior a la fecha dada, excluyendo un estado
+	 * (p. ej. baja definitiva). Misma semántica que {@code ExpiryCalculator} (CADUCADA = vencida) para
+	 * que el tablero coincida con las alertas de vigencia (008).
+	 */
+	long countByFechaVencimientoLessThanAndStatusNot(LocalDate today, EquipmentStatus excludedStatus);
+
+	/**
+	 * Fornituras próximas a vencer: vencimiento dentro de la ventana de aviso [hoy, hoy+N] (inclusive),
+	 * excluyendo un estado. Coincide con la clasificación PROXIMA_A_VENCER de {@code ExpiryCalculator}.
+	 */
+	long countByFechaVencimientoBetweenAndStatusNot(
+			LocalDate from, LocalDate to, EquipmentStatus excludedStatus);
+
+	/** Proyección del conteo por estado (una fila por estado presente en el inventario). */
+	interface StatusTally {
+		EquipmentStatus getStatus();
+
+		long getTotal();
+	}
 }
