@@ -26,9 +26,9 @@ inmutabilidad (UPDATE/DELETE rechazado) y autorización de la consulta.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Crear la estructura de paquetes del módulo `audit` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `aspect/`) en `<be>/audit/`
-- [ ] T002 [P] Preparar la feature frontend `<fe>/auditoria/` (`pages/auditoria/`, `data/`)
-- [ ] T003 [P] Abrir el **ADR de inmutabilidad y retención** (append-only vs hashing encadenado; política de retención legal/ISO 27001) en `docs/04-decisiones/`
+- [X] T001 Crear la estructura de paquetes del módulo `audit` (`controller/`, `service/`, `repository/`, `entity/`, `dto/`, `aspect/`) en `<be>/audit/`
+- [X] T002 [P] Preparar la feature frontend `<fe>/auditoria/` (`pages/auditoria/`, `data/`)
+- [X] T003 [P] Abrir el **ADR de inmutabilidad y retención** (append-only vs hashing encadenado; política de retención legal/ISO 27001) en `docs/04-decisiones/`
 
 ---
 
@@ -36,10 +36,10 @@ inmutabilidad (UPDATE/DELETE rechazado) y autorización de la consulta.
 
 **⚠️ CRITICAL**: ninguna user story puede empezar hasta completar esta fase.
 
-- [ ] T004 [P] Crear la entidad `AuditLog` (usuario_id, accion, entidad, entidad_id, timestamp, ip, evidencia/diff JSON, prev_hash NULL) en `<be>/audit/entity/AuditLog.java`
-- [ ] T005 Crear la migración Flyway `V{n}__create_audit_log.sql` (append-only; índices por usuario/acción/(entidad,entidad_id)/timestamp; revocar UPDATE/DELETE al rol de la app) — usar el siguiente número Flyway libre
-- [ ] T006 [P] Definir DTOs `AuditEvent` (escritura interna) y `AuditLogSummary` (lectura) en `<be>/audit/dto/`
-- [ ] T007 [P] Implementar la **redacción de PII/secretos** central (enmascara valores sensibles, referencia entidades por id) en `<be>/audit/service/`
+- [X] T004 [P] Crear la entidad `AuditLog` (usuario_id, accion, entidad, entidad_id, timestamp, ip, evidencia/diff JSON, prev_hash NULL) en `<be>/audit/entity/AuditLog.java`
+- [X] T005 Crear la migración Flyway `V{n}__create_audit_log.sql` (append-only; índices por usuario/acción/(entidad,entidad_id)/timestamp; revocar UPDATE/DELETE al rol de la app) — usar el siguiente número Flyway libre
+- [X] T006 [P] Definir DTOs `AuditEvent` (escritura interna) y `AuditLogSummary` (lectura) en `<be>/audit/dto/`
+- [X] T007 [P] Implementar la **redacción de PII/secretos** central (enmascara valores sensibles, referencia entidades por id) en `<be>/audit/service/`
 
 **Checkpoint**: esquema y utilidades listos.
 
@@ -55,16 +55,16 @@ entidad/id/timestamp/ip; una operación denegada → también registrada; ningú
 
 ### Tests for User Story 2
 
-- [ ] T008 [P] [US2] Test de integración: una operación sensible genera **exactamente 1** registro con los campos requeridos en `<bet>/audit/AuditCaptureTest.java`
-- [ ] T009 [P] [US2] Test de **no-PII** (SC-002): ningún campo del log contiene PII/secretos en claro (redacción aplicada) en `<bet>/audit/AuditNoPiiTest.java`
-- [ ] T010 [P] [US2] Test de eventos **denegados** (FR-006): un acceso rechazado por autorización se audita en `<bet>/audit/AuditDeniedTest.java`
+- [X] T008 [P] [US2] Test de integración: una operación sensible genera **exactamente 1** registro con los campos requeridos en `<bet>/audit/AuditCaptureTest.java`
+- [X] T009 [P] [US2] Test de **no-PII** (SC-002): ningún campo del log contiene PII/secretos en claro (redacción aplicada) en `<bet>/audit/AuditNoPiiTest.java`
+- [X] T010 [P] [US2] Test de eventos **denegados** (FR-006): un acceso rechazado por autorización se audita en `<bet>/audit/AuditDeniedTest.java`
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Implementar `AuditWriter` (puerto) + implementación que persiste `AuditEvent` redactado en `audit_log` en `<be>/audit/service/`
-- [ ] T012 [US2] Implementar `AuditAspect` (AOP sobre servicios sensibles vía `@Auditable`/pointcuts) y listeners de Spring Security (login/logout/denegado) evitando doble registro en `<be>/audit/aspect/`
-- [ ] T013 [US2] Implementar `AuditLogRepository` (append-only; sin métodos de update/delete) en `<be>/audit/repository/`
-- [ ] T014 [P] [US2] Test de **inmutabilidad** (SC-003): intento de UPDATE/DELETE sobre `audit_log` rechazado en `<bet>/audit/AuditImmutabilityTest.java`
+- [X] T011 [US2] Implementar `AuditWriter` (puerto) + implementación que persiste `AuditEvent` redactado en `audit_log` en `<be>/audit/service/`
+- [X] T012 [US2] Implementar `AuditAspect` (AOP sobre servicios sensibles vía `@Auditable`/pointcuts) y listeners de Spring Security (login/logout/denegado) evitando doble registro en `<be>/audit/aspect/`
+- [X] T013 [US2] Implementar `AuditLogRepository` (append-only; sin métodos de update/delete) en `<be>/audit/repository/`
+- [X] T014 [P] [US2] Test de **inmutabilidad** (SC-003): intento de UPDATE/DELETE sobre `audit_log` rechazado en `<bet>/audit/AuditImmutabilityTest.java`
 
 **Checkpoint**: `AuditWriter` disponible para que todas las features lo consuman (MVP del Principio V).
 
@@ -79,15 +79,15 @@ IP, sin PII; los filtros acotan correctamente.
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Test de contrato `GET /audit` (paginación + filtros usuario/fecha/acción/entidad) en `<bet>/audit/AuditQueryContractTest.java`
-- [ ] T016 [P] [US1] Test de autorización: solo auditor/admin consultan; rol operativo → denegado (y auditado) en `<bet>/audit/AuditQueryAuthTest.java`
+- [X] T015 [P] [US1] Test de contrato `GET /audit` (paginación + filtros usuario/fecha/acción/entidad) en `<bet>/audit/AuditQueryContractTest.java`
+- [X] T016 [P] [US1] Test de autorización: solo auditor/admin consultan; rol operativo → denegado (y auditado) en `<bet>/audit/AuditQueryAuthTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implementar `AuditQueryService` + consulta paginada con filtros e índices en `<be>/audit/service/`
-- [ ] T018 [US1] Implementar `GET /audit` en `AuditLogController` (restringido por rol) en `<be>/audit/controller/`
-- [ ] T019 [P] [US1] Frontend: `audit.service.ts` (consulta con filtros) en `<fe>/auditoria/data/`
-- [ ] T020 [US1] Frontend: página de consulta (tabla paginada + filtros usuario/fecha/acción/entidad) en `<fe>/auditoria/pages/auditoria/`
+- [X] T017 [US1] Implementar `AuditQueryService` + consulta paginada con filtros e índices en `<be>/audit/service/`
+- [X] T018 [US1] Implementar `GET /audit` en `AuditLogController` (restringido por rol) en `<be>/audit/controller/`
+- [X] T019 [P] [US1] Frontend: `audit.service.ts` (consulta con filtros) en `<fe>/auditoria/data/`
+- [X] T020 [US1] Frontend: página de consulta (tabla paginada + filtros usuario/fecha/acción/entidad) en `<fe>/auditoria/pages/auditoria/`
 
 **Checkpoint**: bitácora consultable por roles autorizados.
 
@@ -96,9 +96,9 @@ IP, sin PII; los filtros acotan correctamente.
 ## Phase 5: Polish & Cross-Cutting Concerns
 
 - [ ] T021 [P] *(condicional al ADR)* Implementar **hashing encadenado** (`prev_hash`) como refuerzo de detección de manipulación en `<be>/audit/service/`
-- [ ] T022 [P] Documentar y, si aplica, automatizar la **política de retención** (purga/archivado) conforme al ADR
-- [ ] T023 Migrar a `AuditWriter` cualquier escritor mínimo que features previas (001/004/etc.) hayan creado provisionalmente
-- [ ] T024 Validar el quickstart (1 registro por operación, no-PII, inmutabilidad, denegados) y registrar resultados
+- [X] T022 [P] Documentar y, si aplica, automatizar la **política de retención** (purga/archivado) conforme al ADR
+- [X] T023 Migrar a `AuditWriter` cualquier escritor mínimo que features previas (001/004/etc.) hayan creado provisionalmente
+- [X] T024 Validar el quickstart (1 registro por operación, no-PII, inmutabilidad, denegados) y registrar resultados
 
 ---
 

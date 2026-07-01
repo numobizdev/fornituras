@@ -15,7 +15,7 @@
           <ion-list id="nav-list">
             <ion-list-header>Navegación</ion-list-header>
 
-            @for (page of appPages; track page.url) {
+            @for (page of appPages(); track page.url) {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
                   routerDirection="root"

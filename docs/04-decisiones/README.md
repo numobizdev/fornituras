@@ -43,6 +43,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0006](./0006-cifrado-pii-nivel-aplicacion.md) — Cifrado de PII a nivel de aplicación.
 - [0007](./0007-catalogos-genericos.md) — Catálogos genéricos (`catalog → catalog_item`) y municipio/estado como texto libre. **Aceptado.**
 - [0011](./0011-libreria-export-excel.md) — Exportación de reportes a Excel con Apache POI (SXSSF, streaming). **Aceptado.**
+- [0012](./0012-inmutabilidad-y-retencion-auditoria.md) — Inmutabilidad y retención de la bitácora de auditoría (append-only + triggers). **Aceptado.**
 
 ## Decisiones pendientes de registrar
 

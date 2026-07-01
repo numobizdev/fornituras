@@ -1,5 +1,6 @@
 package com.numobiz.solutions.fornituras.modules.auth.service;
 
+import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.UnauthorizedException;
 import com.numobiz.solutions.fornituras.modules.auth.dto.ActivateAccountRequest;
@@ -42,6 +43,7 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final EmailService emailService;
+	private final AuditWriter audit;
 
 	public AuthService(
 			UserRepository userRepository,
@@ -49,13 +51,15 @@ public class AuthService {
 			PasswordResetTokenRepository passwordResetTokenRepository,
 			PasswordEncoder passwordEncoder,
 			JwtService jwtService,
-			EmailService emailService) {
+			EmailService emailService,
+			AuditWriter audit) {
 		this.userRepository = userRepository;
 		this.verificationTokenRepository = verificationTokenRepository;
 		this.passwordResetTokenRepository = passwordResetTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtService = jwtService;
 		this.emailService = emailService;
+		this.audit = audit;
 	}
 
 	@Transactional(readOnly = true)
@@ -83,6 +87,7 @@ public class AuthService {
 
 		String token = jwtService.generateToken(userDetails);
 		log.info("User logged in: {}", user.getEmail());
+		audit.record("LOGIN", user.getId());
 		return buildAuthResponse(token, user);
 	}
 

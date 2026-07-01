@@ -9,6 +9,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
   { title: 'Incidencias', url: '/incidencias', icon: 'warning' },
   { title: 'Bajas', url: '/bajas', icon: 'archive' },
   { title: 'Reportes y Estadística', url: '/reportes', icon: 'bar-chart' },
+  { title: 'Bitácora de Auditoría', url: '/auditoria', icon: 'shield-checkmark', roles: ['ADMIN'] },
   { title: 'Catálogo de Tipos', url: '/tipos', icon: 'pricetags' },
   { title: 'Almacenes', url: '/almacenes', icon: 'business' },
 ];

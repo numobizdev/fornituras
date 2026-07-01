@@ -1,0 +1,144 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Bitácora</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Bitácora de auditoría</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Filtros (progressive disclosure) -->
+  <section class="section" aria-labelledby="filters-heading">
+    <div class="section-bar">
+      <h2 id="filters-heading" class="section-title">Eventos</h2>
+      <ion-button
+        fill="clear"
+        size="small"
+        (click)="toggleFilters()"
+        [attr.aria-expanded]="filtersOpen()"
+        aria-controls="filters-panel">
+        <ion-icon slot="start" name="filter-outline" aria-hidden="true"></ion-icon>
+        Filtros
+        @if (activeFilterCount() > 0) {
+          <ion-badge class="filter-count" color="primary">{{ activeFilterCount() }}</ion-badge>
+        }
+        <ion-icon
+          slot="end"
+          [name]="filtersOpen() ? 'chevron-up-outline' : 'chevron-down-outline'"
+          aria-hidden="true"></ion-icon>
+      </ion-button>
+    </div>
+
+    @if (filtersOpen()) {
+      <div id="filters-panel" class="filters-panel">
+        <ion-list lines="none" class="filters-list">
+          @for (field of filterFields; track field.key) {
+            <ion-item>
+              <ion-input
+                [label]="field.label"
+                labelPlacement="stacked"
+                [type]="field.type"
+                [clearInput]="field.type === 'text'"
+                [value]="filterValues[field.key]()"
+                (ionChange)="setFilter(field.key, $event.detail.value)"></ion-input>
+            </ion-item>
+          }
+        </ion-list>
+        @if (activeFilterCount() > 0) {
+          <div class="filters-actions">
+            <ion-button fill="clear" size="small" (click)="clearFilters()">
+              <ion-icon slot="start" name="close-circle-outline" aria-hidden="true"></ion-icon>
+              Limpiar filtros
+            </ion-button>
+          </div>
+        }
+      </div>
+    }
+
+    @if (activeFilterCount() > 0) {
+      <div class="active-chips" role="list" aria-label="Filtros activos">
+        @for (field of filterFields; track field.key) {
+          @if (filterValues[field.key]().trim()) {
+            <ion-chip role="listitem" outline="true" (click)="setFilter(field.key, '')">
+              <ion-label>{{ field.label }}: {{ filterValues[field.key]() }}</ion-label>
+              <ion-icon name="close-circle-outline" aria-label="Quitar filtro"></ion-icon>
+            </ion-chip>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Resultados -->
+  <section class="section" aria-labelledby="results-heading">
+    <div class="section-bar">
+      <h3 id="results-heading" class="results-title">
+        Registros
+        @if (!isLoading()) {
+          <span class="results-count">({{ totalElements() }})</span>
+        }
+      </h3>
+    </div>
+
+    @if (isLoading()) {
+      <ion-list lines="full">
+        @for (slot of skeletonSlots; track slot) {
+          <ion-item aria-hidden="true">
+            <ion-label>
+              <span class="skeleton skeleton-line-lg"></span>
+              <span class="skeleton skeleton-line-sm"></span>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    } @else if (rows().length === 0) {
+      <div class="empty-state" role="status">
+        <ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon>
+        <p class="empty-title">Sin registros</p>
+        <p class="empty-hint">
+          @if (activeFilterCount() > 0) {
+            No hay eventos para los filtros aplicados.
+          } @else {
+            Aún no hay eventos de auditoría.
+          }
+        </p>
+        @if (activeFilterCount() > 0) {
+          <ion-button fill="outline" size="small" (click)="clearFilters()">Limpiar filtros</ion-button>
+        }
+      </div>
+    } @else {
+      <ion-list lines="full" class="results-list">
+        @for (row of rows(); track row.id) {
+          <ion-item class="result-row">
+            <ion-label class="ion-text-wrap">
+              <h2 class="row-title">
+                <ion-badge color="primary">{{ row.accion }}</ion-badge>
+                {{ row.entidad || '—' }}@if (row.entidadId) { · #{{ row.entidadId }}}
+              </h2>
+              <p class="row-meta">{{ row.actor || 'anónimo' }} · IP {{ row.ip || '—' }}</p>
+              @if (row.evidencia) {
+                <ion-note color="medium" class="row-ev">{{ row.evidencia }}</ion-note>
+              }
+              <ion-note color="medium" class="row-date">{{ row.occurredAt | date: 'short' }}</ion-note>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+
+      @if (totalPages() > 1) {
+        <div class="pager">
+          <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
+          <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+          <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
+        </div>
+      }
+    }
+  </section>
+</ion-content>

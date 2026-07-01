@@ -1,40 +1,21 @@
 package com.numobiz.solutions.fornituras.common.audit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 /**
- * Escritor de auditoría mínimo compartido para entidades sin PII (catálogos y datos maestros
- * como municipio o almacén).
+ * Puerto de auditoría que consume todo el sistema (Principio V). Las features dependen de esta
+ * abstracción, no de la tabla ni del mecanismo (LEGO/DIP). La implementación persistente vive en el
+ * módulo {@code audit} (feature 012) y escribe en la bitácora append-only, redactando PII.
  *
- * <p>La feature 012 (bitácora ISO 27001) aún no existe; cuando se implemente, este componente
- * se reemplaza por el puerto de auditoría definitivo. Hasta entonces se registra el evento por
- * SLF4J anotando solo actor, acción y el id del recurso (nunca datos sensibles).
+ * <p>Contrato: nunca registrar PII ni secretos en claro; referenciar entidades por id. El detalle de
+ * {@link #recordEvent} debe limitarse a contexto no sensible (tipo de operación, nombres de campos).
  */
-@Component
-public class AuditWriter {
+public interface AuditWriter {
 
-	private static final Logger log = LoggerFactory.getLogger(AuditWriter.class);
-
-	public void record(String action, Long resourceId) {
-		log.info("AUDIT action={} resourceId={} actor={}", action, resourceId, currentActor());
-	}
+	/** Registra una acción sobre un recurso identificado por id (p. ej. {@code CREATE_EQUIPMENT}, 42). */
+	void record(String action, Long resourceId);
 
 	/**
-	 * Registra un evento sin recurso puntual (p. ej. exportación de un reporte). El {@code detail}
-	 * describe el contexto del evento (tipo de reporte, campos de filtro usados) y <b>nunca</b> debe
-	 * contener PII ni valores de filtro sensibles (Principio V).
+	 * Registra un evento sin recurso puntual (p. ej. una exportación). El {@code detail} describe el
+	 * contexto (tipo de reporte, campos de filtro) y <b>nunca</b> debe contener valores sensibles.
 	 */
-	public void recordEvent(String action, String detail) {
-		log.info("AUDIT action={} detail={} actor={}", action, detail, currentActor());
-	}
-
-	private String currentActor() {
-		var authentication = SecurityContextHolder.getContext().getAuthentication();
-		return (authentication != null && authentication.isAuthenticated())
-				? authentication.getName()
-				: "anonymous";
-	}
+	void recordEvent(String action, String detail);
 }
