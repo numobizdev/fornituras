@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
+  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -7,7 +8,6 @@ import {
   IonMenuButton,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner,
   IonTitle,
   IonToolbar,
   RefresherCustomEvent,
@@ -16,9 +16,11 @@ import { addIcons } from 'ionicons';
 import {
   alertCircleOutline,
   checkmarkCircleOutline,
+  cloudOfflineOutline,
   constructOutline,
   cubeOutline,
   personOutline,
+  refreshOutline,
   timeOutline,
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
@@ -47,7 +49,7 @@ import {
     IonRefresher,
     IonRefresherContent,
     IonIcon,
-    IonSpinner,
+    IonButton,
   ],
 })
 export class InicioPage implements OnInit {
@@ -58,6 +60,8 @@ export class InicioPage implements OnInit {
   readonly hasError = signal(false);
 
   readonly indicators = DASHBOARD_INDICATORS;
+  // Placeholders para el skeleton de carga (uno por indicador).
+  readonly skeletonSlots = DASHBOARD_INDICATORS.map((_, i) => i);
 
   constructor() {
     addIcons({
@@ -67,6 +71,8 @@ export class InicioPage implements OnInit {
       timeOutline,
       alertCircleOutline,
       constructOutline,
+      cloudOfflineOutline,
+      refreshOutline,
     });
   }
 
