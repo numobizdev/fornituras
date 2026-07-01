@@ -14,9 +14,10 @@ description: "Task list — Catálogos genéricos (catalog → catalog_item) (00
 > construido; `[ ]` = pendiente real (deuda de cobertura o endurecimiento).
 
 **Tests**: el proyecto exige autorización y auditoría; el catálogo añade pruebas de unicidad por
-catálogo, resolución por `code` e integridad referencial (no eliminar en uso). **Deuda actual:** no
-hay tests dedicados del módulo `catalog`; solo `EquipmentServiceTest` cubre indirectamente el rechazo
-de un tipo inactivo.
+catálogo, resolución por `code` e integridad referencial (no eliminar en uso). **Deuda saldada
+(2026-07-01):** se añadió la suite dedicada del módulo `catalog` (`CatalogContractTest`,
+`CatalogIntegrationTest`, `CatalogAuthTest`, `CatalogHierarchyTest`, 18 pruebas) sobre H2/MockMvc,
+además de la cobertura indirecta de `EquipmentServiceTest`.
 
 **Organization**: tareas agrupadas por user story para implementación y prueba independientes.
 
@@ -48,7 +49,7 @@ de un tipo inactivo.
 - [x] T007 [P] Definir DTOs `CatalogSummary`, `CatalogItemSummary`, `CatalogItemCreateRequest` y el `CatalogMapper` en `<be>/catalog/dto/` y `<be>/catalog/mapper/`
 - [x] T008 [P] Implementar la **normalización** de nombre (trim/colapsar espacios/casefold) para unicidad por catálogo, reutilizando `common/text/CodeNormalizer` desde `<be>/catalog/service/`
 - [x] T009 Configurar **autorización por rol** para `/catalogs/**` y `/catalog-items/**` (administración restringida a ADMIN; consulta a roles operativos; rechazo por defecto) en la config de Spring Security
-- [ ] T010 [P] Cablear el escritor de **auditoría** (feature 012) para `CREATE/UPDATE/DEACTIVATE_CATALOG_ITEM` — pendiente hasta que 012 exista
+- [x] T010 [P] Cablear el escritor de **auditoría** para `CREATE/UPDATE/DEACTIVATE_CATALOG_ITEM` — hecho vía `common/audit/AuditWriter` (registro interino SLF4J con actor/acción/id, sin PII); su implementación se reemplazará por el puerto definitivo cuando exista 012
 
 **Checkpoint**: fundamento del catálogo genérico listo.
 
@@ -62,9 +63,9 @@ de un tipo inactivo.
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Test de contrato del CRUD genérico (`GET /catalogs/{code}/items` paginado + `active`, `POST`, `PUT`, `PATCH /catalog-items/{id}/deactivate`; 409 por nombre duplicado por catálogo; 4xx por `code` inexistente) en `<bet>/catalog/CatalogContractTest.java`
-- [ ] T012 [P] [US1] Test de integración (carga de contexto + Flyway V15/V17): unicidad de `nombre_normalizado` por catálogo, resolución por `code` y **bloqueo de borrado de un valor en uso** en `<bet>/catalog/CatalogIntegrationTest.java`
-- [ ] T013 [P] [US1] Test de autorización: rol operativo solo consulta; ADMIN administra en `<bet>/catalog/CatalogAuthTest.java`
+- [x] T011 [P] [US1] Test de contrato del CRUD genérico (`GET /api/v1/catalogs/{code}/items` paginado + `active`, `POST`, `PUT /catalogs/items/{id}`, `PATCH /catalogs/items/{id}/deactivate`; 409 por nombre duplicado por catálogo; 404 por `code` inexistente; 400 por nombre en blanco y por foto con esquema inseguro) en `<bet>/catalog/CatalogContractTest.java`
+- [x] T012 [P] [US1] Test de integración (carga de contexto sobre H2/JPA): unicidad de `nombre_normalizado` por catálogo, resolución por `code` y **conservación de la fila al desactivar un valor en uso** (la API no ofrece borrado físico; la referencia de `equipment` sigue resolviéndose) en `<bet>/catalog/CatalogIntegrationTest.java`
+- [x] T013 [P] [US1] Test de autorización: rol operativo solo consulta; ADMIN administra en `<bet>/catalog/CatalogAuthTest.java`
 - [x] T014 [P] [US1] Cobertura indirecta: `EquipmentServiceTest` verifica que `requireActiveItem(..., TIPO_PRENDA)` rechaza un tipo inactivo al dar de alta una fornitura en `<bet>/equipment/EquipmentServiceTest.java`
 
 ### Implementation for User Story 1
@@ -90,7 +91,7 @@ de un tipo inactivo.
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] Test de integración de jerarquía: listar valores por `parentItemId`, unicidad de nombre por (catálogo, padre), y que una talla ligada solo se ofrezca para su tipo en `<bet>/catalog/CatalogHierarchyTest.java`
+- [x] T023 [P] [US2] Test de integración de jerarquía: listar valores por `parentItemId`, unicidad de nombre por (catálogo, padre) —mismo nombre bajo padres distintos permitido; repetido bajo el mismo padre rechazado; globales independientes de las hijas— y que una talla ligada solo se ofrezca para su tipo en `<bet>/catalog/CatalogHierarchyTest.java`. **Nota:** este test destapó que `CatalogService` validaba unicidad solo por catálogo (ignorando el padre); se corrigió a unicidad por (catálogo, padre) según data-model (índices `uk_catalog_item_named`/`uk_catalog_item_named_child`). Se añadió además `CatalogUniquenessMigrationTest` como guarda a nivel de esquema (verifica que `V15` declara ambos índices únicos filtrados, ya que H2 no soporta índices filtrados y el motor real se valida en CI, ADR 0009)
 
 ### Implementation for User Story 2
 
@@ -105,9 +106,9 @@ de un tipo inactivo.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T028 [P] Endurecimiento: validación estricta de imagen (MIME real, tamaño máx.) y errores que no filtran detalles internos, en `<be>/catalog/`
-- [ ] T029 [P] Cerrar la deuda de tests dedicados del módulo `catalog` (T011–T013, T023)
-- [ ] T030 Validar el quickstart (alta ofrece "Fornitura"; nombre duplicado → 409; borrar en uso → bloqueado; desactivar → desaparece) y registrar resultados
+- [x] T028 [P] Endurecimiento: la foto se guarda **por referencia** (`foto_url`), no hay endpoint de subida, así que la validación de MIME/tamaño no aplica; en su lugar se añadió una **guarda de esquema** en `CatalogItemCreateRequest.fotoUrl` (`@Pattern`) que rechaza esquemas peligrosos (`javascript:`, `data:`, `vbscript:`…) admitiendo http(s) y rutas relativas, evitando XSS almacenado al renderar la foto. Los errores del handler global no filtran detalles internos
+- [x] T029 [P] Cerrar la deuda de tests dedicados del módulo `catalog` (T011–T013, T023) — hecho: 18 pruebas nuevas
+- [x] T030 Validar el quickstart y registrar resultados — **verificado (2026-07-01)** vía la suite dedicada: nombre duplicado por catálogo → 409 (`CatalogContractTest`/`CatalogIntegrationTest`); valor en uso → sin borrado físico, desactivación conserva la fila y la referencia sigue resolviéndose (`CatalogIntegrationTest`); desactivado → deja de listarse como activo y `requireActiveItem` lo rechaza; foto con esquema inseguro → 400. Suite completa del backend: **120 tests, 0 fallos, 0 errores**
 
 ---
 
@@ -131,4 +132,7 @@ de un tipo inactivo.
 - [P] = archivos distintos, sin dependencias.
 - Catálogo de soporte sin PII; la disciplina es unicidad por catálogo, integridad referencial
   (validación por `code` en servicio, ADR 0007) y autorización.
-- **Deuda visible:** T010 (auditoría), T011–T013/T023 (tests dedicados), T028 (endurecimiento de imagen).
+- **Deuda saldada (2026-07-01):** T010 (auditoría vía `AuditWriter`), T011–T013/T023 (suite dedicada
+  del módulo `catalog`) y T028 (guarda de esquema en `fotoUrl`). Corrección incluida: unicidad de
+  nombre por (catálogo, padre) en `CatalogService` (antes solo por catálogo). Todas las tareas del
+  feature quedan en `[x]`; el registro de auditoría definitivo (bitácora ISO 27001) llega con 012.

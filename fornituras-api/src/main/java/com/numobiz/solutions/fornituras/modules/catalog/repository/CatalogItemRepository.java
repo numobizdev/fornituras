@@ -19,7 +19,18 @@ public interface CatalogItemRepository extends JpaRepository<CatalogItem, Long> 
 	List<CatalogItem> findByCatalogCodeAndParentItemIdAndActiveTrueOrderByOrdenAscNombreAsc(
 			String catalogCode, Long parentItemId);
 
-	Optional<CatalogItem> findByCatalogIdAndNombreNormalizado(Long catalogId, String nombreNormalizado);
+	/**
+	 * Unicidad de nombre para valores <b>globales</b> (sin padre): único por (catálogo, nombre) donde
+	 * {@code parent_item_id IS NULL} (data-model 006, índice {@code uk_catalog_item_named}).
+	 */
+	Optional<CatalogItem> findByCatalogIdAndParentItemIsNullAndNombreNormalizado(
+			Long catalogId, String nombreNormalizado);
 
-	boolean existsByCatalogIdAndNombreNormalizado(Long catalogId, String nombreNormalizado);
+	/**
+	 * Unicidad de nombre para valores <b>dependientes</b>: único por (catálogo, padre, nombre), lo que
+	 * permite el mismo nombre (p. ej. talla "M") bajo padres distintos (índice
+	 * {@code uk_catalog_item_named_child}).
+	 */
+	Optional<CatalogItem> findByCatalogIdAndParentItemIdAndNombreNormalizado(
+			Long catalogId, Long parentItemId, String nombreNormalizado);
 }

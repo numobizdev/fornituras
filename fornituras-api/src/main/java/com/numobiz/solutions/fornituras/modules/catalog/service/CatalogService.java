@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -82,14 +83,12 @@ public class CatalogService {
 	public CatalogItemSummary createItem(String catalogCode, CatalogItemCreateRequest request) {
 		Catalog catalog = requireCatalog(catalogCode);
 		String normalized = NameNormalizer.normalize(request.nombre());
-		if (itemRepository.existsByCatalogIdAndNombreNormalizado(catalog.getId(), normalized)) {
-			throw new ConflictException(
-					"Ya existe un valor con el nombre '" + request.nombre() + "' en el catálogo " + catalogCode);
-		}
+		CatalogItem parent = resolveParent(request.parentItemId());
+		requireUniqueName(catalog.getId(), parent, normalized, null, catalogCode, request.nombre());
 
 		CatalogItem item = new CatalogItem();
 		item.setCatalog(catalog);
-		apply(item, request, normalized);
+		apply(item, request, normalized, parent);
 		item.setActive(true);
 
 		CatalogItem saved = itemRepository.save(item);
@@ -101,17 +100,34 @@ public class CatalogService {
 	public CatalogItemSummary updateItem(Long itemId, CatalogItemCreateRequest request) {
 		CatalogItem item = getItemOrThrow(itemId);
 		String normalized = NameNormalizer.normalize(request.nombre());
-		itemRepository.findByCatalogIdAndNombreNormalizado(item.getCatalog().getId(), normalized)
-				.filter(existing -> !existing.getId().equals(itemId))
-				.ifPresent(existing -> {
-					throw new ConflictException("Ya existe un valor con el nombre '" + request.nombre()
-							+ "' en el catálogo " + item.getCatalog().getCode());
-				});
+		CatalogItem parent = resolveParent(request.parentItemId());
+		requireUniqueName(item.getCatalog().getId(), parent, normalized, itemId,
+				item.getCatalog().getCode(), request.nombre());
 
-		apply(item, request, normalized);
+		apply(item, request, normalized, parent);
 		CatalogItem saved = itemRepository.save(item);
 		audit.record("UPDATE_CATALOG_ITEM", saved.getId());
 		return mapper.toItemSummary(saved);
+	}
+
+	/**
+	 * Unicidad de nombre <b>por (catálogo, padre)</b> (data-model 006): los valores globales
+	 * ({@code parent == null}) son únicos por catálogo; los dependientes lo son dentro de su padre,
+	 * de modo que el mismo nombre puede repetirse bajo padres distintos. {@code excludeId} exime al
+	 * propio valor en las ediciones.
+	 */
+	private void requireUniqueName(
+			Long catalogId, CatalogItem parent, String normalized, Long excludeId,
+			String catalogCode, String nombre) {
+		Optional<CatalogItem> existing = (parent == null)
+				? itemRepository.findByCatalogIdAndParentItemIsNullAndNombreNormalizado(catalogId, normalized)
+				: itemRepository.findByCatalogIdAndParentItemIdAndNombreNormalizado(
+						catalogId, parent.getId(), normalized);
+		existing.filter(other -> !other.getId().equals(excludeId))
+				.ifPresent(other -> {
+					throw new ConflictException("Ya existe un valor con el nombre '" + nombre
+							+ "' en el catálogo " + catalogCode);
+				});
 	}
 
 	/**
@@ -159,14 +175,14 @@ public class CatalogService {
 				.collect(Collectors.toMap(CatalogItem::getId, CatalogItem::getNombre));
 	}
 
-	private void apply(CatalogItem item, CatalogItemCreateRequest request, String normalized) {
+	private void apply(CatalogItem item, CatalogItemCreateRequest request, String normalized, CatalogItem parent) {
 		item.setNombre(request.nombre().trim());
 		item.setNombreNormalizado(normalized);
 		item.setCode(blankToNull(request.code()));
 		item.setDescripcion(request.descripcion());
 		item.setFotoUrl(request.fotoUrl());
 		item.setOrden(request.orden());
-		item.setParentItem(resolveParent(request.parentItemId()));
+		item.setParentItem(parent);
 	}
 
 	private CatalogItem resolveParent(Long parentItemId) {
