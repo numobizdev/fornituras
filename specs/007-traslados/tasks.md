@@ -53,8 +53,8 @@ con fecha de envío; agregar una no disponible/asignada o de otro almacén → b
 
 ### Tests for User Story 2
 
-- [~] T009 [P] [US2] Test de contrato `POST /transfers` — **diferido** (sin infra Testcontainers/MockMvc, como en 001/003/004). La lógica (validación origen/disponibilidad/ubicación, estados resultantes) está cubierta a nivel unitario en `TransferServiceTest`
-- [~] T010 [P] [US2] Test de integración de creación — **diferido** (misma razón); cubierto por `TransferServiceTest.create_*`
+- [X] T009 [P] [US2] Test de contrato `POST /transfers` — **hecho (2026-07-01)** sobre H2/MockMvc en `TransferCreateContractTest` (201+ENVIADO+EN_TRASLADO, origen==destino 400, no disponible 409, fuera del origen 409, destino inactivo 400, lista vacía 400). La infra H2/MockMvc ya existe (misma que 001/006), así que el diferido queda saldado
+- [X] T010 [P] [US2] Test de integración de creación — **hecho**; la creación se ejerce extremo a extremo en `TransferCreateContractTest` (persiste el traslado y muta el estado de la fornitura), además de `TransferServiceTest.create_*`
 - [X] T011 [P] [US2] Test: una fornitura "en traslado" **no** puede asignarse/darse de baja — cubierto por `TransferLifecycleQueryTest` (puerto) + guard añadido en `EquipmentService.changeStatus` (baja bloqueada si `hasOngoingTransfer`); asignación ya exige `DISPONIBLE`
 
 ### Implementation for User Story 2
@@ -79,7 +79,7 @@ fecha registrada.
 
 ### Tests for User Story 3
 
-- [~] T017 [P] [US3] Test de contrato/integración `POST /transfers/{id}/receive` — **diferido** (sin infra Testcontainers/MockMvc); la lógica está cubierta por `TransferServiceTest.receive_*`
+- [X] T017 [P] [US3] Test de contrato/integración `POST /transfers/{id}/receive` — **hecho** en `TransferLifecycleContractTest` (recibir → RECIBIDO + fornitura disponible en destino; recibir uno ya recibido → 409; cancelar devuelve al origen; id inexistente → 404), además de `TransferServiceTest.receive_*`
 
 ### Implementation for User Story 3
 
@@ -100,7 +100,7 @@ almacén acota correctamente.
 
 ### Tests for User Story 1
 
-- [~] T021 [P] [US1] Test de contrato `GET /transfers` — **diferido** (sin infra Testcontainers/MockMvc); el filtrado se implementa con `JpaSpecificationExecutor`
+- [X] T021 [P] [US1] Test de contrato `GET /transfers` — **hecho** en `TransferListContractTest` (paginado, filtro por estado y por origen, ficha `GET /{id}`); el filtrado usa `JpaSpecificationExecutor`. Se añadió además `TransferAuthTest` (consulta cualquier rol; crear/recibir/cancelar solo ADMIN/CAPTURISTA) que respalda T007
 
 ### Implementation for User Story 1
 
@@ -116,7 +116,7 @@ almacén acota correctamente.
 - [X] T024 Implementar `POST /transfers/{id}/cancel` (revertir fornituras a "disponible" en origen, estado "cancelado", auditar) en `<be>/transfers/controller/`
 - [~] T025 [P] *(diferido por diseño)* Evaluar **recepción parcial** → ADR si se adopta; hoy la recepción es total. Sin cambios
 - [X] T026 [P] Tests unitarios de transición de estados y validación de origen en `<bet>/transfers/` (`TransferServiceTest` 7 + `TransferLifecycleQueryTest` 3)
-- [~] T027 Validar el quickstart (crear, bloquear asignación de "en traslado", recibir, cancelar) — **pendiente:** requiere SQL Server levantado
+- [X] T027 Validar el quickstart (crear, bloquear asignación de "en traslado", recibir, cancelar) — **verificado (2026-07-01)** sobre H2/MockMvc: crear (`TransferCreateContractTest`), bloqueo de asignación/baja de "en traslado" (`TransferLifecycleQueryTest` + guard en `EquipmentService`), recibir y cancelar (`TransferLifecycleContractTest`). El motor real SQL Server se validará en CI (ADR 0009)
 
 ---
 
@@ -149,9 +149,13 @@ almacén acota correctamente.
   (@Primary, compone asignación + traslado) y guard en `EquipmentService.changeStatus`; **10
   pruebas** backend nuevas verdes (78 en total, `BUILD SUCCESS`). Frontend `traslados` (listado con
   recibir/cancelar, alta con captura QR **014**), rutas y entrada de menú. Build de producción limpio.
-- **Diferido (`[~]`):** tests de contrato/integración T009/T010/T017/T021 (sin infra
-  Testcontainers/MockMvc, como en specs previas; lógica cubierta a nivel unitario); T006 (puerto
-  `EquipmentStateChanger` — se usa `EquipmentRepository` directo, precedente de 004); T025
-  (recepción parcial, decisión de diseño); T027 (quickstart, requiere SQL Server).
+- **Deuda saldada (2026-07-01):** tests de contrato/integración T009/T010/T017/T021 y validación de
+  quickstart T027, ahora sobre H2/MockMvc (la infra ya existía; el motivo del diferido —"sin infra
+  Testcontainers/MockMvc"— quedó obsoleto). Suite nueva: `TransferCreateContractTest` (6),
+  `TransferLifecycleContractTest` (4), `TransferListContractTest` (4), `TransferAuthTest` (3) — 17
+  pruebas. Backend completo: **139 tests, 0 fallos, 0 errores**.
+- **Diferido por diseño (`[~]`, se mantiene):** T006 (puerto `EquipmentStateChanger` — se usa
+  `EquipmentRepository` directo, precedente de 004) y T025 (recepción parcial → ADR si se adopta;
+  hoy la recepción es total).
 - **Cross-cutting:** cierra la integración **T014 de la spec 014** (captura QR en alta de traslado);
   `AssignmentLifecycleQuery` deja de ser `@Primary` (ahora lo compone `TransferLifecycleQuery`).
