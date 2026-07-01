@@ -9,9 +9,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface WarehouseMapper {
 
-	WarehouseSummary toSummary(Warehouse warehouse);
+	@Mapping(target = "tipoNombre", source = "tipoNombre")
+	WarehouseSummary toSummary(Warehouse warehouse, String tipoNombre);
 
+	@Mapping(target = "tipoNombre", source = "tipoNombre")
 	@Mapping(target = "ocupacion", source = "ocupacion")
 	@Mapping(target = "porcentajeOcupacion", source = "porcentajeOcupacion")
-	WarehouseDetail toDetail(Warehouse warehouse, long ocupacion, Double porcentajeOcupacion);
+	WarehouseDetail toDetail(Warehouse warehouse, String tipoNombre, long ocupacion, Double porcentajeOcupacion);
 }

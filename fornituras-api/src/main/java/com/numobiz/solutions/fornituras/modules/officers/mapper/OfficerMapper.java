@@ -15,21 +15,21 @@ import org.springframework.stereotype.Component;
 public class OfficerMapper {
 
 	public OfficerSummary toSummary(
-			Officer officer, String sexoNombre, String tipoSangreEtiqueta, String municipioNombre) {
+			Officer officer, String sexoNombre, String tipoSangreEtiqueta) {
 		return new OfficerSummary(
 				officer.getId(),
 				fullName(officer),
 				officer.getPlaca(),
 				sexoNombre,
 				tipoSangreEtiqueta,
-				municipioNombre,
+				officer.getMunicipio(),
+				officer.getEstado(),
 				officer.getFotoUrl(),
 				officer.isActive());
 	}
 
 	public OfficerDetail toDetail(
-			Officer officer, String sexoNombre, String tipoSangreEtiqueta, String municipioNombre,
-			boolean unmaskPii) {
+			Officer officer, String sexoNombre, String tipoSangreEtiqueta, boolean unmaskPii) {
 		String curp = unmaskPii ? officer.getCurp() : PiiMasker.mask(officer.getCurp());
 		String rfc = unmaskPii ? officer.getRfc() : PiiMasker.mask(officer.getRfc());
 		return new OfficerDetail(
@@ -41,7 +41,7 @@ public class OfficerMapper {
 				officer.getPlaca(),
 				officer.getSexoId(), sexoNombre,
 				officer.getTipoSangreId(), tipoSangreEtiqueta,
-				officer.getMunicipioId(), municipioNombre,
+				officer.getMunicipio(), officer.getEstado(),
 				curp, rfc, !unmaskPii,
 				officer.getFotoUrl(),
 				officer.isActive(),

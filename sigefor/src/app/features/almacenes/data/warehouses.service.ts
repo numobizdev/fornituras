@@ -8,7 +8,6 @@ import {
   WarehouseCreateRequest,
   WarehouseDetail,
   WarehouseSummary,
-  WarehouseType,
 } from './warehouse.model';
 
 @Injectable({ providedIn: 'root' })
@@ -17,14 +16,14 @@ export class WarehousesService {
   private readonly baseUrl = `${environment.apiUrl}/warehouses`;
 
   list(
-    options: { active?: boolean; tipo?: WarehouseType; page?: number; size?: number } = {},
+    options: { active?: boolean; tipoItemId?: number; page?: number; size?: number } = {},
   ): Observable<Page<WarehouseSummary>> {
     let params = new HttpParams();
     if (options.active !== undefined) {
       params = params.set('active', options.active);
     }
-    if (options.tipo !== undefined) {
-      params = params.set('tipo', options.tipo);
+    if (options.tipoItemId !== undefined) {
+      params = params.set('tipoItemId', options.tipoItemId);
     }
     if (options.page !== undefined) {
       params = params.set('page', options.page);

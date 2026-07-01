@@ -1,18 +1,11 @@
-export type WarehouseType = 'CENTRAL' | 'REGIONAL' | 'MOVIL' | 'TEMPORAL';
-
-export const WAREHOUSE_TYPES: { value: WarehouseType; label: string }[] = [
-  { value: 'CENTRAL', label: 'Central' },
-  { value: 'REGIONAL', label: 'Regional' },
-  { value: 'MOVIL', label: 'Móvil' },
-  { value: 'TEMPORAL', label: 'Temporal' },
-];
-
 /** Vista de listado: solo campos no sensibles. La devuelve la API a cualquier rol autenticado. */
 export interface WarehouseSummary {
   id: number;
   codigo: string;
   nombre: string;
-  tipo: WarehouseType;
+  /** FK al valor del catálogo TIPO_ALMACEN (ADR 0007) y su nombre resuelto para mostrar. */
+  tipoItemId: number;
+  tipoNombre: string | null;
   active: boolean;
 }
 
@@ -21,8 +14,11 @@ export interface WarehouseDetail {
   id: number;
   codigo: string;
   nombre: string;
-  tipo: WarehouseType;
-  municipioId: number | null;
+  tipoItemId: number;
+  tipoNombre: string | null;
+  /** Municipio/estado como texto libre (ADR 0007). */
+  municipio: string | null;
+  estado: string | null;
   direccion: string | null;
   cp: string | null;
   latitud: number | null;
@@ -42,8 +38,9 @@ export interface WarehouseDetail {
 export interface WarehouseCreateRequest {
   codigo: string;
   nombre: string;
-  tipo: WarehouseType;
-  municipioId?: number | null;
+  tipoItemId: number;
+  municipio?: string | null;
+  estado?: string | null;
   direccion?: string | null;
   cp?: string | null;
   latitud?: number | null;

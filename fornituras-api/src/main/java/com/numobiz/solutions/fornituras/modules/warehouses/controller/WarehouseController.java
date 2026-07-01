@@ -4,7 +4,6 @@ import com.numobiz.solutions.fornituras.common.dto.ApiResponse;
 import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseCreateRequest;
 import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseDetail;
 import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseSummary;
-import com.numobiz.solutions.fornituras.modules.warehouses.entity.WarehouseType;
 import com.numobiz.solutions.fornituras.modules.warehouses.service.WarehouseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -47,9 +46,9 @@ public class WarehouseController {
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<Page<WarehouseSummary>>> getAll(
 			@RequestParam(required = false) Boolean active,
-			@RequestParam(required = false) WarehouseType tipo,
+			@RequestParam(required = false) Long tipoItemId,
 			Pageable pageable) {
-		return ResponseEntity.ok(ApiResponse.ok(service.findAll(active, tipo, pageable)));
+		return ResponseEntity.ok(ApiResponse.ok(service.findAll(active, tipoItemId, pageable)));
 	}
 
 	@GetMapping("/{id}")

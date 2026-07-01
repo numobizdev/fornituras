@@ -3,6 +3,9 @@ package com.numobiz.solutions.fornituras.modules.equipment;
 import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.ConflictException;
+import com.numobiz.solutions.fornituras.modules.catalog.CatalogCodes;
+import com.numobiz.solutions.fornituras.modules.catalog.repository.CatalogItemRepository;
+import com.numobiz.solutions.fornituras.modules.catalog.service.CatalogService;
 import com.numobiz.solutions.fornituras.modules.equipment.dto.BatchCreateRequest;
 import com.numobiz.solutions.fornituras.modules.equipment.dto.EquipmentCreateRequest;
 import com.numobiz.solutions.fornituras.modules.equipment.entity.Equipment;
@@ -11,9 +14,6 @@ import com.numobiz.solutions.fornituras.modules.equipment.mapper.EquipmentMapper
 import com.numobiz.solutions.fornituras.modules.equipment.repository.EquipmentRepository;
 import com.numobiz.solutions.fornituras.modules.equipment.service.EquipmentLifecycleQuery;
 import com.numobiz.solutions.fornituras.modules.equipment.service.EquipmentService;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.entity.EquipmentType;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.repository.EquipmentTypeRepository;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.repository.SizeRepository;
 import com.numobiz.solutions.fornituras.modules.warehouses.entity.Warehouse;
 import com.numobiz.solutions.fornituras.modules.warehouses.repository.WarehouseRepository;
 import org.junit.jupiter.api.Test;
@@ -43,9 +43,9 @@ class EquipmentServiceTest {
 	@Mock
 	private EquipmentMapper mapper;
 	@Mock
-	private EquipmentTypeRepository equipmentTypeRepository;
+	private CatalogItemRepository catalogItemRepository;
 	@Mock
-	private SizeRepository sizeRepository;
+	private CatalogService catalogService;
 	@Mock
 	private WarehouseRepository warehouseRepository;
 	@Mock
@@ -67,7 +67,8 @@ class EquipmentServiceTest {
 	@Test
 	void create_rejectsInactiveType() {
 		when(repository.existsByCodigoNormalizado("FOR002")).thenReturn(false);
-		when(equipmentTypeRepository.findById(10L)).thenReturn(Optional.of(type(10L, false)));
+		when(catalogService.requireActiveItem(10L, CatalogCodes.TIPO_FORNITURA))
+				.thenThrow(new BadRequestException("El valor de catálogo seleccionado está inactivo."));
 
 		assertThrows(BadRequestException.class, () -> service.create(req("FOR-002")));
 		verify(repository, never()).save(any());
@@ -171,8 +172,8 @@ class EquipmentServiceTest {
 		verify(audit).record("STATUS_CHANGE_EQUIPMENT", 1L);
 	}
 
+	/** El tipo/talla activos se validan vía CatalogService (mock que no lanza); solo se stubea el almacén. */
 	private void stubActiveCatalogs() {
-		when(equipmentTypeRepository.findById(10L)).thenReturn(Optional.of(type(10L, true)));
 		when(warehouseRepository.findById(20L)).thenReturn(Optional.of(warehouse(20L)));
 	}
 
@@ -186,14 +187,6 @@ class EquipmentServiceTest {
 		return new BatchCreateRequest(
 				10L, null, 20L, "desc", null, null, null,
 				null, null, null, null, null, codigos);
-	}
-
-	private EquipmentType type(Long id, boolean active) {
-		EquipmentType type = new EquipmentType();
-		type.setId(id);
-		type.setNombre("Chaleco");
-		type.setActive(active);
-		return type;
 	}
 
 	private Warehouse warehouse(Long id) {

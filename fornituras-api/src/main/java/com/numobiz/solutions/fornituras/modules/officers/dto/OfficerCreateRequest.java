@@ -31,8 +31,11 @@ public record OfficerCreateRequest(
 
 		Long tipoSangreId,
 
-		@NotNull(message = "El municipio es obligatorio")
-		Long municipioId,
+		@Size(max = 120, message = "El municipio no debe exceder 120 caracteres")
+		String municipio,
+
+		@Size(max = 120, message = "El estado no debe exceder 120 caracteres")
+		String estado,
 
 		@Pattern(regexp = "^[A-Za-z0-9]{18}$", message = "La CURP debe tener 18 caracteres alfanuméricos")
 		String curp,

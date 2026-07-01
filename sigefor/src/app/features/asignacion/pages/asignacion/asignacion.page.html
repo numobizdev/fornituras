@@ -72,7 +72,7 @@
           <ion-item button (click)="selectOfficer(officer)" [detail]="false">
             <ion-label>
               <h3>{{ officer.nombreCompleto }}</h3>
-              <p>Placa {{ officer.placa }}@if (officer.municipioNombre) { · {{ officer.municipioNombre }} }</p>
+              <p>Placa {{ officer.placa }}@if (officer.municipio) { · {{ officer.municipio }} }</p>
             </ion-label>
           </ion-item>
         }

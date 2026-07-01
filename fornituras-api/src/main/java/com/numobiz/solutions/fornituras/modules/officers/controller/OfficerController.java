@@ -45,10 +45,10 @@ public class OfficerController {
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<Page<OfficerSummary>>> getAll(
 			@RequestParam(required = false) String q,
-			@RequestParam(required = false) Long municipioId,
+			@RequestParam(required = false) String municipio,
 			@RequestParam(required = false) Long sexoId,
 			Pageable pageable) {
-		return ResponseEntity.ok(ApiResponse.ok(service.findAll(q, municipioId, sexoId, pageable)));
+		return ResponseEntity.ok(ApiResponse.ok(service.findAll(q, municipio, sexoId, pageable)));
 	}
 
 	@GetMapping("/{id}")

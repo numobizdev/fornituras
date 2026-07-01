@@ -40,6 +40,8 @@ Qué implica esta decisión (positivo y negativo).
 - [0003](./0003-pii-elementos.md) — Alcance de PII del elemento (CURP/RFC/foto). **Propuesto.**
 - [0004](./0004-busqueda-pii-cifrada.md) — Búsqueda sobre PII cifrada (enclaves + blind index). **Propuesto.**
 - [0005](./0005-formato-qr-implementado.md) — Formato QR implementado: código corto opaco + lotes. **Aceptado** (reemplaza 0002; firma = punto abierto).
+- [0006](./0006-cifrado-pii-nivel-aplicacion.md) — Cifrado de PII a nivel de aplicación.
+- [0007](./0007-catalogos-genericos.md) — Catálogos genéricos (`catalog → catalog_item`) y municipio/estado como texto libre. **Aceptado.**
 
 ## Decisiones pendientes de registrar
 

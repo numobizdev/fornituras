@@ -10,7 +10,8 @@ public record OfficerSummary(
 		String placa,
 		String sexoNombre,
 		String tipoSangreEtiqueta,
-		String municipioNombre,
+		String municipio,
+		String estado,
 		String fotoUrl,
 		boolean active
 ) {

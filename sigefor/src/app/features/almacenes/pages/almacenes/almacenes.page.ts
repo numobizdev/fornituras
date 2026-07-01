@@ -27,10 +27,12 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, createOutline, powerOutline } from 'ionicons/icons';
+import { CATALOG_CODES, CatalogItemSummary } from '../../../../core/catalog/catalog.model';
+import { CatalogService } from '../../../../core/catalog/catalog.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { WarehousesService } from '../../data/warehouses.service';
-import { WAREHOUSE_TYPES, WarehouseSummary, WarehouseType } from '../../data/warehouse.model';
+import { WarehouseSummary } from '../../data/warehouse.model';
 
 @Component({
   selector: 'app-almacenes',
@@ -61,6 +63,7 @@ import { WAREHOUSE_TYPES, WarehouseSummary, WarehouseType } from '../../data/war
 })
 export class AlmacenesPage implements OnInit {
   private readonly service = inject(WarehousesService);
+  private readonly catalog = inject(CatalogService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
@@ -69,9 +72,9 @@ export class AlmacenesPage implements OnInit {
   readonly warehouses = signal<WarehouseSummary[]>([]);
   readonly isLoading = signal(false);
   readonly filter = signal<'active' | 'inactive'>('active');
-  readonly tipoFilter = signal<WarehouseType | null>(null);
+  readonly tipoFilter = signal<number | null>(null);
   readonly isAdmin = this.auth.hasRole('ADMIN');
-  readonly types = WAREHOUSE_TYPES;
+  readonly tipoOptions = signal<CatalogItemSummary[]>([]);
 
   constructor() {
     addIcons({ add, createOutline, powerOutline });
@@ -79,6 +82,17 @@ export class AlmacenesPage implements OnInit {
 
   ngOnInit(): void {
     void this.load();
+    void this.loadTipos();
+  }
+
+  private async loadTipos(): Promise<void> {
+    try {
+      this.tipoOptions.set(
+        await firstValueFrom(this.catalog.listActiveItems(CATALOG_CODES.TIPO_ALMACEN)),
+      );
+    } catch {
+      this.tipoOptions.set([]);
+    }
   }
 
   async load(): Promise<void> {
@@ -87,7 +101,7 @@ export class AlmacenesPage implements OnInit {
       const page = await firstValueFrom(
         this.service.list({
           active: this.filter() === 'active',
-          tipo: this.tipoFilter() ?? undefined,
+          tipoItemId: this.tipoFilter() ?? undefined,
           size: 100,
         }),
       );
@@ -106,13 +120,9 @@ export class AlmacenesPage implements OnInit {
     }
   }
 
-  onTipoChange(value: WarehouseType | null): void {
-    this.tipoFilter.set(value);
+  onTipoChange(value: number | null): void {
+    this.tipoFilter.set(value ?? null);
     void this.load();
-  }
-
-  typeLabel(tipo: WarehouseType): string {
-    return this.types.find((t) => t.value === tipo)?.label ?? tipo;
   }
 
   goToNew(): void {

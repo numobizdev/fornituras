@@ -1,7 +1,5 @@
 package com.numobiz.solutions.fornituras.modules.warehouses.dto;
 
-import com.numobiz.solutions.fornituras.modules.warehouses.entity.WarehouseType;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -14,8 +12,10 @@ public record WarehouseDetail(
 		Long id,
 		String codigo,
 		String nombre,
-		WarehouseType tipo,
-		Long municipioId,
+		Long tipoItemId,
+		String tipoNombre,
+		String municipio,
+		String estado,
 		String direccion,
 		String cp,
 		BigDecimal latitud,

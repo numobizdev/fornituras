@@ -3,8 +3,6 @@ package com.numobiz.solutions.fornituras.modules.officers;
 import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.crypto.BlindIndexer;
 import com.numobiz.solutions.fornituras.common.exception.ConflictException;
-import com.numobiz.solutions.fornituras.modules.municipios.entity.Municipio;
-import com.numobiz.solutions.fornituras.modules.municipios.repository.MunicipioRepository;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerCreateRequest;
 import com.numobiz.solutions.fornituras.modules.officers.entity.Officer;
 import com.numobiz.solutions.fornituras.modules.officers.entity.Sexo;
@@ -43,8 +41,6 @@ class OfficerServiceTest {
 	@Mock
 	private TipoSangreRepository tipoSangreRepository;
 	@Mock
-	private MunicipioRepository municipioRepository;
-	@Mock
 	private AuditWriter audit;
 
 	@InjectMocks
@@ -72,7 +68,6 @@ class OfficerServiceTest {
 	void create_persistsNormalizedPlacaAndAudits() {
 		when(repository.existsByPlacaNormalizada("ABC123")).thenReturn(false);
 		when(sexoRepository.findById(1L)).thenReturn(Optional.of(sexo()));
-		when(municipioRepository.findById(2L)).thenReturn(Optional.of(municipio()));
 		when(repository.save(any(Officer.class))).thenAnswer(i -> i.getArgument(0));
 
 		service.create(req("  abc-123 ", null));
@@ -81,6 +76,7 @@ class OfficerServiceTest {
 		verify(repository).save(captor.capture());
 		assertEquals("ABC-123", captor.getValue().getPlaca());
 		assertEquals("ABC123", captor.getValue().getPlacaNormalizada());
+		assertEquals("Centro", captor.getValue().getMunicipio());
 		verify(audit).record("CREATE_OFFICER", null);
 	}
 
@@ -95,7 +91,7 @@ class OfficerServiceTest {
 	}
 
 	private OfficerCreateRequest req(String placa, String curp) {
-		return new OfficerCreateRequest("Juan", "Pérez", null, placa, 1L, null, 2L, curp, null, null);
+		return new OfficerCreateRequest("Juan", "Pérez", null, placa, 1L, null, "Centro", null, curp, null, null);
 	}
 
 	private Sexo sexo() {
@@ -106,13 +102,6 @@ class OfficerServiceTest {
 		return sexo;
 	}
 
-	private Municipio municipio() {
-		Municipio municipio = new Municipio();
-		municipio.setId(2L);
-		municipio.setActive(true);
-		return municipio;
-	}
-
 	private Officer officer() {
 		Officer officer = new Officer();
 		officer.setId(1L);
@@ -121,7 +110,7 @@ class OfficerServiceTest {
 		officer.setPlaca("ABC-123");
 		officer.setPlacaNormalizada("ABC123");
 		officer.setSexoId(1L);
-		officer.setMunicipioId(2L);
+		officer.setMunicipio("Centro");
 		officer.setActive(true);
 		return officer;
 	}

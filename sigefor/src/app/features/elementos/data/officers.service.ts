@@ -13,7 +13,7 @@ import {
 
 export interface OfficerListParams {
   q?: string;
-  municipioId?: number;
+  municipio?: string;
   sexoId?: number;
   page?: number;
   size?: number;

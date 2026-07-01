@@ -21,15 +21,11 @@ import {
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
+import { CATALOG_CODES, CatalogItemSummary } from '../../../../core/catalog/catalog.model';
+import { CatalogService } from '../../../../core/catalog/catalog.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
-import { MunicipioSummary } from '../../../municipios/data/municipio.model';
-import { MunicipiosService } from '../../../municipios/data/municipios.service';
 import { WarehousesService } from '../../data/warehouses.service';
-import {
-  WAREHOUSE_TYPES,
-  WarehouseCreateRequest,
-  WarehouseType,
-} from '../../data/warehouse.model';
+import { WarehouseCreateRequest } from '../../data/warehouse.model';
 
 @Component({
   selector: 'app-almacen-form',
@@ -57,7 +53,7 @@ import {
 })
 export class AlmacenFormPage implements OnInit {
   private readonly service = inject(WarehousesService);
-  private readonly municipiosService = inject(MunicipiosService);
+  private readonly catalog = inject(CatalogService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -66,14 +62,14 @@ export class AlmacenFormPage implements OnInit {
   readonly warehouseId = signal<number | null>(null);
   readonly isLoading = signal(false);
   readonly isSubmitting = signal(false);
-  readonly types = WAREHOUSE_TYPES;
-  readonly municipios = signal<MunicipioSummary[]>([]);
+  readonly tipoOptions = signal<CatalogItemSummary[]>([]);
 
   readonly form = this.formBuilder.nonNullable.group({
     codigo: ['', [Validators.required, Validators.maxLength(40)]],
     nombre: ['', [Validators.required, Validators.maxLength(120)]],
-    tipo: ['CENTRAL' as WarehouseType, [Validators.required]],
-    municipioId: [''],
+    tipoItemId: ['', [Validators.required]],
+    municipio: ['', [Validators.maxLength(120)]],
+    estado: ['', [Validators.maxLength(120)]],
     direccion: ['', [Validators.maxLength(255)]],
     cp: ['', [Validators.maxLength(10)]],
     latitud: [''],
@@ -90,7 +86,7 @@ export class AlmacenFormPage implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.loadMunicipios();
+    void this.loadTipos();
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.warehouseId.set(Number(idParam));
@@ -98,12 +94,14 @@ export class AlmacenFormPage implements OnInit {
     }
   }
 
-  private async loadMunicipios(): Promise<void> {
+  private async loadTipos(): Promise<void> {
     try {
-      this.municipios.set(await firstValueFrom(this.municipiosService.list()));
+      this.tipoOptions.set(
+        await firstValueFrom(this.catalog.listActiveItems(CATALOG_CODES.TIPO_ALMACEN)),
+      );
     } catch {
-      // El selector queda vacío; el almacén puede guardarse sin municipio (FK nullable).
-      this.municipios.set([]);
+      // El selector queda vacío; el usuario verá el error al intentar guardar sin tipo.
+      this.tipoOptions.set([]);
     }
   }
 
@@ -114,8 +112,9 @@ export class AlmacenFormPage implements OnInit {
       this.form.patchValue({
         codigo: detail.codigo,
         nombre: detail.nombre,
-        tipo: detail.tipo,
-        municipioId: this.toText(detail.municipioId),
+        tipoItemId: this.toText(detail.tipoItemId),
+        municipio: detail.municipio ?? '',
+        estado: detail.estado ?? '',
         direccion: detail.direccion ?? '',
         cp: detail.cp ?? '',
         latitud: this.toText(detail.latitud),
@@ -144,8 +143,9 @@ export class AlmacenFormPage implements OnInit {
     const request: WarehouseCreateRequest = {
       codigo: value.codigo.trim(),
       nombre: value.nombre.trim(),
-      tipo: value.tipo,
-      municipioId: this.toNumber(value.municipioId),
+      tipoItemId: Number(value.tipoItemId),
+      municipio: this.toNullable(value.municipio),
+      estado: this.toNullable(value.estado),
       direccion: this.toNullable(value.direccion),
       cp: this.toNullable(value.cp),
       latitud: this.toNumber(value.latitud),

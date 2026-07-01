@@ -6,8 +6,6 @@ import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.ConflictException;
 import com.numobiz.solutions.fornituras.common.exception.NotFoundException;
 import com.numobiz.solutions.fornituras.common.text.CodeNormalizer;
-import com.numobiz.solutions.fornituras.modules.municipios.entity.Municipio;
-import com.numobiz.solutions.fornituras.modules.municipios.repository.MunicipioRepository;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerCreateRequest;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerDetail;
 import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerSummary;
@@ -54,7 +52,6 @@ public class OfficerService {
 	private final BlindIndexer blindIndexer;
 	private final SexoRepository sexoRepository;
 	private final TipoSangreRepository tipoSangreRepository;
-	private final MunicipioRepository municipioRepository;
 	private final AuditWriter audit;
 
 	public OfficerService(
@@ -63,19 +60,17 @@ public class OfficerService {
 			BlindIndexer blindIndexer,
 			SexoRepository sexoRepository,
 			TipoSangreRepository tipoSangreRepository,
-			MunicipioRepository municipioRepository,
 			AuditWriter audit) {
 		this.repository = repository;
 		this.mapper = mapper;
 		this.blindIndexer = blindIndexer;
 		this.sexoRepository = sexoRepository;
 		this.tipoSangreRepository = tipoSangreRepository;
-		this.municipioRepository = municipioRepository;
 		this.audit = audit;
 	}
 
-	public Page<OfficerSummary> findAll(String q, Long municipioId, Long sexoId, Pageable pageable) {
-		Page<Officer> page = repository.findAll(filterBy(q, municipioId, sexoId), pageable);
+	public Page<OfficerSummary> findAll(String q, String municipio, Long sexoId, Pageable pageable) {
+		Page<Officer> page = repository.findAll(filterBy(q, municipio, sexoId), pageable);
 		List<Officer> content = page.getContent();
 
 		Map<Long, String> sexoNames = resolve(
@@ -83,15 +78,11 @@ public class OfficerService {
 		Map<Long, String> tipoSangreLabels = resolve(
 				ids(content, Officer::getTipoSangreId), tipoSangreRepository::findAllById,
 				TipoSangre::getId, TipoSangre::getEtiqueta);
-		Map<Long, String> municipioNames = resolve(
-				ids(content, Officer::getMunicipioId), municipioRepository::findAllById,
-				Municipio::getId, Municipio::getNombre);
 
 		return page.map(o -> mapper.toSummary(
 				o,
 				sexoNames.get(o.getSexoId()),
-				o.getTipoSangreId() == null ? null : tipoSangreLabels.get(o.getTipoSangreId()),
-				municipioNames.get(o.getMunicipioId())));
+				o.getTipoSangreId() == null ? null : tipoSangreLabels.get(o.getTipoSangreId())));
 	}
 
 	/** Devuelve la ficha (enmascarada por rol) y <b>audita</b> el acceso (FR-006). */
@@ -118,7 +109,7 @@ public class OfficerService {
 		if (rfcIdx != null && repository.existsByRfcIdx(rfcIdx)) {
 			throw new ConflictException("Ya existe un elemento con ese RFC.");
 		}
-		validateCatalogs(request.sexoId(), request.tipoSangreId(), request.municipioId());
+		validateCatalogs(request.sexoId(), request.tipoSangreId());
 
 		Officer officer = new Officer();
 		officer.setNombre(request.nombre().trim());
@@ -132,7 +123,8 @@ public class OfficerService {
 		officer.setRfcIdx(rfcIdx);
 		officer.setSexoId(request.sexoId());
 		officer.setTipoSangreId(request.tipoSangreId());
-		officer.setMunicipioId(request.municipioId());
+		officer.setMunicipio(blankToNull(request.municipio()));
+		officer.setEstado(blankToNull(request.estado()));
 		officer.setFotoUrl(blankToNull(request.fotoUrl()));
 		officer.setActive(true);
 
@@ -141,7 +133,7 @@ public class OfficerService {
 		return toDetail(saved);
 	}
 
-	private void validateCatalogs(Long sexoId, Long tipoSangreId, Long municipioId) {
+	private void validateCatalogs(Long sexoId, Long tipoSangreId) {
 		Sexo sexo = sexoRepository.findById(sexoId)
 				.orElseThrow(() -> new BadRequestException("Sexo no encontrado: " + sexoId));
 		if (!sexo.isActive()) {
@@ -154,20 +146,13 @@ public class OfficerService {
 				throw new BadRequestException("El tipo de sangre seleccionado está inactivo.");
 			}
 		}
-		Municipio municipio = municipioRepository.findById(municipioId)
-				.orElseThrow(() -> new BadRequestException("Municipio no encontrado: " + municipioId));
-		if (!municipio.isActive()) {
-			throw new BadRequestException("El municipio seleccionado está inactivo.");
-		}
 	}
 
 	private OfficerDetail toDetail(Officer officer) {
 		String sexoNombre = sexoRepository.findById(officer.getSexoId()).map(Sexo::getNombre).orElse(null);
 		String tipoSangreEtiqueta = officer.getTipoSangreId() == null ? null
 				: tipoSangreRepository.findById(officer.getTipoSangreId()).map(TipoSangre::getEtiqueta).orElse(null);
-		String municipioNombre = municipioRepository.findById(officer.getMunicipioId())
-				.map(Municipio::getNombre).orElse(null);
-		return mapper.toDetail(officer, sexoNombre, tipoSangreEtiqueta, municipioNombre, canViewPii());
+		return mapper.toDetail(officer, sexoNombre, tipoSangreEtiqueta, canViewPii());
 	}
 
 	/** El servidor decide la visibilidad de la PII a partir del rol (solo ADMIN ve CURP/RFC). */
@@ -182,11 +167,12 @@ public class OfficerService {
 				.orElseThrow(() -> new NotFoundException("Elemento no encontrado: " + id));
 	}
 
-	private Specification<Officer> filterBy(String q, Long municipioId, Long sexoId) {
+	private Specification<Officer> filterBy(String q, String municipio, Long sexoId) {
 		return (root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
-			if (municipioId != null) {
-				predicates.add(cb.equal(root.get("municipioId"), municipioId));
+			if (municipio != null && !municipio.isBlank()) {
+				predicates.add(cb.like(cb.upper(root.get("municipio")),
+						"%" + municipio.trim().toUpperCase(Locale.ROOT) + "%"));
 			}
 			if (sexoId != null) {
 				predicates.add(cb.equal(root.get("sexoId"), sexoId));

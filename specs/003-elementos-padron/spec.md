@@ -43,8 +43,9 @@ paginada.
 ### User Story 2 - Registrar un nuevo elemento (Priority: P1)
 
 Un usuario autorizado da de alta un elemento capturando nombre, apellido paterno, apellido
-materno, sexo (catálogo), tipo de sangre (catálogo), identificador (placa/serie), municipio,
-los documentos que la política de PII autorice (ver decisión abierta) y su fotografía.
+materno, sexo (catálogo), tipo de sangre (catálogo), identificador (placa/serie), municipio y
+estado (**texto libre**), los documentos que la política de PII autorice (ver decisión abierta) y
+su fotografía.
 
 **Why this priority**: Habilita la asignación; es parte del MVP junto con el inventario.
 
@@ -113,7 +114,9 @@ solo los elementos de ese municipio y respeta el enmascaramiento de PII.
   apellidos, sexo, tipo de sangre, identificador (placa/serie), municipio, fotografía y
   (sujeto a política de PII) CURP/RFC. **Contiene PII de alta sensibilidad.** Ver
   [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).
-- **Sexo**, **Tipo de sangre**, **Municipio**: catálogos.
+- **Sexo**, **Tipo de sangre**: catálogos (modelados con la estructura genérica `catalog →
+  catalog_item` de la spec **006**; `code` = `SEXO`, `TIPO_SANGRE`).
+- **Municipio**, **Estado**: **texto libre** (decisión 2026-06-30; ya no son catálogo ni FK).
 
 ## Decisión abierta: alcance de PII *(NEEDS CLARIFICATION → ADR pendiente)*
 
@@ -150,7 +153,9 @@ a un único rol. La decisión final corresponde al área legal del cliente (LFPD
 
 ## Assumptions
 
-- Los catálogos sexo, tipo de sangre y municipio se modelan como tablas de catálogo.
+- Los catálogos **sexo** y **tipo de sangre** se modelan con la estructura genérica `catalog →
+  catalog_item` (spec **006**). **Municipio** y **estado** se capturan como **texto libre** (ya no
+  son catálogo).
 - La asignación de fornituras a elementos se especifica en **004-asignacion-resguardos**.
 - La política exacta de PII (qué se captura) queda sujeta al ADR `0003-pii-elementos`.
 

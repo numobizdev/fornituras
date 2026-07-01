@@ -4,7 +4,8 @@ export interface OfficerSummary {
   placa: string;
   sexoNombre: string | null;
   tipoSangreEtiqueta: string | null;
-  municipioNombre: string | null;
+  municipio: string | null;
+  estado: string | null;
   fotoUrl: string | null;
   active: boolean;
 }
@@ -20,8 +21,8 @@ export interface OfficerDetail {
   sexoNombre: string | null;
   tipoSangreId: number | null;
   tipoSangreEtiqueta: string | null;
-  municipioId: number;
-  municipioNombre: string | null;
+  municipio: string | null;
+  estado: string | null;
   /** Enmascarado por el servidor salvo rol autorizado. */
   curp: string | null;
   rfc: string | null;
@@ -39,7 +40,8 @@ export interface OfficerCreateRequest {
   placa: string;
   sexoId: number;
   tipoSangreId?: number | null;
-  municipioId: number;
+  municipio?: string | null;
+  estado?: string | null;
   curp?: string | null;
   rfc?: string | null;
   fotoUrl?: string | null;

@@ -14,10 +14,10 @@ import com.numobiz.solutions.fornituras.modules.equipment.entity.EquipmentStatus
 import com.numobiz.solutions.fornituras.modules.equipment.entity.ExpiryStatus;
 import com.numobiz.solutions.fornituras.modules.equipment.mapper.EquipmentMapper;
 import com.numobiz.solutions.fornituras.modules.equipment.repository.EquipmentRepository;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.entity.EquipmentType;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.entity.Size;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.repository.EquipmentTypeRepository;
-import com.numobiz.solutions.fornituras.modules.equipmenttypes.repository.SizeRepository;
+import com.numobiz.solutions.fornituras.modules.catalog.CatalogCodes;
+import com.numobiz.solutions.fornituras.modules.catalog.entity.CatalogItem;
+import com.numobiz.solutions.fornituras.modules.catalog.repository.CatalogItemRepository;
+import com.numobiz.solutions.fornituras.modules.catalog.service.CatalogService;
 import com.numobiz.solutions.fornituras.modules.warehouses.entity.Warehouse;
 import com.numobiz.solutions.fornituras.modules.warehouses.repository.WarehouseRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -50,8 +50,8 @@ public class EquipmentService {
 
 	private final EquipmentRepository repository;
 	private final EquipmentMapper mapper;
-	private final EquipmentTypeRepository equipmentTypeRepository;
-	private final SizeRepository sizeRepository;
+	private final CatalogItemRepository catalogItemRepository;
+	private final CatalogService catalogService;
 	private final WarehouseRepository warehouseRepository;
 	private final EquipmentLifecycleQuery lifecycle;
 	private final AuditWriter audit;
@@ -59,15 +59,15 @@ public class EquipmentService {
 	public EquipmentService(
 			EquipmentRepository repository,
 			EquipmentMapper mapper,
-			EquipmentTypeRepository equipmentTypeRepository,
-			SizeRepository sizeRepository,
+			CatalogItemRepository catalogItemRepository,
+			CatalogService catalogService,
 			WarehouseRepository warehouseRepository,
 			EquipmentLifecycleQuery lifecycle,
 			AuditWriter audit) {
 		this.repository = repository;
 		this.mapper = mapper;
-		this.equipmentTypeRepository = equipmentTypeRepository;
-		this.sizeRepository = sizeRepository;
+		this.catalogItemRepository = catalogItemRepository;
+		this.catalogService = catalogService;
 		this.warehouseRepository = warehouseRepository;
 		this.lifecycle = lifecycle;
 		this.audit = audit;
@@ -80,10 +80,10 @@ public class EquipmentService {
 
 		Map<Long, String> typeNames = resolve(
 				ids(content, Equipment::getEquipmentTypeId),
-				equipmentTypeRepository::findAllById, EquipmentType::getId, EquipmentType::getNombre);
+				catalogItemRepository::findAllById, CatalogItem::getId, CatalogItem::getNombre);
 		Map<Long, String> sizeLabels = resolve(
 				ids(content, Equipment::getSizeId),
-				sizeRepository::findAllById, Size::getId, Size::getEtiqueta);
+				catalogItemRepository::findAllById, CatalogItem::getId, CatalogItem::getNombre);
 		Map<Long, String> warehouseNames = resolve(
 				ids(content, Equipment::getWarehouseId),
 				warehouseRepository::findAllById, Warehouse::getId, Warehouse::getNombre);
@@ -235,17 +235,9 @@ public class EquipmentService {
 	}
 
 	private void validateCatalogs(Long equipmentTypeId, Long sizeId, Long warehouseId) {
-		EquipmentType type = equipmentTypeRepository.findById(equipmentTypeId)
-				.orElseThrow(() -> new BadRequestException("Tipo de fornitura no encontrado: " + equipmentTypeId));
-		if (!type.isActive()) {
-			throw new BadRequestException("El tipo de fornitura está inactivo.");
-		}
+		catalogService.requireActiveItem(equipmentTypeId, CatalogCodes.TIPO_FORNITURA);
 		if (sizeId != null) {
-			Size size = sizeRepository.findById(sizeId)
-					.orElseThrow(() -> new BadRequestException("Talla no encontrada: " + sizeId));
-			if (!size.isActive()) {
-				throw new BadRequestException("La talla está inactiva.");
-			}
+			catalogService.requireActiveItem(sizeId, CatalogCodes.TALLA);
 		}
 		Warehouse warehouse = warehouseRepository.findById(warehouseId)
 				.orElseThrow(() -> new BadRequestException("Almacén no encontrado: " + warehouseId));
@@ -267,10 +259,8 @@ public class EquipmentService {
 	}
 
 	private EquipmentDetail toDetail(Equipment equipment) {
-		String tipoNombre = equipmentTypeRepository.findById(equipment.getEquipmentTypeId())
-				.map(EquipmentType::getNombre).orElse(null);
-		String tallaEtiqueta = equipment.getSizeId() == null ? null
-				: sizeRepository.findById(equipment.getSizeId()).map(Size::getEtiqueta).orElse(null);
+		String tipoNombre = catalogService.resolveName(equipment.getEquipmentTypeId());
+		String tallaEtiqueta = catalogService.resolveName(equipment.getSizeId());
 		String almacenNombre = warehouseRepository.findById(equipment.getWarehouseId())
 				.map(Warehouse::getNombre).orElse(null);
 		ExpiryStatus vigencia = ExpiryCalculator.statusFor(equipment.getFechaVencimiento(), LocalDate.now());

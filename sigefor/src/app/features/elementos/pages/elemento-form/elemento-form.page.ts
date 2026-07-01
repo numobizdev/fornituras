@@ -22,8 +22,6 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
-import { MunicipiosService } from '../../../municipios/data/municipios.service';
-import { MunicipioSummary } from '../../../municipios/data/municipio.model';
 import { OfficersService } from '../../data/officers.service';
 import { CatalogItem, OfficerCreateRequest } from '../../data/officer.model';
 
@@ -53,7 +51,6 @@ import { CatalogItem, OfficerCreateRequest } from '../../data/officer.model';
 })
 export class ElementoFormPage implements OnInit {
   private readonly service = inject(OfficersService);
-  private readonly municipiosService = inject(MunicipiosService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -64,7 +61,6 @@ export class ElementoFormPage implements OnInit {
   readonly isSubmitting = signal(false);
   readonly piiEnmascarada = signal(false);
 
-  readonly municipios = signal<MunicipioSummary[]>([]);
   readonly sexos = signal<CatalogItem[]>([]);
   readonly tiposSangre = signal<CatalogItem[]>([]);
 
@@ -75,7 +71,8 @@ export class ElementoFormPage implements OnInit {
     placa: ['', [Validators.required, Validators.maxLength(40)]],
     sexoId: ['', [Validators.required]],
     tipoSangreId: [''],
-    municipioId: ['', [Validators.required]],
+    municipio: ['', [Validators.maxLength(120)]],
+    estado: ['', [Validators.maxLength(120)]],
     curp: ['', [Validators.pattern(/^[A-Za-z0-9]{18}$/)]],
     rfc: ['', [Validators.pattern(/^[A-Za-z0-9]{12,13}$/)]],
     fotoUrl: ['', [Validators.maxLength(500)]],
@@ -100,12 +97,10 @@ export class ElementoFormPage implements OnInit {
 
   private async loadCatalogs(): Promise<void> {
     try {
-      const [municipios, sexos, tiposSangre] = await Promise.all([
-        firstValueFrom(this.municipiosService.list()),
+      const [sexos, tiposSangre] = await Promise.all([
         firstValueFrom(this.service.listSexos()),
         firstValueFrom(this.service.listTiposSangre()),
       ]);
-      this.municipios.set(municipios);
       this.sexos.set(sexos);
       this.tiposSangre.set(tiposSangre);
     } catch (error) {
@@ -125,7 +120,8 @@ export class ElementoFormPage implements OnInit {
         placa: detail.placa,
         sexoId: this.toText(detail.sexoId),
         tipoSangreId: this.toText(detail.tipoSangreId),
-        municipioId: this.toText(detail.municipioId),
+        municipio: detail.municipio ?? '',
+        estado: detail.estado ?? '',
         curp: detail.curp ?? '',
         rfc: detail.rfc ?? '',
         fotoUrl: detail.fotoUrl ?? '',
@@ -154,7 +150,8 @@ export class ElementoFormPage implements OnInit {
       placa: value.placa.trim(),
       sexoId: Number(value.sexoId),
       tipoSangreId: this.toNumber(value.tipoSangreId),
-      municipioId: Number(value.municipioId),
+      municipio: this.toNullable(value.municipio),
+      estado: this.toNullable(value.estado),
       curp: this.toNullable(value.curp),
       rfc: this.toNullable(value.rfc),
       fotoUrl: this.toNullable(value.fotoUrl),

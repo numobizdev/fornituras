@@ -35,9 +35,13 @@
             placeholder="Ej. Almacén Central"></ion-input>
         </ion-item>
         <ion-item>
-          <ion-select label="Tipo" labelPlacement="stacked" formControlName="tipo">
-            @for (type of types; track type.value) {
-              <ion-select-option [value]="type.value">{{ type.label }}</ion-select-option>
+          <ion-select
+            label="Tipo"
+            labelPlacement="stacked"
+            formControlName="tipoItemId"
+            placeholder="Seleccione un tipo">
+            @for (tipo of tipoOptions(); track tipo.id) {
+              <ion-select-option [value]="tipo.id.toString()">{{ tipo.nombre }}</ion-select-option>
             }
           </ion-select>
         </ion-item>
@@ -48,18 +52,18 @@
           <ion-label>Ubicación</ion-label>
         </ion-list-header>
         <ion-item>
-          <ion-select
+          <ion-input
             label="Municipio"
             labelPlacement="stacked"
-            formControlName="municipioId"
-            placeholder="Sin municipio">
-            <ion-select-option [value]="''">Sin municipio</ion-select-option>
-            @for (municipio of municipios(); track municipio.id) {
-              <ion-select-option [value]="municipio.id.toString()">
-                {{ municipio.nombre }}@if (!municipio.active) { (inactivo) }
-              </ion-select-option>
-            }
-          </ion-select>
+            formControlName="municipio"
+            maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Estado"
+            labelPlacement="stacked"
+            formControlName="estado"
+            maxlength="120"></ion-input>
         </ion-item>
         <ion-item>
           <ion-input

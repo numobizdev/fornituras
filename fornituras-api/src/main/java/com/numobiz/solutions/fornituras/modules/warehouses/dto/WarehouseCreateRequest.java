@@ -1,6 +1,5 @@
 package com.numobiz.solutions.fornituras.modules.warehouses.dto;
 
-import com.numobiz.solutions.fornituras.modules.warehouses.entity.WarehouseType;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
@@ -25,9 +24,13 @@ public record WarehouseCreateRequest(
 		String nombre,
 
 		@NotNull(message = "El tipo de almacén es obligatorio")
-		WarehouseType tipo,
+		Long tipoItemId,
 
-		Long municipioId,
+		@Size(max = 120, message = "El municipio no debe exceder 120 caracteres")
+		String municipio,
+
+		@Size(max = 120, message = "El estado no debe exceder 120 caracteres")
+		String estado,
 
 		@Size(max = 255, message = "La dirección no debe exceder 255 caracteres")
 		String direccion,

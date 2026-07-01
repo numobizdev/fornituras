@@ -3,11 +3,11 @@ package com.numobiz.solutions.fornituras.modules.warehouses;
 import com.numobiz.solutions.fornituras.common.audit.AuditWriter;
 import com.numobiz.solutions.fornituras.common.exception.BadRequestException;
 import com.numobiz.solutions.fornituras.common.exception.ConflictException;
-import com.numobiz.solutions.fornituras.modules.municipios.repository.MunicipioRepository;
+import com.numobiz.solutions.fornituras.modules.catalog.CatalogCodes;
+import com.numobiz.solutions.fornituras.modules.catalog.service.CatalogService;
 import com.numobiz.solutions.fornituras.modules.users.repository.UserRepository;
 import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseCreateRequest;
 import com.numobiz.solutions.fornituras.modules.warehouses.entity.Warehouse;
-import com.numobiz.solutions.fornituras.modules.warehouses.entity.WarehouseType;
 import com.numobiz.solutions.fornituras.modules.warehouses.mapper.WarehouseMapper;
 import com.numobiz.solutions.fornituras.modules.warehouses.repository.WarehouseRepository;
 import com.numobiz.solutions.fornituras.modules.warehouses.service.WarehouseService;
@@ -39,7 +39,7 @@ class WarehouseServiceTest {
 	@Mock
 	private WarehouseUsageQuery usageQuery;
 	@Mock
-	private MunicipioRepository municipioRepository;
+	private CatalogService catalogService;
 	@Mock
 	private UserRepository userRepository;
 	@Mock
@@ -66,13 +66,14 @@ class WarehouseServiceTest {
 	}
 
 	@Test
-	void create_rejectsUnknownMunicipio() {
+	void create_rejectsInvalidTipo() {
 		when(repository.existsByCodigoIgnoreCase("ALM-03")).thenReturn(false);
 		when(repository.existsByNombreNormalizado(any())).thenReturn(false);
-		when(municipioRepository.existsById(99L)).thenReturn(false);
+		when(catalogService.requireActiveItem(99L, CatalogCodes.TIPO_ALMACEN))
+				.thenThrow(new BadRequestException("El valor de catálogo seleccionado está inactivo."));
 
 		WarehouseCreateRequest request = new WarehouseCreateRequest(
-				"ALM-03", "Almacén Norte", WarehouseType.REGIONAL, 99L,
+				"ALM-03", "Almacén Norte", 99L, null, null,
 				null, null, null, null, null, null, null, null, null);
 
 		assertThrows(BadRequestException.class, () -> service.create(request));
@@ -132,7 +133,7 @@ class WarehouseServiceTest {
 
 	private WarehouseCreateRequest req(String codigo, String nombre) {
 		return new WarehouseCreateRequest(
-				codigo, nombre, WarehouseType.CENTRAL, null,
+				codigo, nombre, 5L, null, null,
 				null, null, null, null, null, null, null, null, null);
 	}
 
@@ -142,7 +143,7 @@ class WarehouseServiceTest {
 		warehouse.setCodigo("ALM-" + id);
 		warehouse.setNombre("Almacén " + id);
 		warehouse.setNombreNormalizado("almacen " + id);
-		warehouse.setTipo(WarehouseType.CENTRAL);
+		warehouse.setTipoItemId(5L);
 		warehouse.setActive(true);
 		return warehouse;
 	}

@@ -20,17 +20,13 @@
     (ionInput)="onSearchChange($any($event.target).value)"></ion-searchbar>
 
   <div class="filters">
-    <ion-select
+    <ion-input
       label="Municipio"
       labelPlacement="stacked"
-      [value]="municipioId()"
       placeholder="Todos"
-      (ionChange)="onMunicipioChange($event.detail.value)">
-      <ion-select-option [value]="null">Todos</ion-select-option>
-      @for (municipio of municipios(); track municipio.id) {
-        <ion-select-option [value]="municipio.id">{{ municipio.nombre }}</ion-select-option>
-      }
-    </ion-select>
+      [value]="municipio()"
+      [debounce]="400"
+      (ionInput)="onMunicipioChange($any($event.target).value)"></ion-input>
 
     <ion-select
       label="Sexo"
@@ -66,7 +62,7 @@
           </ion-avatar>
           <ion-label>
             <h2>{{ item.nombreCompleto }}</h2>
-            <p>Placa {{ item.placa }}@if (item.municipioNombre) { · {{ item.municipioNombre }} }</p>
+            <p>Placa {{ item.placa }}@if (item.municipio) { · {{ item.municipio }} }</p>
             @if (item.tipoSangreEtiqueta) {
               <ion-note color="medium">Tipo de sangre: {{ item.tipoSangreEtiqueta }}</ion-note>
             }

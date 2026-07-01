@@ -19,8 +19,8 @@
 
 Un usuario autorizado registra, consulta, edita y desactiva almacenes (ubicaciones físicas
 donde se resguardan las fornituras). Cada almacén tiene una **clave de negocio única**, un
-**tipo**, una **ubicación** (municipio + dirección) y un **responsable**. Cada fornitura
-pertenece a un almacén.
+**tipo** (catálogo `TIPO_ALMACEN`), una **ubicación** (municipio/estado como **texto libre** +
+dirección) y un **responsable**. Cada fornitura pertenece a un almacén.
 
 **Why this priority**: El almacén es un atributo obligatorio del alta de fornituras (**001**) y
 el origen/destino de los traslados (**007**); debe existir antes que ellos.
@@ -61,7 +61,8 @@ con fornituras no puede eliminarse (solo desactivarse).
   como origen/destino de traslados.
 - **FR-005**: Las operaciones de alta/edición/baja de almacén MUST requerir autorización por rol
   y quedar auditadas.
-- **FR-006**: El almacén MUST registrar **clasificación** (`tipo`), **ubicación** (municipio +
+- **FR-006**: El almacén MUST registrar **clasificación** (`tipo`, resuelto contra el catálogo
+  `TIPO_ALMACEN` de la spec **006**), **ubicación** (municipio y estado como **texto libre** +
   dirección) y **responsable** (usuario a cargo), además de datos operativos opcionales (cupo,
   contacto institucional, geolocalización).
 - **FR-007**: Los campos **sensibles del almacén** (dirección, geolocalización, responsable,
@@ -74,15 +75,15 @@ con fornituras no puede eliminarse (solo desactivarse).
 
 - **Almacén** (`warehouse`): **entidad operativa** (no catálogo). Atributos:
   - *Identidad*: `codigo` (clave de negocio única, estable), `nombre` (único, normalizado).
-  - *Clasificación*: `tipo` (CENTRAL/REGIONAL/MOVIL/TEMPORAL).
-  - *Ubicación*: `municipio_id` (FK → `municipio`, reutiliza el catálogo geográfico de `officer`),
+  - *Clasificación*: `tipo_item_id` (FK → `catalog_item` del catálogo `TIPO_ALMACEN`, spec **006**).
+  - *Ubicación*: `municipio` y `estado` (**texto libre**, opcionales; ya no FK a catálogo),
     `direccion`, `cp`, `latitud`/`longitud` (sensibles, opcionales).
   - *Responsable y contacto*: `responsable_id` (FK → `user`), `telefono`, `email_contacto`
     (institucionales, opcionales).
   - *Operativo*: `capacidad` (cupo), `observaciones`.
   - *Estado*: `active` (+ `createdAt`/`updatedAt`).
-  - Se relaciona con fornituras (**001**), traslados (**007**), `municipio` y `user`. Detalle en
-    [`data-model.md`](./data-model.md).
+  - Se relaciona con fornituras (**001**), traslados (**007**), el catálogo `TIPO_ALMACEN` (**006**)
+    y `user`. Detalle en [`data-model.md`](./data-model.md).
 
 ## Success Criteria *(mandatory)*
 
@@ -94,16 +95,18 @@ con fornituras no puede eliminarse (solo desactivarse).
 
 - **Capacidad**: en MVP el cupo (`capacidad`) es informativo y se compara contra la ocupación
   derivada; exceder el cupo **advierte**, no bloquea. El bloqueo duro se evalúa como mejora.
-- **Municipio**: la ubicación reutiliza el catálogo `municipio` (compartido con `officer`, spec
-  **003**). Mientras ese catálogo no exista, `municipio_id` queda **nullable** y su FK se cablea al
-  implementarse 003 (mismo criterio que el conteo de uso de 001/007).
+- **Municipio/estado**: se capturan como **texto libre** (campos `municipio`/`estado`, opcionales).
+  Decisión 2026-06-30: no se modelan como catálogo ni como FK geográfica, para simplificar la captura
+  (mismo criterio en la spec **003** para el elemento).
+- **Tipo de almacén**: deja de ser `enum` en código; es el catálogo `TIPO_ALMACEN` (spec **006**),
+  administrable. Los valores actuales (CENTRAL/REGIONAL/MOVIL/TEMPORAL) se cargan como semilla.
 - **Geolocalización** (`latitud`/`longitud`): opcional y desaconsejada salvo necesidad operativa;
   por ser ubicación de una armería, se trata como dato sensible.
 
 ## Dependencies
 
 - Constitución (Principios I, IV, V).
-- Features: **001-inventario-equipos**, **003-elementos-padron** (catálogo `municipio`),
+- Features: **001-inventario-equipos**, **006-tipos-fornitura** (catálogo `TIPO_ALMACEN`),
   **007-traslados**, **011-reportes**, **012-auditoria**.
 - Entidad `user` (responsable) — **implementada**.
 - Modelo de datos: [`data-model.md`](./data-model.md) y [`docs/03-modelo-datos.md`](../../docs/03-modelo-datos.md).

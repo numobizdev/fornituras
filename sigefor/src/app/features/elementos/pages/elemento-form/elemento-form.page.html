@@ -52,11 +52,10 @@
           </ion-select>
         </ion-item>
         <ion-item>
-          <ion-select label="Municipio" labelPlacement="stacked" formControlName="municipioId" placeholder="Seleccione">
-            @for (municipio of municipios(); track municipio.id) {
-              <ion-select-option [value]="municipio.id.toString()">{{ municipio.nombre }}</ion-select-option>
-            }
-          </ion-select>
+          <ion-input label="Municipio" labelPlacement="stacked" formControlName="municipio" maxlength="120"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input label="Estado" labelPlacement="stacked" formControlName="estado" maxlength="120"></ion-input>
         </ion-item>
       </ion-list>
 

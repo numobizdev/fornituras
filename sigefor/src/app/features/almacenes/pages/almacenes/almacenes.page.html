@@ -30,8 +30,8 @@
       placeholder="Todos"
       (ionChange)="onTipoChange($event.detail.value)">
       <ion-select-option [value]="null">Todos</ion-select-option>
-      @for (type of types; track type.value) {
-        <ion-select-option [value]="type.value">{{ type.label }}</ion-select-option>
+      @for (tipo of tipoOptions(); track tipo.id) {
+        <ion-select-option [value]="tipo.id">{{ tipo.nombre }}</ion-select-option>
       }
     </ion-select>
   </ion-item>
@@ -50,7 +50,7 @@
         <ion-item button (click)="goToEdit(warehouse)" [detail]="false">
           <ion-label>
             <h2>{{ warehouse.nombre }}</h2>
-            <ion-note color="medium">{{ warehouse.codigo }} · {{ typeLabel(warehouse.tipo) }}</ion-note>
+            <ion-note color="medium">{{ warehouse.codigo }} · {{ warehouse.tipoNombre }}</ion-note>
           </ion-label>
           @if (!warehouse.active) {
             <ion-badge slot="end" color="medium">Inactivo</ion-badge>

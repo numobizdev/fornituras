@@ -11,6 +11,7 @@ import {
   IonFabButton,
   IonHeader,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonList,
@@ -28,8 +29,6 @@ import { addIcons } from 'ionicons';
 import { add, chevronBack, chevronForward, personCircleOutline } from 'ionicons/icons';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
-import { MunicipiosService } from '../../../municipios/data/municipios.service';
-import { MunicipioSummary } from '../../../municipios/data/municipio.model';
 import { OfficersService } from '../../data/officers.service';
 import { CatalogItem, OfficerSummary } from '../../data/officer.model';
 
@@ -44,6 +43,7 @@ import { CatalogItem, OfficerSummary } from '../../data/officer.model';
     IonMenuButton,
     IonTitle,
     IonContent,
+    IonInput,
     IonSearchbar,
     IonSelect,
     IonSelectOption,
@@ -62,7 +62,6 @@ import { CatalogItem, OfficerSummary } from '../../data/officer.model';
 })
 export class ElementosPage implements OnInit {
   private readonly service = inject(OfficersService);
-  private readonly municipiosService = inject(MunicipiosService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
@@ -76,10 +75,9 @@ export class ElementosPage implements OnInit {
   readonly totalElements = signal(0);
 
   readonly q = signal('');
-  readonly municipioId = signal<number | null>(null);
+  readonly municipio = signal('');
   readonly sexoId = signal<number | null>(null);
 
-  readonly municipios = signal<MunicipioSummary[]>([]);
   readonly sexos = signal<CatalogItem[]>([]);
 
   readonly canWrite = this.auth.hasRole('ADMIN') || this.auth.hasRole('CAPTURISTA');
@@ -95,14 +93,9 @@ export class ElementosPage implements OnInit {
 
   private async loadCatalogs(): Promise<void> {
     try {
-      const [municipios, sexos] = await Promise.all([
-        firstValueFrom(this.municipiosService.list()),
-        firstValueFrom(this.service.listSexos()),
-      ]);
-      this.municipios.set(municipios);
-      this.sexos.set(sexos);
+      this.sexos.set(await firstValueFrom(this.service.listSexos()));
     } catch {
-      // Los filtros quedan vacíos; el listado sigue funcionando.
+      // El filtro de sexo queda vacío; el listado sigue funcionando.
     }
   }
 
@@ -112,7 +105,7 @@ export class ElementosPage implements OnInit {
       const result = await firstValueFrom(
         this.service.list({
           q: this.q().trim() || undefined,
-          municipioId: this.municipioId() ?? undefined,
+          municipio: this.municipio().trim() || undefined,
           sexoId: this.sexoId() ?? undefined,
           page: this.page(),
           size: ElementosPage.PAGE_SIZE,
@@ -138,8 +131,8 @@ export class ElementosPage implements OnInit {
     this.applyFilters();
   }
 
-  onMunicipioChange(value: number | null): void {
-    this.municipioId.set(value);
+  onMunicipioChange(value: string | null | undefined): void {
+    this.municipio.set(value ?? '');
     this.applyFilters();
   }
 

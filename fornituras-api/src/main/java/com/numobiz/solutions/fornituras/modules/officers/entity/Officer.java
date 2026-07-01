@@ -17,7 +17,8 @@ import lombok.Setter;
  * en reposo con {@link EncryptedStringConverter} (AES-GCM, ADR 0006). Como el cifrado es no
  * determinista, la búsqueda por igualdad de {@code curp}/{@code rfc} usa los blind index
  * {@code curpIdx}/{@code rfcIdx} (HMAC). La {@code placa} es identificador operativo: va en claro,
- * única y normalizada. Los catálogos (sexo/tipo de sangre/municipio) se referencian por id.
+ * única y normalizada. Sexo y tipo de sangre se referencian por id (catálogo); municipio/estado son
+ * texto libre (ADR 0007).
  */
 @Getter
 @Setter
@@ -67,8 +68,12 @@ public class Officer extends BaseEntity {
 	@Column(name = "tipo_sangre_id")
 	private Long tipoSangreId;
 
-	@Column(name = "municipio_id", nullable = false)
-	private Long municipioId;
+	/** Ubicación como texto libre (ADR 0007): ya no es catálogo ni FK. */
+	@Column(length = 120)
+	private String municipio;
+
+	@Column(length = 120)
+	private String estado;
 
 	/** Referencia a la foto en storage cifrado (gated por ADR 0003); fuera de la fila. */
 	@Column(name = "foto_url", length = 500)

@@ -3,8 +3,6 @@ package com.numobiz.solutions.fornituras.modules.warehouses.entity;
 import com.numobiz.solutions.fornituras.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,12 +37,16 @@ public class Warehouse extends BaseEntity {
 	@Column(name = "nombre_normalizado", nullable = false, unique = true, length = 120)
 	private String nombreNormalizado;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false, length = 20)
-	private WarehouseType tipo;
+	/** Clasificación: FK a un valor del catálogo TIPO_ALMACEN (ADR 0007). */
+	@Column(name = "tipo_item_id", nullable = false)
+	private Long tipoItemId;
 
-	@Column(name = "municipio_id")
-	private Long municipioId;
+	/** Ubicación como texto libre (ADR 0007): ya no es catálogo ni FK. */
+	@Column(length = 120)
+	private String municipio;
+
+	@Column(length = 120)
+	private String estado;
 
 	@Column(length = 255)
 	private String direccion;

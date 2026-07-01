@@ -1,7 +1,6 @@
 package com.numobiz.solutions.fornituras.modules.warehouses.repository;
 
 import com.numobiz.solutions.fornituras.modules.warehouses.entity.Warehouse;
-import com.numobiz.solutions.fornituras.modules.warehouses.entity.WarehouseType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +19,7 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
 
 	Page<Warehouse> findByActive(boolean active, Pageable pageable);
 
-	Page<Warehouse> findByTipo(WarehouseType tipo, Pageable pageable);
+	Page<Warehouse> findByTipoItemId(Long tipoItemId, Pageable pageable);
 
-	Page<Warehouse> findByActiveAndTipo(boolean active, WarehouseType tipo, Pageable pageable);
+	Page<Warehouse> findByActiveAndTipoItemId(boolean active, Long tipoItemId, Pageable pageable);
 }
