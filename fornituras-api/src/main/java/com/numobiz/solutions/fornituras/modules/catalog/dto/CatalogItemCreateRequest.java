@@ -1,6 +1,7 @@
 package com.numobiz.solutions.fornituras.modules.catalog.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -19,6 +20,11 @@ public record CatalogItemCreateRequest(
 		String descripcion,
 
 		@Size(max = 500, message = "La URL de foto no debe exceder 500 caracteres")
+		// Bloquea esquemas peligrosos (javascript:, data:, vbscript:…) para evitar XSS almacenado al
+		// renderar la foto; admite http(s) o cualquier ruta relativa sin esquema.
+		@Pattern(
+				regexp = "^\\s*$|^https?://[^\\s]*$|^(?![a-zA-Z][a-zA-Z0-9+.-]*:)[^\\s]*$",
+				message = "La foto debe ser una URL http(s) o una ruta relativa")
 		String fotoUrl,
 
 		/** NULL = valor global; si se indica, cuelga de ese valor padre (jerarquía item→item). */
