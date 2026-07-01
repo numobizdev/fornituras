@@ -31,8 +31,8 @@ admin", hashing y bloqueo por fuerza bruta.
 
 - [X] T001 Revisar el módulo `users`/`auth` existente y anotar puntos de extensión (controller, service, enum `Role`, config de Security) sin romper lo actual
 - [X] T002 [P] Preparar la feature frontend `<fe>/usuarios/` (`pages/usuarios/`, `pages/usuario-form/`, `data/`)
-- [ ] T003 [P] **(DIFERIDO — pendiente de ADR)** Abrir **ADR de expansión de roles** (mapa rol→permisos para Supervisor/Almacén/Auditor/Consulta) en `docs/04-decisiones/`
-- [ ] T004 [P] **(DIFERIDO — pendiente de ADR)** Abrir **ADR de estrategia MFA** (TOTP vs OTP por correo; almacenamiento cifrado del secreto; dependencia, Principio VI) en `docs/04-decisiones/`
+- [X] T003 [P] Abrir **ADR de expansión de roles** (mapa rol→permisos para Supervisor/Almacén/Auditor/Consulta) en `docs/04-decisiones/` — hecho: `0013-expansion-de-roles.md` (**Aceptado**), desbloqueó e implementó T020
+- [X] T004 [P] Abrir **ADR de estrategia MFA** (TOTP vs OTP por correo; almacenamiento cifrado del secreto; dependencia, Principio VI) en `docs/04-decisiones/` — hecho: `0014-estrategia-mfa.md` (**Propuesto**, propone TOTP); T022/T023 siguen gated hasta que se **acepte**
 
 ---
 

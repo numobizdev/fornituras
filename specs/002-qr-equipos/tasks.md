@@ -29,13 +29,32 @@ verificación); la de autenticidad (firma) queda como deuda gestionada por ADR.
 
 ---
 
+## Resultado de verificación (2026-07-01)
+
+Pasada de verificación sobre el módulo `qrcodes` implementado. **No se modificó código de producción.**
+
+- **Tests existentes: 17/17 verdes** (`QrOpacityTest` 3, `QrUniquenessTest` 3,
+  `QrCodeGeneratorServiceTest` 6, `QrPdfLayoutTest` 3, `QrPdfServiceTest` 1, `QrZipServiceTest` 1).
+  Caracterización de opacidad, unicidad, generación y export PDF/ZIP confirmada.
+- **T009 (authz REST): HECHO** — `QrController` (`/api/v1/qr/**`) usa
+  `@PreAuthorize(RolePolicy.WRITE_INVENTORY)` (matriz centralizada de 013/T020).
+- ⚠️ **NUEVA BRECHA (T014):** el controlador web Thymeleaf `QrWebController` (`/qr/**`) **no** tiene
+  `@PreAuthorize` y `SecurityConfig` lo declara `permitAll()` → generar lotes, **listar/enumerar todos
+  los códigos** y descargar PDF/ZIP **sin autenticación** (rutas `/sigefor/qr/**`). Contradice
+  FR-007/FR-010 y es justo el riesgo de enumeración de ADR 0005. **Pendiente de decisión.**
+- **T010 (auditoría) y T011 (rate limiting): NO implementados** — sin `AuditWriter`/Bucket4j en el módulo.
+- **Tests de contrato faltantes:** T004 (`LoteCreateContractTest`), T006 (`QrExportTest`),
+  T008 (`LoteQueryTest`) no existen; el export sí está cubierto por los tests de servicio PDF/ZIP.
+
+---
+
 ## Phase 1: Caracterización del módulo existente
 
 **Purpose**: fijar el comportamiento actual con tests antes de tocar nada.
 
-- [ ] T001 Inventariar el módulo `qrcodes` existente (controllers REST `/api/v1/qr/lotes...`, `QrPdfService`, generador `SecureRandom`, entidades `lote_qr`/`codigo_qr`) y anotar en [research.md](./research.md) lo que diverge de la spec
-- [ ] T002 [P] Test de caracterización de **opacidad** (FR-003/SC-002): el contenido crudo de un código no contiene PII ni datos derivables en `<bet>/qrcodes/QrOpacityTest.java`
-- [ ] T003 [P] Test de caracterización de **unicidad** (FR-002/SC-001): generar un lote → cero colisiones contra BD y contra el lote en curso en `<bet>/qrcodes/QrUniquenessTest.java`
+- [X] T001 Inventariar el módulo `qrcodes` existente (controllers REST `/api/v1/qr/lotes...`, `QrPdfService`, generador `SecureRandom`, entidades `lote_qr`/`codigo_qr`) y anotar las divergencias — hecho en «Resultado de verificación» (arriba): además del REST existe el UI Thymeleaf `QrWebController` no autenticado
+- [X] T002 [P] Test de caracterización de **opacidad** (FR-003/SC-002): el contenido crudo de un código no contiene PII ni datos derivables en `<bet>/qrcodes/QrOpacityTest.java` — existe y pasa (3)
+- [X] T003 [P] Test de caracterización de **unicidad** (FR-002/SC-001): generar un lote → cero colisiones contra BD y contra el lote en curso en `<bet>/qrcodes/QrUniquenessTest.java` — existe y pasa (3)
 
 ---
 
@@ -69,7 +88,8 @@ verificación); la de autenticidad (firma) queda como deuda gestionada por ADR.
 
 **Purpose**: autorización fina y auditoría (FR-007/FR-010) sin alterar el formato (ADR 0005).
 
-- [ ] T009 [US-sec] Añadir **autorización por rol** a los endpoints `/api/v1/qr/**` (hoy solo autenticación) — alineado con la expansión de roles (spec 013); rechazo por defecto en `<be>/qrcodes/controller/`
+- [X] T009 [US-sec] Añadir **autorización por rol** a los endpoints `/api/v1/qr/**` (hoy solo autenticación) — HECHO: `QrController` con `@PreAuthorize(RolePolicy.WRITE_INVENTORY)` (matriz de 013/T020)
+- [ ] T014 [US-sec] ⚠️ **Cerrar exposición del UI Thymeleaf `QrWebController` (`/qr/**`)**: hoy es `permitAll()` en `SecurityConfig` y sin `@PreAuthorize` → permite generar, enumerar y descargar QR **sin sesión**. Decidir: (a) asegurarlo (autenticación + rol, quitar de `permitAll`) o (b) eliminar el UI legacy si el frontend `sigefor/` cubre el caso. **Requiere decisión del usuario.**
 - [ ] T010 [P] [US-sec] Auditar **generación y exportación** de lotes (actor, lote, cantidad, cuándo) reutilizando el escritor de la feature **012** en `<be>/qrcodes/service/`
 - [ ] T011 [P] [US-sec] Añadir **rate limiting** a la resolución/consulta de códigos para mitigar enumeración (riesgo conocido sin firma, ADR 0005) en `<be>/qrcodes/`
 

@@ -44,7 +44,7 @@ del tipo contra `TIPO_ALMACEN`, **autorización por campo sensible** (Summary vs
 - [X] T007 [P] Reusar el normalizador de `common/text` para `nombre` y `codigo` (trim/colapsar espacios/casefold/sin acentos) desde `<be>/warehouses/service/`
 - [X] T008 [P] Crear `WarehouseMapper` (entity↔DTO) en `<be>/warehouses/mapper/`
 - [X] T009 Configurar **autorización por rol** para `/warehouses/**`: CRUD y `GET /{id}` (Detail con campos sensibles) restringidos a ADMIN/almacén; `GET /` (Summary) a roles operativos; rechazo por defecto (`@PreAuthorize` por endpoint)
-- [ ] T010 [P] Cablear el escritor de **auditoría** (012) para `CREATE/UPDATE/DEACTIVATE_WAREHOUSE` y **cambio de responsable** — pendiente hasta que 012 exista
+- [X] T010 [P] Cablear el escritor de **auditoría** (012) para `CREATE/UPDATE/DEACTIVATE_WAREHOUSE` y **cambio de responsable** — hecho: `WarehouseService` inyecta `AuditWriter` y registra `CREATE/UPDATE/DEACTIVATE/DELETE_WAREHOUSE`; el cambio de responsable se audita dentro de `UPDATE_WAREHOUSE` (se aplica en `update()`)
 
 **Checkpoint**: fundamento listo.
 

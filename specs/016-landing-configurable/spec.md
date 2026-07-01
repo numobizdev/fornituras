@@ -81,6 +81,13 @@ Historia 2, por eso va después del MVP interno.
 pública con el contenido configurado y un botón "Acceder"; pulsarlo lleva al inicio de sesión.
 Confirmar que la respuesta pública no contiene datos personales.
 
+**Contexto (defecto actual a corregir)**: hoy, al abrir la app sin sesión, la aplicación monta
+el shell autenticado (menú lateral de navegación) "como si el usuario estuviera logueado", y al
+pulsar cualquier entrada del menú se rebota al inicio de sesión. La causa es doble: (a) la ruta
+raíz apunta a un área protegida en vez de a una landing pública, y (b) la visibilidad del menú
+se decide por el prefijo de la URL y no por el estado real de sesión. Esta historia debe dejar
+como entrada por defecto la landing pública y ligar el shell a la sesión.
+
 **Acceptance Scenarios**:
 
 1. **Given** un visitante sin sesión, **When** abre la aplicación, **Then** ve la página
@@ -89,6 +96,8 @@ Confirmar que la respuesta pública no contiene datos personales.
    formulario de inicio de sesión.
 3. **Given** un usuario ya autenticado, **When** navega a la página pública, **Then** se le
    redirige a su inicio.
+4. **Given** un visitante sin sesión, **When** abre la aplicación, **Then** en ningún momento
+   se muestra el menú de navegación interno (shell); solo ve la landing pública.
 
 ---
 
@@ -123,6 +132,10 @@ lanzarse solo; pulsar "Ver tutorial" y comprobar que se reinicia.
   un estado por defecto/vacío coherente (no una pantalla rota).
 - **Enlaces de acceso rápido inválidos o a funciones sin permiso**: el sistema evita
   navegaciones rotas y no revela funciones a las que el usuario no tiene acceso.
+- **Arranque sin sesión (shell fantasma)**: al abrir la app sin sesión no debe montarse el
+  shell autenticado ni el menú lateral; la primera pantalla es la landing pública. Pulsar una
+  función protegida nunca deja ver el menú ni contenido interno; a lo sumo redirige al inicio
+  de sesión.
 - **Contenido malicioso en campos de texto**: cualquier marcado/script capturado por un
   administrador se muestra como texto literal, nunca se ejecuta (protección anti-XSS).
 - **Abuso del endpoint público**: peticiones excesivas a la cara pública se limitan por tasa
@@ -161,6 +174,14 @@ lanzarse solo; pulsar "Ver tutorial" y comprobar que se reinicia.
   activas para una cara.
 - **FR-014**: El sistema DEBE redirigir a su inicio a un usuario ya autenticado que intente
   ver la página pública de bienvenida.
+- **FR-015**: Al abrir la aplicación sin una sesión válida, el sistema DEBE presentar como
+  primera pantalla la página pública de bienvenida, y NUNCA el shell autenticado (menú de
+  navegación interno). La ruta raíz de la aplicación resuelve a la landing pública para
+  visitantes y a su inicio para usuarios autenticados.
+- **FR-016**: El sistema DEBE mostrar el menú de navegación interno y el shell autenticado
+  únicamente a usuarios con sesión válida; un visitante sin sesión no ve el menú ni sus
+  entradas en ningún momento. La visibilidad del shell DEBE derivarse del estado de sesión, no
+  de la URL actual.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -188,6 +209,8 @@ lanzarse solo; pulsar "Ver tutorial" y comprobar que se reinicia.
   inicio y puede relanzarse a demanda en el 100 % de los intentos.
 - **SC-006**: Tras iniciar sesión, la página de inicio con su contenido queda visible en menos
   de 2 segundos en condiciones normales de red.
+- **SC-007**: En el 100 % de los arranques sin sesión, la primera pantalla es la landing
+  pública y el menú de navegación interno no se renderiza en ningún momento.
 
 ## Assumptions
 

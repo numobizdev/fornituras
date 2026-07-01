@@ -163,11 +163,22 @@ autenticado es redirigido a `/inicio`; `GET /public` no devuelve PII y responde 
 - [ ] T029 [US3] `LandingService.getPublic()` + endpoint `GET /landing/public` en el controller.
 - [ ] T030 [US3] Página `sigefor/src/app/features/landing/pages/public-landing/` (renderiza
   PUBLIC, botón "Acceder" → `/login`, estado vacío).
-- [ ] T031 [US3] Rutas en `sigefor/src/app/app.routes.ts`: landing pública bajo `guestGuard`,
-  arranque de invitados hacia la landing, y redirección a `/inicio` si ya hay sesión (sin
-  romper `authGuard`).
+- [ ] T031 [US3] Rutas en `sigefor/src/app/app.routes.ts` (corrige FR-015): la **raíz `''`**
+  sirve la landing pública bajo `guestGuard` como arranque de invitados; un usuario autenticado
+  que llegue a la raíz/landing se redirige a `/inicio` (FR-014); `inicio` y el resto de rutas
+  internas siguen bajo `authGuard`; corregir el fallback `**` para que un no autenticado no
+  quede en un limbo del shell (redirige a la raíz/landing o a `/login`, no al shell).
+- [ ] T031a [US3] **Fix del "menú fantasma" (FR-016)**: reescribir `showMenu` en
+  `sigefor/src/app/app.component.ts` para que el shell autenticado (`ion-split-pane` +
+  `ion-menu`) se monte **solo con sesión válida**, derivándolo del estado de sesión
+  (`AuthService.currentUser`), no del prefijo de la URL. Sin sesión (landing/login/recuperación)
+  se usa el `ion-router-outlet` desnudo. Elimina el defecto de "menú como si estuviera logueado"
+  y las entradas que rebotan al login.
+- [ ] T031b [P] [US3] Test de arranque/navegación en `sigefor`
+  (`app.component`/guards, spec o e2e): sin sesión, la raíz resuelve a la landing y el menú
+  **no** se renderiza; con sesión, el shell aparece y la raíz redirige a `/inicio`.
 
-**Checkpoint**: US1 + US2 + US3 funcionan de forma independiente.
+**Checkpoint**: US1 + US2 + US3 funcionan; al abrir sin sesión se ve la landing (nunca el menú).
 
 ---
 
@@ -220,7 +231,9 @@ tutorial" lo reinicia.
 - **Foundational (Fase 2)**: depende de Setup. **Bloquea** todas las historias.
 - **US1 (Fase 3)**: depende de Fase 2. Testeable con el seed sin US2.
 - **US2 (Fase 4)**: depende de Fase 2. Independiente de US1 (edita datos que US1 muestra).
-- **US3 (Fase 5)**: depende de Fase 2. Independiente de US1/US2.
+- **US3 (Fase 5)**: depende de Fase 2. Independiente de US1/US2. Incluye la corrección del
+  arranque y del shell (T031/T031a/T031b, FR-015/FR-016): entrada por la landing y menú ligado
+  a la sesión. T031a depende de que exista la landing (T030) y su ruta (T031).
 - **US4 (Fase 6)**: depende de Fase 2 y de que exista el home de US1 (resalta sus zonas).
 - **Polish (Fase 7)**: depende de las historias deseadas.
 
@@ -234,6 +247,8 @@ tutorial" lo reinicia.
 - Fase 1: T002 y T003 en paralelo (tras/junto a T001).
 - Fase 2: T005, T006, T008, T012 en paralelo; luego T007/T009; T013 tras T012.
 - Tras Fase 2, US1/US2/US3 pueden avanzar en paralelo (distintos equipos). US4 tras US1.
+- En US3, el orden es T030 → T031 → T031a; T031b [P] puede escribirse en paralelo (falla antes
+  de implementar, TDD).
 - Los tests marcados [P] de cada historia corren en paralelo.
 
 ---
