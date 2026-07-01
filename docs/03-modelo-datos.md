@@ -15,15 +15,15 @@
 ## Entidades principales
 
 ### Fornitura (`equipment`) — spec 001 — **IMPLEMENTADO** (`V11`, FKs repuntadas en `V15`)
-El equipo de dotación controlado (chaleco antibala, cinturón táctico, casco, etc.). Refleja la
-entidad `Equipment` y la migración `V11`.
+La prenda de dotación controlada. "Fornitura" es un **tipo de prenda** concreto (catálogo
+`TIPO_PRENDA`), no una categoría con subtipos. Refleja la entidad `Equipment` y la migración `V11`.
 
 | Campo             | Tipo (BD)              | Notas                                                        |
 |-------------------|------------------------|-------------------------------------------------------------|
 | id                | BIGINT IDENTITY (PK)   | Identificador interno opaco e inmutable (`BaseEntity`). No es UUID. |
 | codigo_qr         | NVARCHAR(60)           | Código físico (QR/serie) tal cual se muestra; recortado y en mayúsculas. |
 | codigo_normalizado| NVARCHAR(60) **único** | Forma normalizada (sin espacios/guiones, mayúsculas); garantiza unicidad física. |
-| equipment_type_id | FK → catalog_item      | Tipo (catálogo `TIPO_FORNITURA`). Antes `equipment_type`; repuntada en `V15`. |
+| equipment_type_id | FK → catalog_item      | **Tipo de prenda** (catálogo `TIPO_PRENDA`; hoy único valor "Fornitura"). Antes `equipment_type`; repuntada en `V15`. |
 | size_id           | FK → catalog_item (null)| Talla (catálogo `TALLA`, opcionalmente colgada del tipo). Antes `size`; repuntada en `V15`. |
 | warehouse_id      | FK → warehouse         | Almacén actual.                                             |
 | status            | NVARCHAR(20) + CHECK   | `DISPONIBLE`, `ASIGNADA`, `EN_MANTENIMIENTO`, `EN_TRASLADO`, `EXTRAVIADA`, `BAJA_DEFINITIVA` (enum `EquipmentStatus`). Default `DISPONIBLE`. |
@@ -94,17 +94,22 @@ La reestructuración de catálogos (ADR 0007) sustituyó las tablas tipadas `equ
 **`catalog_item`** es un valor de esa lista, con jerarquía opcional (`parent_item_id`) para modelar
 p. ej. tallas colgadas de un tipo.
 
-- **`catalog`**: `id` (PK), `code` (único, p. ej. `TIPO_FORNITURA`/`TALLA`/`TIPO_ALMACEN`), `nombre`,
+- **`catalog`**: `id` (PK), `code` (único, p. ej. `TIPO_PRENDA`/`TALLA`/`TIPO_ALMACEN`), `nombre`,
   `descripcion`, `is_system` (bit), `active` (bit), timestamps.
 - **`catalog_item`**: `id` (PK), `catalog_id` (FK → `catalog`), `code` (null), `nombre`,
   `nombre_normalizado`, `descripcion`, `foto_url`, `parent_item_id` (FK → `catalog_item`, null),
   `orden`, `active` (bit), timestamps. **Único** `nombre_normalizado` por catálogo (distinguiendo por
   padre para permitir el mismo valor —p. ej. talla "M"— bajo tipos distintos).
 
-Catálogos semilla del sistema (`is_system = 1`): `TIPO_FORNITURA` (tipos de fornitura),
-`TALLA` (tallas, opcionalmente ligadas a un tipo vía `parent_item_id`), `TIPO_ALMACEN`
-(CENTRAL/REGIONAL/MOVIL/TEMPORAL). Las FKs de `equipment` (tipo/talla) y `warehouse` (tipo) apuntan
-a `catalog_item`.
+Catálogos semilla del sistema (`is_system = 1`): `TIPO_PRENDA` (**tipo de prenda**; semilla con el
+único valor "Fornitura" — una fornitura es un tipo de prenda, no una categoría con subtipos),
+`TALLA` (tallas, opcionalmente ligadas a un tipo de prenda vía `parent_item_id`), `TIPO_ALMACEN`
+(CENTRAL/REGIONAL/MOVIL/TEMPORAL). Las FKs de `equipment` (tipo de prenda/talla) y `warehouse` (tipo)
+apuntan a `catalog_item`.
+
+> **Deuda de sincronización (código).** `V15` y el backend aún usan el `code` `TIPO_FORNITURA` con
+> semilla de subtipos (chaleco/cinturón/casco). Pendiente: migración que renombre el catálogo a
+> `TIPO_PRENDA` y reemplace la semilla por el único valor "Fornitura" (ADR 0007, spec 006).
 
 Catálogos aún **planos** (fuera del modelo genérico, pendientes de valorar su migración):
 
@@ -229,7 +234,7 @@ Quién accedió/modificó qué y cuándo.
 
 ## Relaciones
 
-- `equipment` N—1 `catalog_item` (tipo `TIPO_FORNITURA` y talla `TALLA`), `warehouse` (entidad operativa).
+- `equipment` N—1 `catalog_item` (tipo de prenda `TIPO_PRENDA` y talla `TALLA`), `warehouse` (entidad operativa).
 - `warehouse` N—1 `catalog_item` (tipo `TIPO_ALMACEN`); `municipio`/`estado` son texto libre; `warehouse` N—1 `user` (responsable).
 - `catalog` 1—N `catalog_item`; `catalog_item` 1—N `catalog_item` (jerarquía `parent_item_id`, p. ej. talla→tipo).
 - `equipment` 1—N `assignment` N—1 `officer` (historial de asignaciones / resguardos).

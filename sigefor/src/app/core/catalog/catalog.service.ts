@@ -12,7 +12,7 @@ import {
 
 /**
  * Cliente del CRUD genérico de catálogos (ADR 0007). Un solo servicio sirve a todos los catálogos
- * (tipos de fornitura, tallas, tipo de almacén…): el catálogo se indica por su `code`.
+ * (tipo de prenda, tallas, tipo de almacén…): el catálogo se indica por su `code`.
  */
 @Injectable({ providedIn: 'root' })
 export class CatalogService {

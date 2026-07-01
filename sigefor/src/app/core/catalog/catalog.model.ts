@@ -1,6 +1,6 @@
 /** Claves de los catálogos de sistema (ADR 0007). Espejo de CatalogCodes del backend. */
 export const CATALOG_CODES = {
-  TIPO_FORNITURA: 'TIPO_FORNITURA',
+  TIPO_PRENDA: 'TIPO_PRENDA',
   TALLA: 'TALLA',
   TIPO_ALMACEN: 'TIPO_ALMACEN',
 } as const;

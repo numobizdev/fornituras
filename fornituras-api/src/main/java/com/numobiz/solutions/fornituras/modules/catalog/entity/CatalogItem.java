@@ -14,7 +14,7 @@ import lombok.Setter;
 /**
  * Valor de un catálogo. Pertenece a un {@link Catalog} y opcionalmente cuelga de otro valor
  * ({@code parentItem}) para modelar catálogos dependientes sin tablas extra: p. ej. una talla
- * ({@code TALLA}) ligada a un tipo de fornitura ({@code TIPO_FORNITURA}). Sin padre = valor global.
+ * ({@code TALLA}) ligada a un tipo de prenda ({@code TIPO_PRENDA}). Sin padre = valor global.
  *
  * <p>El {@code nombreNormalizado} (trim + colapso de espacios + casefold + sin acentos) garantiza
  * unicidad case/space/acento-insensible dentro del catálogo. Los consumidores (equipo, almacén)

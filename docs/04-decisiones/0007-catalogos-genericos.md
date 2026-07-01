@@ -22,22 +22,32 @@ simple que no requiere integridad referencial ni administración.
 ## Decisión
 
 1. **Estructura genérica única** para todos los catálogos planos:
-   - `catalog` (cabecera): `code` (único, estable — p. ej. `TIPO_FORNITURA`, `TALLA`,
+   - `catalog` (cabecera): `code` (único, estable — p. ej. `TIPO_PRENDA`, `TALLA`,
      `TIPO_ALMACEN`), `nombre`, `descripcion?`, `system` (bool, no borrable si `true`), `active`.
    - `catalog_item` (valores): `catalog_id` (FK → `catalog`), `code?` (único dentro del catálogo),
      `nombre`, `nombre_normalizado` (trim + colapso de espacios + casefold; único dentro del
      catálogo), `descripcion?`, `foto_url?`, `parent_item_id?` (FK self → jerarquía item→item),
      `orden?`, `active`.
    - **Un único CRUD genérico** (`CatalogService`/`CatalogController`) sirve a todos los catálogos.
-2. **Catálogos en alcance inicial:** `TIPO_FORNITURA`, `TALLA` (depende de `TIPO_FORNITURA` vía
-   `parent_item_id`) y `TIPO_ALMACEN` (migra el `enum warehouse_type`; semilla CENTRAL/REGIONAL/
-   MOVIL/TEMPORAL). Candidatos a migrar después: `SEXO`, `TIPO_SANGRE` (spec 003), `MARCA`,
-   `MATERIAL`, `COLOR`.
+2. **Catálogos en alcance inicial:** `TIPO_PRENDA` (tipo de prenda; semilla con el único valor
+   "Fornitura" — ver aclaración abajo), `TALLA` (depende de `TIPO_PRENDA` vía `parent_item_id`) y
+   `TIPO_ALMACEN` (migra el `enum warehouse_type`; semilla CENTRAL/REGIONAL/MOVIL/TEMPORAL).
+   Candidatos a migrar después: `SEXO`, `TIPO_SANGRE` (spec 003), `MARCA`, `MATERIAL`, `COLOR`.
 3. **Municipio y estado dejan de ser catálogo:** se capturan como **texto libre** en `officer`
    (spec 003) y `warehouse` (spec 005). Se elimina la FK `municipio_id` y la dependencia de un
    catálogo geográfico.
 4. **Almacén y elemento siguen siendo entidades/maestros**, no catálogos; solo sus clasificaciones
    (tipo de almacén, sexo, tipo de sangre) son catálogos.
+
+## Aclaración de dominio (2026-06-30): "fornitura" es un tipo de prenda
+
+El cliente aclaró que **una fornitura NO es una categoría con subtipos**, sino **un tipo de prenda
+concreto**. Por tanto el catálogo de tipos se modela como **tipo de prenda** (`code = TIPO_PRENDA`)
+y su **único valor inicial es "Fornitura"** — no {chaleco, cinturón, casco}, que fueron una
+suposición equivocada de subtipos. El catálogo se conserva (aunque hoy tenga un solo valor) porque
+el cliente pide poder administrarlo: mañana podrían darse de alta otras prendas. El FK
+`equipment.equipment_type_id` referencia el tipo de prenda (hoy siempre "Fornitura"); su nombre de
+columna se mantiene por ahora (renombrarlo es una limpieza posterior, no parte de esta decisión).
 
 ## Alternativas consideradas
 
@@ -69,5 +79,9 @@ simple que no requiere integridad referencial ni administración.
   añade columnas `municipio`/`estado` de texto libre en `warehouse`/`officers`); repunte de
   `equipment`, `warehouse` y `officer`; retiro de `modules/equipmenttypes` y `modules/municipios`.
   Frontend: `core/catalog` (servicio/modelo genérico) consumido por tipos, almacenes y elementos.
+- **Pendiente (rename tipo de prenda):** `V15` sembró el catálogo con `code = TIPO_FORNITURA` y
+  valores de subtipos (chaleco/cinturón/casco). Falta una migración nueva que **renombre el catálogo
+  a `TIPO_PRENDA`** y **reemplace la semilla por el único valor "Fornitura"**, más actualizar la
+  constante `CatalogCodes` y los usos en `sigefor` (ver aclaración de dominio arriba).
 - **Pendiente:** regenerar `plan.md`/`tasks.md`/`data-model.md` de 003/005/006 (`/speckit-plan`,
   `/speckit-tasks`); migrar a futuro `SEXO`/`TIPO_SANGRE` a la estructura genérica.

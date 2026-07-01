@@ -11,10 +11,11 @@
 **Input**: User description: "Inventario de fornituras (equipos de blindaje y equipamiento):
 alta individual, alta por lote, consulta, edición y cambio de estado"
 
-> **Vocabulario (SIGEFOR).** Una **fornitura** es cualquier equipo de dotación controlado por
-> el sistema: chaleco antibala, cinturón táctico, casco, etc. El término sustituye a "equipo"
-> usado en versiones previas de esta spec. El producto se llama **SIGEFOR (Sistema Integral de
-> Gestión de Fornituras)**. Ver `Requerimientos.MD`.
+> **Vocabulario (SIGEFOR).** Una **fornitura** es la prenda de dotación controlada por el sistema.
+> El término sustituye a "equipo" usado en versiones previas de esta spec. **"Fornitura" es un
+> tipo de prenda concreto**, no una categoría con subtipos: el catálogo de **tipos de prenda**
+> (`TIPO_PRENDA`, feature **006**) tiene hoy un único valor, "Fornitura". El producto se llama
+> **SIGEFOR (Sistema Integral de Gestión de Fornituras)**. Ver `Requerimientos.MD`.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -176,7 +177,8 @@ verificar que la consulta refleja el nuevo estado y que el cambio queda auditado
   traslado, extraviada, baja definitiva).
 - **Estado de vigencia** (derivado): vigente / próxima a vencer / caducada, calculado desde
   `fecha_vencimiento`.
-- **Tipo de fornitura** y **Talla**: catálogos (ver feature **006-tipos-fornitura**).
+- **Tipo de prenda** y **Talla**: catálogos (ver feature **006-tipos-fornitura**). El tipo de
+  prenda de toda fornitura es hoy el único valor `Fornitura` del catálogo `TIPO_PRENDA`.
 - **Almacén**: ubicación de resguardo (ver feature **005-almacenes**).
 
 ## Success Criteria *(mandatory)*

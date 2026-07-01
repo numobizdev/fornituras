@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Cabecera de un catálogo administrable (p. ej. {@code TIPO_FORNITURA}, {@code TALLA},
+ * Cabecera de un catálogo administrable (p. ej. {@code TIPO_PRENDA}, {@code TALLA},
  * {@code TIPO_ALMACEN}). Sustituye a las antiguas tablas tipadas por catálogo (ADR 0007): un solo
  * par {@code catalog}/{@code catalog_item} sirve a todos los catálogos planos del sistema.
  *

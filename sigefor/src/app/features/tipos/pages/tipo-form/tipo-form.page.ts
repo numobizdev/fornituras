@@ -120,14 +120,14 @@ export class TipoFormPage implements OnInit {
       const id = this.typeId();
       if (id !== null) {
         await firstValueFrom(this.service.update(id, request));
-        await this.showToast('Tipo actualizado.', 'success');
+        await this.showToast('Tipo de prenda actualizado.', 'success');
       } else {
         await firstValueFrom(this.service.create(request));
-        await this.showToast('Tipo creado.', 'success');
+        await this.showToast('Tipo de prenda creado.', 'success');
       }
       await this.router.navigate(['/tipos']);
     } catch (error) {
-      await this.showToast(extractApiErrorMessage(error, 'No se pudo guardar el tipo.'), 'danger');
+      await this.showToast(extractApiErrorMessage(error, 'No se pudo guardar el tipo de prenda.'), 'danger');
     } finally {
       this.isSubmitting.set(false);
     }

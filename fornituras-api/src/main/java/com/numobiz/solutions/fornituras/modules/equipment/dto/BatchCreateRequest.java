@@ -13,7 +13,7 @@ import java.util.List;
  * fornitura por código, rechazando duplicados intra-lote y contra la base, de forma atómica.
  */
 public record BatchCreateRequest(
-		@NotNull(message = "El tipo de fornitura es obligatorio")
+		@NotNull(message = "El tipo de prenda es obligatorio")
 		Long equipmentTypeId,
 
 		Long sizeId,

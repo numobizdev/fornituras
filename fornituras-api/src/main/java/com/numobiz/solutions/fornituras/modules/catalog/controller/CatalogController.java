@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/v1/catalogs")
-@Tag(name = "Catalogs", description = "Catálogos genéricos (tipos de fornitura, tallas, tipo de almacén…)")
+@Tag(name = "Catalogs", description = "Catálogos genéricos (tipo de prenda, tallas, tipo de almacén…)")
 @SecurityRequirement(name = "Bearer Authentication")
 public class CatalogController {
 

@@ -6,9 +6,10 @@
 > [`specs/README.md`](./specs/README.md). Si una norma cambia, se edita aquí y se refleja en la
 > spec correspondiente.
 >
-> **Vocabulario.** El producto es **SIGEFOR**. La unidad controlada es la **fornitura**
-> (chaleco antibala, cinturón táctico, casco y demás equipo de dotación). Un **elemento** es el
-> personal policial al que se le asigna equipo. Una **asignación** vigente genera un
+> **Vocabulario.** El producto es **SIGEFOR**. La unidad controlada es la **fornitura**, la prenda
+> de dotación del cuerpo. **"Fornitura" es un tipo de prenda** concreto (no una categoría con
+> subtipos): el catálogo de tipos de prenda tiene hoy un único valor, "Fornitura". Un **elemento**
+> es el personal policial al que se le asigna equipo. Una **asignación** vigente genera un
 > **resguardo**.
 
 ---
@@ -274,8 +275,10 @@ inmutables.
 
 **Feature:** `006-tipos-fornitura`
 
-CRUD del catálogo de tipos de fornitura: **nombre, foto, descripción**. Operaciones de alta,
-edición, baja y consulta.
+CRUD del catálogo de **tipos de prenda**: **nombre, foto, descripción**. Operaciones de alta,
+edición, baja y consulta. Una **fornitura** es un tipo de prenda concreto; el catálogo arranca con
+un único valor ("Fornitura") y se conserva administrable por si más adelante se dan de alta otras
+prendas.
 
 ---
 

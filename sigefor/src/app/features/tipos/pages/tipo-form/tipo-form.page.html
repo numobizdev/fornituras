@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tipos"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ isEditing ? 'Editar tipo' : 'Nuevo tipo' }}</ion-title>
+    <ion-title>{{ isEditing ? 'Editar tipo de prenda' : 'Nuevo tipo de prenda' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -21,7 +21,7 @@
             labelPlacement="stacked"
             formControlName="nombre"
             maxlength="120"
-            placeholder="Ej. Chaleco antibala"></ion-input>
+            placeholder="Ej. Fornitura"></ion-input>
         </ion-item>
         <ion-item>
           <ion-textarea
@@ -46,7 +46,7 @@
           @if (isSubmitting()) {
             <ion-spinner name="dots"></ion-spinner>
           } @else {
-            {{ isEditing ? 'Guardar cambios' : 'Crear tipo' }}
+            {{ isEditing ? 'Guardar cambios' : 'Crear tipo de prenda' }}
           }
         </ion-button>
       </div>

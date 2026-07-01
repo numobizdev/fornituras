@@ -67,7 +67,7 @@ class EquipmentServiceTest {
 	@Test
 	void create_rejectsInactiveType() {
 		when(repository.existsByCodigoNormalizado("FOR002")).thenReturn(false);
-		when(catalogService.requireActiveItem(10L, CatalogCodes.TIPO_FORNITURA))
+		when(catalogService.requireActiveItem(10L, CatalogCodes.TIPO_PRENDA))
 				.thenThrow(new BadRequestException("El valor de catálogo seleccionado está inactivo."));
 
 		assertThrows(BadRequestException.class, () -> service.create(req("FOR-002")));

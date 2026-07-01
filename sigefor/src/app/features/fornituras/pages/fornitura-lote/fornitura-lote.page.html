@@ -15,10 +15,10 @@
       </ion-list-header>
       <ion-item>
         <ion-select
-          label="Tipo"
+          label="Tipo de prenda"
           labelPlacement="stacked"
           formControlName="equipmentTypeId"
-          placeholder="Seleccione un tipo"
+          placeholder="Seleccione un tipo de prenda"
           (ionChange)="onTypeSelected($event.detail.value)">
           @for (type of types(); track type.id) {
             <ion-select-option [value]="type.id.toString()">{{ type.nombre }}</ion-select-option>

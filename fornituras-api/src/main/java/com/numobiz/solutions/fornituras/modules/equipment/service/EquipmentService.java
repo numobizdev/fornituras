@@ -238,7 +238,7 @@ public class EquipmentService {
 	}
 
 	private void validateCatalogs(Long equipmentTypeId, Long sizeId, Long warehouseId) {
-		catalogService.requireActiveItem(equipmentTypeId, CatalogCodes.TIPO_FORNITURA);
+		catalogService.requireActiveItem(equipmentTypeId, CatalogCodes.TIPO_PRENDA);
 		if (sizeId != null) {
 			catalogService.requireActiveItem(sizeId, CatalogCodes.TALLA);
 		}

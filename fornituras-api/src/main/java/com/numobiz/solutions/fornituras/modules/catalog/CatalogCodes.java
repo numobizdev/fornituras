@@ -6,7 +6,7 @@ package com.numobiz.solutions.fornituras.modules.catalog;
  */
 public final class CatalogCodes {
 
-	public static final String TIPO_FORNITURA = "TIPO_FORNITURA";
+	public static final String TIPO_PRENDA = "TIPO_PRENDA";
 	public static final String TALLA = "TALLA";
 	public static final String TIPO_ALMACEN = "TIPO_ALMACEN";
 

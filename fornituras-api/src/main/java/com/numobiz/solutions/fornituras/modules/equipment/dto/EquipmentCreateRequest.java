@@ -18,7 +18,7 @@ public record EquipmentCreateRequest(
 		@Size(max = 60, message = "El código no debe exceder 60 caracteres")
 		String codigoQr,
 
-		@NotNull(message = "El tipo de fornitura es obligatorio")
+		@NotNull(message = "El tipo de prenda es obligatorio")
 		Long equipmentTypeId,
 
 		Long sizeId,

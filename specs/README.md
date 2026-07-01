@@ -4,7 +4,8 @@ Mapa de las features spec-driven y su correspondencia con las pantallas de
 [`Requerimientos.MD`](../Requerimientos.MD). Estado: **todas con `spec` + `plan` + `tasks`**
 (listas para `/speckit-implement`); la implementación aún no ha comenzado salvo lo ya
 existente (auth, QR). Vocabulario: el producto es **SIGEFOR** y la unidad controlada es la
-**fornitura** (chaleco, cinturón, casco…).
+**fornitura**, un **tipo de prenda** concreto (no una categoría con subtipos); el catálogo de tipos
+de prenda tiene hoy un único valor, "Fornitura".
 
 | # | Feature | Pantalla (`Requerimientos.MD`) | Nombre de menú |
 |---|---------|-------------------------------|----------------|
@@ -13,7 +14,7 @@ existente (auth, QR). Vocabulario: el producto es **SIGEFOR** y la unidad contro
 | 003 | [elementos-padron](./003-elementos-padron/spec.md) — padrón de elementos policiales (PII) | §2 Elementos | Padrón de Elementos |
 | 004 | [asignacion-resguardos](./004-asignacion-resguardos/spec.md) — asignación en 2 pasos, resguardos | §1 Captura y asignación | Asignación y Resguardos |
 | 005 | [almacenes](./005-almacenes/spec.md) — CRUD de almacenes | §11 Almacenes | Almacenes |
-| 006 | [tipos-fornitura](./006-tipos-fornitura/spec.md) — **catálogos genéricos** (`catalog → catalog_item`): tipos de fornitura, tallas, tipo de almacén | §10 Tipo de fornituras | Catálogos |
+| 006 | [tipos-fornitura](./006-tipos-fornitura/spec.md) — **catálogos genéricos** (`catalog → catalog_item`): tipo de prenda (hoy: Fornitura), tallas, tipo de almacén | §10 Tipo de fornituras | Catálogos |
 | 007 | [traslados](./007-traslados/spec.md) — traslados entre almacenes | §5 Traslados | Traslados |
 | 008 | [incidencias](./008-incidencias/spec.md) — incidencias, mantenimiento y alertas | §4 Incidencias | Incidencias |
 | 009 | [bajas](./009-bajas/spec.md) — bajas definitivas | §6 Bajas | Bajas Definitivas |

@@ -13,8 +13,9 @@ import {
 
 /**
  * Adaptador del catálogo genérico (ADR 0007) a la API histórica de tipos/tallas: el catálogo de
- * tipos de fornitura es `TIPO_FORNITURA` y las tallas son `TALLA` (colgando del tipo vía padre).
- * Mantiene la interfaz previa para no reescribir las páginas de tipos ni los formularios de fornitura.
+ * tipos de prenda es `TIPO_PRENDA` (hoy con el único valor "Fornitura") y las tallas son `TALLA`
+ * (colgando del tipo de prenda vía padre). Mantiene la interfaz previa para no reescribir las
+ * páginas de tipos ni los formularios de fornitura.
  */
 @Injectable({ providedIn: 'root' })
 export class EquipmentTypesService {
@@ -22,7 +23,7 @@ export class EquipmentTypesService {
 
   list(options: { active?: boolean; page?: number; size?: number } = {}): Observable<Page<EquipmentTypeSummary>> {
     return this.catalog
-      .listItems(CATALOG_CODES.TIPO_FORNITURA, options)
+      .listItems(CATALOG_CODES.TIPO_PRENDA, options)
       .pipe(map((page) => this.mapTypePage(page)));
   }
 
@@ -35,7 +36,7 @@ export class EquipmentTypesService {
 
   create(request: EquipmentTypeCreateRequest): Observable<EquipmentTypeDetail> {
     return this.catalog
-      .createItem(CATALOG_CODES.TIPO_FORNITURA, {
+      .createItem(CATALOG_CODES.TIPO_PRENDA, {
         nombre: request.nombre,
         descripcion: request.descripcion,
         fotoUrl: request.fotoUrl,

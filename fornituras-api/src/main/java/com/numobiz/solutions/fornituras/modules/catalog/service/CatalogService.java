@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * CRUD genérico de catálogos (ADR 0007). Un solo servicio administra los valores de cualquier
- * catálogo ({@code TIPO_FORNITURA}, {@code TALLA}, {@code TIPO_ALMACEN}…): el catálogo se localiza
+ * catálogo ({@code TIPO_PRENDA}, {@code TALLA}, {@code TIPO_ALMACEN}…): el catálogo se localiza
  * por su {@code code}. La unicidad de nombre se garantiza <b>dentro de cada catálogo</b> (dos
  * catálogos distintos pueden tener el mismo nombre de valor).
  *
