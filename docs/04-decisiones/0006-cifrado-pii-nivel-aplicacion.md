@@ -52,6 +52,9 @@ esté disponible:
   responsable el 2026-06-30).
 - (−) El alcance de qué PII se captura sigue sujeto a **ADR 0003**; CURP/RFC permanecen opcionales
   y la **foto** queda fuera de alcance hasta resolver su storage cifrado.
+  **Actualización (2026-07-01):** el storage cifrado de la foto queda resuelto por
+  [ADR 0016](./0016-almacenamiento-de-fotos.md) (filesystem local + AES-256-GCM tras
+  `FileStoragePort`); su captura sigue condicionada a la base legal de ADR 0003.
 
 ## Reversión / camino a la solución final
 

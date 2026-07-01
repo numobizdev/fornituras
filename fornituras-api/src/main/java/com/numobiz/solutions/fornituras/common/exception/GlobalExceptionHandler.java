@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -60,6 +61,20 @@ public class GlobalExceptionHandler {
 		log.warn("Access denied: {}", ex.getMessage());
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(ApiResponse.error("Access denied"));
+	}
+
+	@ExceptionHandler({PayloadTooLargeException.class, MaxUploadSizeExceededException.class})
+	public ResponseEntity<ApiResponse<Void>> handlePayloadTooLarge(Exception ex) {
+		log.warn("Payload too large: {}", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+				.body(ApiResponse.error("El archivo excede el tamaño máximo permitido."));
+	}
+
+	@ExceptionHandler(UnprocessableEntityException.class)
+	public ResponseEntity<ApiResponse<Void>> handleUnprocessable(UnprocessableEntityException ex) {
+		log.warn("Unprocessable entity: {}", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ApiResponse.error(ex.getMessage()));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

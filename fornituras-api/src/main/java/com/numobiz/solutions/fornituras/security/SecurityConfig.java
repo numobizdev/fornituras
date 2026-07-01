@@ -66,6 +66,9 @@ public class SecurityConfig {
 						.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/v1/landing/public").permitAll()
+						// Fotos (017): SIEMPRE autenticado, nunca anónimo (contrasta con la brecha de /qr/**).
+						// La autorización fina de PII (rol + gating ADR 0003) se resuelve en MediaService.
+						.requestMatchers("/api/v1/media/**").authenticated()
 						.requestMatchers("/api/v1/**").authenticated()
 						.anyRequest().authenticated())
 				.authenticationProvider(authenticationProvider())

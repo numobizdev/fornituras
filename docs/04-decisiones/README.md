@@ -47,6 +47,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0013](./0013-expansion-de-roles.md) — Expansión del enum de roles (RBAC) a cinco roles con matriz de permisos. **Aceptado.**
 - [0014](./0014-estrategia-mfa.md) — Estrategia de MFA para roles administrativos (TOTP con secreto cifrado). **Propuesto.**
 - [0015](./0015-landing-configurable.md) — Landing configurable (dos caras), endpoint público no-PII con rate limiting, anti-XSS por texto plano + `driver.js` para el tour. **Aceptado.**
+- [0016](./0016-almacenamiento-de-fotos.md) — Almacenamiento seguro de fotos: filesystem local cifrado (AES-256-GCM) tras `FileStoragePort`, metadatos en BD, EXIF stripping, servicio autenticado/auditado. **Aceptado** (resuelve el pendiente de foto de 0003/0006).
 
 ## Decisiones pendientes de registrar
 
