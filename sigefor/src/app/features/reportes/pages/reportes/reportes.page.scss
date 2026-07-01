@@ -9,27 +9,69 @@
   --status-inactivo: #6c757d;
 }
 
+// Rejilla de 8 pt para secciones.
+.section {
+  padding: 16px;
+
+  & + .section {
+    padding-top: 8px;
+  }
+}
+
+.section-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+}
+
+.section-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  .section-title {
+    margin: 0;
+  }
+}
+
+// --- Totales ---
 .totals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 12px;
-  padding: 16px;
 }
 
 .total-card {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   padding: 12px;
   border-radius: 12px;
-  background: var(--ion-card-background);
-  border: 1px solid var(--ion-border-color);
+  background: var(--ion-card-background, #fff);
+  border: 1px solid var(--ion-border-color, #e0e0e0);
   border-left: 4px solid var(--accent);
+
+  .total-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .total-icon {
+    font-size: 20px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
 
   .total-value {
     font-size: 24px;
     font-weight: 700;
+    line-height: 1.1;
     color: var(--ion-text-color);
+    font-variant-numeric: tabular-nums;
   }
 
   .total-label {
@@ -38,36 +80,189 @@
   }
 }
 
+// --- Filtros ---
+.filter-count {
+  margin-inline-start: 6px;
+}
+
+.filters-panel {
+  border: 1px solid var(--ion-border-color, #e0e0e0);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+
+  .filters-list {
+    background: transparent;
+  }
+
+  .filters-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 4px 8px 8px;
+  }
+}
+
+.active-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+// --- Aviso de PII ---
 .pii-note {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 16px;
-  font-size: 13px;
-}
-
-.state-message {
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  padding: 32px 16px;
-  color: var(--ion-color-medium);
-}
-
-.pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
   padding: 8px 16px;
+  font-size: 13px;
+  line-height: 1.4;
 
-  .pager-info {
-    font-size: 0.85rem;
+  ion-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+}
+
+// --- Resultados ---
+.results-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+
+  .results-count {
+    color: var(--ion-color-medium);
+    font-weight: 400;
+  }
+}
+
+.results-list .result-row {
+  --transition: background-color 180ms ease;
+  transition: var(--transition);
+
+  &:hover {
+    --background: var(--ion-color-light, #f5f5f5);
+  }
+
+  .row-title {
+    font-weight: 600;
+  }
+
+  .row-meta {
+    color: var(--ion-color-medium);
+  }
+
+  .row-date {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ion-badge ion-icon {
+    vertical-align: middle;
+    margin-inline-end: 2px;
+  }
+}
+
+// --- Estado vacío ---
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+
+  ion-icon {
+    font-size: 48px;
+    color: var(--ion-color-medium);
+  }
+
+  .empty-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+
+  .empty-hint {
+    margin: 0 0 8px;
+    font-size: 14px;
     color: var(--ion-color-medium);
   }
 }
 
-ion-list-header ion-label {
+// --- Paginación ---
+.pager {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  padding: 8px 0;
+
+  .pager-info {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// --- Skeletons de carga ---
+.skeleton {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--ion-color-light, #eee) 25%,
+    var(--ion-color-light-shade, #ddd) 37%,
+    var(--ion-color-light, #eee) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-card {
+  min-height: 74px;
+  justify-content: center;
+  gap: 8px;
+}
+
+.skeleton-value {
+  width: 40%;
+  height: 22px;
+}
+
+.skeleton-label {
+  width: 70%;
+  height: 12px;
+}
+
+.skeleton-line-lg {
+  width: 60%;
+  height: 14px;
+  margin: 6px 0;
+}
+
+.skeleton-line-sm {
+  width: 40%;
+  height: 12px;
+  margin: 6px 0;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+// Accesibilidad: sin movimiento si el usuario lo pide.
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+
+  .results-list .result-row {
+    transition: none;
+  }
 }

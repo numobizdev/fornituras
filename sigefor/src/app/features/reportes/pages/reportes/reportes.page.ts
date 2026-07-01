@@ -1,9 +1,10 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import {
   IonBadge,
   IonButton,
   IonButtons,
+  IonChip,
   IonContent,
   IonHeader,
   IonIcon,
@@ -11,17 +12,30 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonListHeader,
   IonMenuButton,
   IonNote,
-  IonSpinner,
   IonText,
   IonTitle,
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { downloadOutline, lockClosedOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  archiveOutline,
+  checkmarkCircleOutline,
+  chevronDownOutline,
+  chevronUpOutline,
+  closeCircleOutline,
+  constructOutline,
+  cubeOutline,
+  documentTextOutline,
+  downloadOutline,
+  filterOutline,
+  lockClosedOutline,
+  peopleOutline,
+  personOutline,
+} from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import {
@@ -34,7 +48,13 @@ import { ReportsService } from '../../data/reports.service';
 interface TotalCard {
   key: keyof ReportTotals;
   label: string;
+  icon: string;
   colorVar: string;
+}
+
+interface FilterField {
+  key: keyof ActiveAssignmentFilter;
+  label: string;
 }
 
 @Component({
@@ -50,15 +70,14 @@ interface TotalCard {
     IonTitle,
     IonContent,
     IonList,
-    IonListHeader,
     IonItem,
     IonLabel,
     IonInput,
     IonButton,
     IonIcon,
     IonBadge,
+    IonChip,
     IonNote,
-    IonSpinner,
     IonText,
   ],
 })
@@ -74,28 +93,63 @@ export class ReportesPage implements OnInit {
   readonly isLoading = signal(false);
   readonly exporting = signal(false);
   readonly page = signal(0);
+  readonly totalElements = signal(0);
   readonly totalPages = signal(0);
   readonly piiMasked = signal(false);
+  readonly filtersOpen = signal(false);
 
-  readonly qr = signal('');
-  readonly nombre = signal('');
-  readonly placa = signal('');
-  readonly municipio = signal('');
-  readonly curp = signal('');
-  readonly rfc = signal('');
+  readonly filterValues: Record<keyof ActiveAssignmentFilter, WritableSignal<string>> = {
+    qr: signal(''),
+    nombre: signal(''),
+    placa: signal(''),
+    municipio: signal(''),
+    curp: signal(''),
+    rfc: signal(''),
+  };
+
+  readonly activeFilterCount = computed(
+    () => this.filterFields.filter((f) => this.filterValues[f.key]().trim() !== '').length,
+  );
+
+  // Placeholders para el skeleton de carga (índices ficticios).
+  readonly skeletonSlots = [0, 1, 2, 3, 4, 5];
 
   readonly totalCards: TotalCard[] = [
-    { key: 'totalFornituras', label: 'Total', colorVar: '--status-total' },
-    { key: 'disponibles', label: 'Disponibles', colorVar: '--status-disponible' },
-    { key: 'asignadas', label: 'Asignadas', colorVar: '--status-asignado' },
-    { key: 'enMantenimiento', label: 'En mantenimiento', colorVar: '--status-mantenimiento' },
-    { key: 'conIncidencia', label: 'Con incidencia', colorVar: '--status-proximo-vencer' },
-    { key: 'baja', label: 'Baja', colorVar: '--status-inactivo' },
-    { key: 'totalElementos', label: 'Elementos', colorVar: '--status-asignado' },
+    { key: 'totalFornituras', label: 'Total', icon: 'cube-outline', colorVar: '--status-total' },
+    { key: 'disponibles', label: 'Disponibles', icon: 'checkmark-circle-outline', colorVar: '--status-disponible' },
+    { key: 'asignadas', label: 'Asignadas', icon: 'person-outline', colorVar: '--status-asignado' },
+    { key: 'enMantenimiento', label: 'En mantenimiento', icon: 'construct-outline', colorVar: '--status-mantenimiento' },
+    { key: 'conIncidencia', label: 'Con incidencia', icon: 'alert-circle-outline', colorVar: '--status-proximo-vencer' },
+    { key: 'baja', label: 'Baja', icon: 'archive-outline', colorVar: '--status-inactivo' },
+    { key: 'totalElementos', label: 'Elementos', icon: 'people-outline', colorVar: '--status-asignado' },
+  ];
+
+  readonly filterFields: FilterField[] = [
+    { key: 'qr', label: 'Código QR' },
+    { key: 'nombre', label: 'Nombre' },
+    { key: 'placa', label: 'Placa' },
+    { key: 'municipio', label: 'Municipio' },
+    { key: 'curp', label: 'CURP' },
+    { key: 'rfc', label: 'RFC' },
   ];
 
   constructor() {
-    addIcons({ downloadOutline, lockClosedOutline });
+    addIcons({
+      cubeOutline,
+      checkmarkCircleOutline,
+      personOutline,
+      constructOutline,
+      alertCircleOutline,
+      archiveOutline,
+      peopleOutline,
+      downloadOutline,
+      lockClosedOutline,
+      filterOutline,
+      closeCircleOutline,
+      documentTextOutline,
+      chevronDownOutline,
+      chevronUpOutline,
+    });
   }
 
   ngOnInit(): void {
@@ -107,15 +161,31 @@ export class ReportesPage implements OnInit {
     return this.totals()?.[card.key] ?? 0;
   }
 
+  toggleFilters(): void {
+    this.filtersOpen.update((open) => !open);
+  }
+
+  setFilter(key: keyof ActiveAssignmentFilter, value: string | null | undefined): void {
+    this.filterValues[key].set(value ?? '');
+    this.applyFilters();
+  }
+
+  clearFilters(): void {
+    for (const field of this.filterFields) {
+      this.filterValues[field.key].set('');
+    }
+    this.applyFilters();
+  }
+
   private currentFilter(): ActiveAssignmentFilter {
-    return {
-      qr: this.qr() || undefined,
-      nombre: this.nombre() || undefined,
-      placa: this.placa() || undefined,
-      municipio: this.municipio() || undefined,
-      curp: this.curp() || undefined,
-      rfc: this.rfc() || undefined,
-    };
+    const filter: ActiveAssignmentFilter = {};
+    for (const field of this.filterFields) {
+      const value = this.filterValues[field.key]().trim();
+      if (value) {
+        filter[field.key] = value;
+      }
+    }
+    return filter;
   }
 
   private async loadTotals(): Promise<void> {
@@ -136,6 +206,7 @@ export class ReportesPage implements OnInit {
         this.service.getActiveAssignments(this.currentFilter(), this.page(), ReportesPage.PAGE_SIZE),
       );
       this.rows.set(result.content);
+      this.totalElements.set(result.totalElements);
       this.totalPages.set(result.totalPages);
       this.piiMasked.set(result.content.some((r) => r.piiMasked));
     } catch (error) {
@@ -155,6 +226,7 @@ export class ReportesPage implements OnInit {
     try {
       const blob = await firstValueFrom(this.service.exportActiveAssignments(this.currentFilter()));
       this.triggerDownload(blob, 'asignaciones-activas.xlsx');
+      await this.showToast('Exportación generada.', 'success');
     } catch (error) {
       await this.showToast(extractApiErrorMessage(error), 'danger');
     } finally {
