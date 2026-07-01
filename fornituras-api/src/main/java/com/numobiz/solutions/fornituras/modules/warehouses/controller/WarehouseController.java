@@ -5,6 +5,7 @@ import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseCreateRe
 import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseDetail;
 import com.numobiz.solutions.fornituras.modules.warehouses.dto.WarehouseSummary;
 import com.numobiz.solutions.fornituras.modules.warehouses.service.WarehouseService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,14 +54,14 @@ public class WarehouseController {
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Detalle de almacén", description = "Ficha completa con campos sensibles (ubicación, responsable, contacto). Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<WarehouseDetail>> getById(@PathVariable Long id) {
 		return ResponseEntity.ok(ApiResponse.ok(service.findById(id)));
 	}
 
 	@PostMapping
 	@Operation(summary = "Crear almacén", description = "Crea un almacén con clave y nombre únicos. Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<WarehouseDetail>> create(
 			@Valid @RequestBody WarehouseCreateRequest request) {
 		WarehouseDetail created = service.create(request);
@@ -70,7 +71,7 @@ public class WarehouseController {
 
 	@PutMapping("/{id}")
 	@Operation(summary = "Editar almacén", description = "Edita un almacén manteniendo unicidad de clave/nombre. Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<WarehouseDetail>> update(
 			@PathVariable Long id,
 			@Valid @RequestBody WarehouseCreateRequest request) {
@@ -79,7 +80,7 @@ public class WarehouseController {
 
 	@PatchMapping("/{id}/deactivate")
 	@Operation(summary = "Desactivar almacén", description = "Marca el almacén como inactivo (no borrado). Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<Void>> deactivate(@PathVariable Long id) {
 		service.deactivate(id);
 		return ResponseEntity.ok(ApiResponse.ok("Almacén desactivado."));
@@ -87,7 +88,7 @@ public class WarehouseController {
 
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Eliminar almacén", description = "Borra el almacén solo si no tiene fornituras/traslados asociados; en uso se bloquea (desactívelo). Solo ADMIN.")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize(RolePolicy.MANAGE_CONFIG)
 	public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.ok(ApiResponse.ok("Almacén eliminado."));

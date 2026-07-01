@@ -14,11 +14,11 @@ import com.numobiz.solutions.fornituras.modules.officers.dto.OfficerSummary;
 import com.numobiz.solutions.fornituras.modules.officers.entity.Officer;
 import com.numobiz.solutions.fornituras.modules.officers.mapper.OfficerMapper;
 import com.numobiz.solutions.fornituras.modules.officers.repository.OfficerRepository;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +44,6 @@ import java.util.function.Function;
 @Service
 @Transactional(readOnly = true)
 public class OfficerService {
-
-	private static final String ROLE_PII = "ROLE_ADMIN";
 
 	private final OfficerRepository repository;
 	private final OfficerMapper mapper;
@@ -143,11 +141,9 @@ public class OfficerService {
 		return mapper.toDetail(officer, sexoNombre, tipoSangreEtiqueta, canViewPii());
 	}
 
-	/** El servidor decide la visibilidad de la PII a partir del rol (solo ADMIN ve CURP/RFC). */
+	/** El servidor decide la visibilidad de la PII a partir del rol (ADR 0013 regla 3). */
 	private boolean canViewPii() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		return auth != null && auth.getAuthorities().stream()
-				.anyMatch(authority -> ROLE_PII.equals(authority.getAuthority()));
+		return RolePolicy.canViewFullPii(SecurityContextHolder.getContext().getAuthentication());
 	}
 
 	private Officer getOrThrow(Long id) {

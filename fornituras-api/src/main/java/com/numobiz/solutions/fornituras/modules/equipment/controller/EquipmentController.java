@@ -10,6 +10,7 @@ import com.numobiz.solutions.fornituras.modules.equipment.dto.EquipmentSummary;
 import com.numobiz.solutions.fornituras.modules.equipment.dto.StatusChangeRequest;
 import com.numobiz.solutions.fornituras.modules.equipment.entity.EquipmentStatus;
 import com.numobiz.solutions.fornituras.modules.equipment.service.EquipmentService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,16 +36,14 @@ import java.util.List;
 
 /**
  * API del inventario de fornituras. La consulta (sin PII del elemento) es para cualquier rol
- * autenticado; el alta, edición y cambio de estado se restringen a ADMIN y CAPTURISTA (los roles
- * que capturan inventario). El RBAC fino se define en la feature 013.
+ * autenticado; el alta, edición y cambio de estado se restringen a los roles que capturan inventario
+ * ({@link RolePolicy#WRITE_INVENTORY}: ADMIN, ALMACEN y CAPTURISTA), según el ADR 0013.
  */
 @RestController
 @RequestMapping("/api/v1/equipment")
 @Tag(name = "Equipment", description = "Inventario de fornituras (equipos de blindaje y dotación)")
 @SecurityRequirement(name = "Bearer Authentication")
 public class EquipmentController {
-
-	private static final String WRITE_ROLES = "hasAnyRole('ADMIN','CAPTURISTA')";
 
 	private final EquipmentService service;
 	private final RateLimiter rateLimiter;
@@ -93,8 +92,8 @@ public class EquipmentController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Alta de fornitura", description = "Crea una fornitura con código único. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Alta de fornitura", description = "Crea una fornitura con código único. Roles de escritura de inventario (ADMIN/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_INVENTORY)
 	public ResponseEntity<ApiResponse<EquipmentDetail>> create(
 			@Valid @RequestBody EquipmentCreateRequest request) {
 		EquipmentDetail created = service.create(request);
@@ -103,8 +102,8 @@ public class EquipmentController {
 	}
 
 	@PostMapping("/batch")
-	@Operation(summary = "Alta por lote", description = "Crea N fornituras con datos generales comunes y códigos distintos, de forma atómica. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Alta por lote", description = "Crea N fornituras con datos generales comunes y códigos distintos, de forma atómica. Roles de escritura de inventario (ADMIN/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_INVENTORY)
 	public ResponseEntity<ApiResponse<List<EquipmentDetail>>> createBatch(
 			@Valid @RequestBody BatchCreateRequest request) {
 		List<EquipmentDetail> created = service.createBatch(request);
@@ -113,8 +112,8 @@ public class EquipmentController {
 	}
 
 	@PutMapping("/{id}")
-	@Operation(summary = "Editar fornitura", description = "Edita atributos no identitarios (el código es inmutable). Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Editar fornitura", description = "Edita atributos no identitarios (el código es inmutable). Roles de escritura de inventario (ADMIN/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_INVENTORY)
 	public ResponseEntity<ApiResponse<EquipmentDetail>> update(
 			@PathVariable Long id,
 			@Valid @RequestBody EquipmentCreateRequest request) {
@@ -122,8 +121,8 @@ public class EquipmentController {
 	}
 
 	@PatchMapping("/{id}/status")
-	@Operation(summary = "Cambiar estado", description = "Cambia el estado operativo; bloquea baja/traslado con asignación vigente. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Cambiar estado", description = "Cambia el estado operativo; bloquea baja/traslado con asignación vigente. Roles de escritura de inventario (ADMIN/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_INVENTORY)
 	public ResponseEntity<ApiResponse<EquipmentDetail>> changeStatus(
 			@PathVariable Long id,
 			@Valid @RequestBody StatusChangeRequest request) {

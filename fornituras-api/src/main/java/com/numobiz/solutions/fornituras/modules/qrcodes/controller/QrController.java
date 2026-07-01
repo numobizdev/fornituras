@@ -9,6 +9,7 @@ import com.numobiz.solutions.fornituras.modules.qrcodes.entity.LoteQR;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.LoteQrService;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrPdfService;
 import com.numobiz.solutions.fornituras.modules.qrcodes.service.QrZipService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,7 +35,7 @@ import java.util.List;
 @RequestMapping("/api/v1/qr")
 @Tag(name = "QR Codes", description = "QR code batch generation and export")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasAnyRole('ADMIN', 'CAPTURISTA')")
+@PreAuthorize(RolePolicy.WRITE_INVENTORY)
 public class QrController {
 
 	private final LoteQrService loteQrService;

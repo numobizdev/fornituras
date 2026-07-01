@@ -16,6 +16,7 @@ import com.numobiz.solutions.fornituras.modules.reports.dto.ActiveAssignmentFilt
 import com.numobiz.solutions.fornituras.modules.reports.dto.ActiveAssignmentRow;
 import com.numobiz.solutions.fornituras.modules.reports.dto.ReportTotals;
 import com.numobiz.solutions.fornituras.modules.reports.repository.ReportRepository;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,7 +24,6 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Lógica de la vista de control (011): totales por estado (agregados, coinciden con 010) y
  * asignaciones activas con filtros. <b>Reutiliza el enmascaramiento de PII de 003</b>: CURP/RFC solo
- * viajan en claro para roles autorizados (ADMIN); el resto los recibe enmascarados. La misma lista
- * filtrada alimenta la pantalla (paginada) y la exportación, garantizando que coincidan.
+ * viajan en claro para los roles autorizados (ADR 0013 regla 3); el resto los recibe enmascarados. La
+ * misma lista filtrada alimenta la pantalla (paginada) y la exportación, garantizando que coincidan.
  */
 @Service
 @Transactional(readOnly = true)
 public class ReportService {
 
-	/** Misma regla que 003: solo ADMIN ve CURP/RFC en claro. */
-	private static final String ROLE_PII = "ROLE_ADMIN";
 	private static final List<IncidentStatus> ACTIVE_INCIDENTS =
 			List.of(IncidentStatus.ABIERTA, IncidentStatus.EN_PROCESO);
 
@@ -129,9 +127,7 @@ public class ReportService {
 
 	/** El servidor decide la visibilidad de la PII a partir del rol (solo ADMIN ve CURP/RFC). */
 	private boolean canViewPii() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		return auth != null && auth.getAuthorities().stream()
-				.anyMatch(authority -> ROLE_PII.equals(authority.getAuthority()));
+		return RolePolicy.canViewFullPii(SecurityContextHolder.getContext().getAuthentication());
 	}
 
 	public boolean piiMaskedForCurrentActor() {

@@ -6,6 +6,7 @@ import com.numobiz.solutions.fornituras.modules.transfers.dto.TransferDetail;
 import com.numobiz.solutions.fornituras.modules.transfers.dto.TransferSummary;
 import com.numobiz.solutions.fornituras.modules.transfers.entity.TransferStatus;
 import com.numobiz.solutions.fornituras.modules.transfers.service.TransferService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,16 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * API de traslados entre almacenes. Consultar es para cualquier rol autenticado; crear, recibir y
- * cancelar quedan restringidos a ADMIN/CAPTURISTA. Toda mutación se audita y respeta la consistencia
- * de estado (fornituras disponibles del origen → en traslado → disponibles en destino/origen).
+ * cancelar quedan restringidos a {@link RolePolicy#WRITE_TRANSFERS} (ADMIN/SUPERVISOR autorizan,
+ * ALMACEN administra, CAPTURISTA captura). Toda mutación se audita y respeta la consistencia de estado
+ * (fornituras disponibles del origen → en traslado → disponibles en destino/origen).
  */
 @RestController
 @RequestMapping("/api/v1/transfers")
 @Tag(name = "Transfers", description = "Traslados de fornituras entre almacenes")
 @SecurityRequirement(name = "Bearer Authentication")
 public class TransferController {
-
-	private static final String WRITE_ROLES = "hasAnyRole('ADMIN','CAPTURISTA')";
 
 	private final TransferService service;
 
@@ -61,23 +61,23 @@ public class TransferController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Crear traslado", description = "Mueve fornituras disponibles del origen; quedan en traslado y el traslado enviado. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Crear traslado", description = "Mueve fornituras disponibles del origen; quedan en traslado y el traslado enviado. Roles de traslado (ADMIN/SUPERVISOR/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_TRANSFERS)
 	public ResponseEntity<ApiResponse<TransferDetail>> create(@Valid @RequestBody TransferCreateRequest request) {
 		TransferDetail created = service.create(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Traslado creado.", created));
 	}
 
 	@PostMapping("/{id}/receive")
-	@Operation(summary = "Recibir traslado", description = "Confirma la recepción: las fornituras quedan disponibles en el destino. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Recibir traslado", description = "Confirma la recepción: las fornituras quedan disponibles en el destino. Roles de traslado (ADMIN/SUPERVISOR/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_TRANSFERS)
 	public ResponseEntity<ApiResponse<TransferDetail>> receive(@PathVariable Long id) {
 		return ResponseEntity.ok(ApiResponse.ok("Traslado recibido.", service.receive(id)));
 	}
 
 	@PostMapping("/{id}/cancel")
-	@Operation(summary = "Cancelar traslado", description = "Revierte las fornituras a disponibles en el origen. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Cancelar traslado", description = "Revierte las fornituras a disponibles en el origen. Roles de traslado (ADMIN/SUPERVISOR/ALMACEN/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_TRANSFERS)
 	public ResponseEntity<ApiResponse<TransferDetail>> cancel(@PathVariable Long id) {
 		return ResponseEntity.ok(ApiResponse.ok("Traslado cancelado.", service.cancel(id)));
 	}

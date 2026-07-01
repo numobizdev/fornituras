@@ -10,8 +10,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Autorización de {@code /equipment} (T014): la escritura se restringe a ADMIN/CAPTURISTA; un rol
- * sin permiso queda denegado (403) y no crea nada; la consulta es para cualquier autenticado. El
+ * Autorización de {@code /equipment} (T014, matriz ADR 0013): la escritura de inventario se restringe a
+ * {@code WRITE_INVENTORY} (ADMIN/ALMACEN/CAPTURISTA); un rol sin permiso —incluido AUDITOR, que es de
+ * solo lectura— queda denegado (403) y no crea nada; la consulta es para cualquier autenticado. El
  * rechazo ocurre de forma declarativa en la capa de seguridad ({@code @PreAuthorize}), antes de
  * llegar al servicio, por lo que no genera auditoría de negocio.
  */
@@ -37,6 +38,28 @@ class EquipmentAuthTest extends EquipmentApiTestSupport {
 				.andExpect(status().isCreated());
 
 		assertThat(equipmentRepository.count()).isEqualTo(1);
+	}
+
+	@Test
+	@WithMockUser(roles = "ALMACEN")
+	void create_withAlmacenRole_isAllowed() throws Exception {
+		mockMvc.perform(post("/api/v1/equipment")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(createJson("FOR-102")))
+				.andExpect(status().isCreated());
+
+		assertThat(equipmentRepository.count()).isEqualTo(1);
+	}
+
+	@Test
+	@WithMockUser(roles = "AUDITOR")
+	void create_withReadOnlyAuditorRole_isForbidden() throws Exception {
+		mockMvc.perform(post("/api/v1/equipment")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(createJson("FOR-103")))
+				.andExpect(status().isForbidden());
+
+		assertThat(equipmentRepository.count()).isZero();
 	}
 
 	@Test

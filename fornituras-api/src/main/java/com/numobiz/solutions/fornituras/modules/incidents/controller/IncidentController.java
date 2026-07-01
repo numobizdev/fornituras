@@ -6,6 +6,7 @@ import com.numobiz.solutions.fornituras.modules.incidents.dto.IncidentSummary;
 import com.numobiz.solutions.fornituras.modules.incidents.dto.IncidentUpdateRequest;
 import com.numobiz.solutions.fornituras.modules.incidents.entity.IncidentStatus;
 import com.numobiz.solutions.fornituras.modules.incidents.service.IncidentService;
+import com.numobiz.solutions.fornituras.security.RolePolicy;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,16 +27,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * API de incidencias sobre fornituras. Consultar es para cualquier rol autenticado; reportar y
- * actualizar quedan restringidos a ADMIN/CAPTURISTA. Toda mutación se audita y respeta la
- * consistencia de estado de la fornitura (retiro al reportar, retorno al resolver).
+ * actualizar quedan restringidos a {@link RolePolicy#WRITE_OPERATIONS} (ADMIN/SUPERVISOR/CAPTURISTA).
+ * Toda mutación se audita y respeta la consistencia de estado de la fornitura (retiro al reportar,
+ * retorno al resolver).
  */
 @RestController
 @RequestMapping("/api/v1/incidents")
 @Tag(name = "Incidents", description = "Incidencias y mantenimiento de fornituras")
 @SecurityRequirement(name = "Bearer Authentication")
 public class IncidentController {
-
-	private static final String WRITE_ROLES = "hasAnyRole('ADMIN','CAPTURISTA')";
 
 	private final IncidentService service;
 
@@ -60,16 +60,16 @@ public class IncidentController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Reportar incidencia", description = "Crea una incidencia abierta y retira la fornitura si aplica. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Reportar incidencia", description = "Crea una incidencia abierta y retira la fornitura si aplica. Roles de operación (ADMIN/SUPERVISOR/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_OPERATIONS)
 	public ResponseEntity<ApiResponse<IncidentSummary>> report(@Valid @RequestBody IncidentCreateRequest request) {
 		IncidentSummary created = service.report(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Incidencia reportada.", created));
 	}
 
 	@PatchMapping("/{id}")
-	@Operation(summary = "Actualizar incidencia", description = "Cambia el estado; al resolver/cerrar devuelve la fornitura a disponible si procede. Solo ADMIN/CAPTURISTA.")
-	@PreAuthorize(WRITE_ROLES)
+	@Operation(summary = "Actualizar incidencia", description = "Cambia el estado; al resolver/cerrar devuelve la fornitura a disponible si procede. Roles de operación (ADMIN/SUPERVISOR/CAPTURISTA).")
+	@PreAuthorize(RolePolicy.WRITE_OPERATIONS)
 	public ResponseEntity<ApiResponse<IncidentSummary>> update(
 			@PathVariable Long id,
 			@Valid @RequestBody IncidentUpdateRequest request) {
