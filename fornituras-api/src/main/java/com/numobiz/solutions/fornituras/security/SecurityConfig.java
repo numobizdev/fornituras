@@ -1,11 +1,13 @@
 package com.numobiz.solutions.fornituras.security;
 
 import com.numobiz.solutions.fornituras.config.CorsProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -95,5 +97,14 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	/**
+	 * Publica eventos de autorización para que 012 audite los accesos denegados (FR-006). El publicador
+	 * por defecto solo emite {@code AuthorizationDeniedEvent} (no los concedidos), evitando ruido.
+	 */
+	@Bean
+	public AuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher publisher) {
+		return new SpringAuthorizationEventPublisher(publisher);
 	}
 }
