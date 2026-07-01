@@ -2,46 +2,216 @@
   --background: var(--gobmx-fondo-suave);
 }
 
-.public-landing__container {
+.public-landing__loading {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  min-height: 100%;
+  min-height: 60vh;
+}
+
+.public-landing__note {
   max-width: 720px;
   margin: 0 auto;
-  padding: 32px 24px;
-}
-
-.public-landing__brand {
+  padding: 12px 24px;
   text-align: center;
-  margin-bottom: 24px;
+  color: var(--gobmx-gris);
 }
 
-.public-landing__brand-title {
+/* ---------- Hero institucional ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 24px 88px;
+  border-bottom: 4px solid var(--gobmx-dorado);
+  background:
+    linear-gradient(135deg, var(--gobmx-guinda) 0%, var(--gobmx-guinda-light) 100%);
+  color: #ffffff;
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(165, 127, 44, 0.28), transparent 42%);
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero__eyebrow {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gobmx-dorado-claro);
+}
+
+.hero__title {
   margin: 0;
   font-family: 'Patria', 'Noto Sans', sans-serif;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: clamp(1.9rem, 6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.hero__accent {
+  height: 4px;
+  width: 64px;
+  margin: 18px auto;
+  border-radius: 2px;
+  background: var(--gobmx-dorado);
+}
+
+.hero__subtitle {
+  margin: 0 auto;
+  max-width: 34ch;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.hero__body {
+  margin: 14px auto 0;
+  max-width: 48ch;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.hero__cta {
+  margin-top: 28px;
+}
+
+.hero__brand {
+  position: absolute;
+  right: -40px;
+  bottom: -40px;
+  color: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+
+  ion-icon {
+    font-size: 260px;
+  }
+}
+
+/* ---------- Franja de valores ---------- */
+.features {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: -56px auto 0;
+  padding: 0 24px;
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.feature-card {
+  background: #ffffff;
+  border: 1px solid rgba(97, 18, 50, 0.08);
+  border-radius: 12px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 24px rgba(97, 18, 50, 0.08);
+}
+
+.feature-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--gobmx-fondo-suave);
+  color: var(--gobmx-guinda);
+  margin-bottom: 14px;
+
+  ion-icon {
+    font-size: 28px;
+  }
+}
+
+.feature-card__title {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
   color: var(--gobmx-guinda);
 }
 
-.public-landing__brand-accent {
-  height: 4px;
-  width: 48px;
-  margin: 14px auto 0;
-  background: var(--gobmx-dorado);
-  border-radius: 2px;
+.feature-card__desc {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--gobmx-texto);
 }
 
-.public-landing__state {
+/* ---------- Contenido configurable ---------- */
+.content-band {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px 8px;
+}
+
+/* ---------- Cierre / CTA ---------- */
+.closing {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 40px 24px 48px;
   text-align: center;
-  color: var(--gobmx-gris);
-  padding: 24px 0;
 }
 
-.public-landing__cta {
-  margin-top: 16px;
-  max-width: 420px;
-  width: 100%;
-  align-self: center;
+.closing__title {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  color: var(--gobmx-guinda);
+}
+
+.closing__text {
+  margin: 0 0 20px;
+  color: var(--gobmx-texto);
+}
+
+.closing__cta {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 24px;
+  text-align: center;
+  background: var(--gobmx-verde);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.site-footer__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.site-footer__meta {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Accesibilidad ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .feature-card {
+    transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 44px 20px 72px;
+  }
+
+  .hero__brand ion-icon {
+    font-size: 180px;
+  }
 }
