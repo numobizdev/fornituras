@@ -68,8 +68,8 @@ columna se mantiene por ahora (renombrarlo es una limpieza posterior, no parte d
   esquema. Mitigación: validar `catalog.code` esperado al resolver cada referencia.
 - (−) Municipio/estado como texto libre admite variantes ("CDMX" vs "Ciudad de México"); aceptable
   para el caso de uso (no se agrega ni se cruza por municipio con exactitud).
-- (−) Regeneración pendiente de `plan.md`/`tasks.md`/`data-model.md` de las specs 003/005/006
-  (los `spec.md` ya están ajustados; el código ya migró).
+- (−) Regeneración de `plan.md`/`tasks.md`/`data-model.md` de las specs 003/005/006: **hecha**
+  (los `spec.md` ya estaban ajustados; el código ya migró).
 
 ## Estado de implementación (2026-06-30)
 
@@ -79,10 +79,9 @@ columna se mantiene por ahora (renombrarlo es una limpieza posterior, no parte d
   añade columnas `municipio`/`estado` de texto libre en `warehouse`/`officers`); repunte de
   `equipment`, `warehouse` y `officer`; retiro de `modules/equipmenttypes` y `modules/municipios`.
   Frontend: `core/catalog` (servicio/modelo genérico) consumido por tipos, almacenes y elementos.
-- **Pendiente (rename tipo de prenda):** `V15` sembró el catálogo con `code = TIPO_FORNITURA` y
-  valores de subtipos (chaleco/cinturón/casco). Falta una migración nueva que **renombre el catálogo
-  a `TIPO_PRENDA`** y **reemplace la semilla por el único valor "Fornitura"**, más actualizar la
-  constante `CatalogCodes` y los usos en `sigefor` (ver aclaración de dominio arriba).
-- **Pendiente:** regenerar `plan.md`/`tasks.md`/`data-model.md` de 003/005 (`/speckit-plan`,
-  `/speckit-tasks`) — la **006 ya se regeneró**; migrar a futuro `SEXO`/`TIPO_SANGRE` a la estructura
-  genérica.
+- **Hecho (rename tipo de prenda):** `V15` sembró el catálogo con `code = TIPO_FORNITURA`; la
+  migración `V17__rename_tipo_fornitura_to_tipo_prenda.sql` lo **renombró a `TIPO_PRENDA`** y dejó el
+  único valor **"Fornitura"**; la constante `CatalogCodes.TIPO_PRENDA` y los usos en `sigefor` están
+  actualizados (ver aclaración de dominio arriba).
+- **Pendiente:** migrar a futuro `SEXO`/`TIPO_SANGRE` (spec 003) a la estructura genérica
+  `catalog → catalog_item`.
