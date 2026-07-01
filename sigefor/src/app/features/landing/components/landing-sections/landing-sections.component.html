@@ -1,0 +1,84 @@
+@for (section of sections(); track trackByOrden($index, section)) {
+  <section
+    class="landing-section"
+    [class.landing-section--hero]="section.type === 'HERO'"
+    [attr.data-type]="section.type"
+  >
+    @switch (section.type) {
+      @case ('HERO') {
+        <div class="landing-hero" id="landing-hero">
+          @if (section.imagenUrl) {
+            <img class="landing-hero__image" [src]="section.imagenUrl" alt="" />
+          }
+          @if (section.titulo) {
+            <h1 class="landing-hero__title">{{ section.titulo }}</h1>
+          }
+          @if (section.subtitulo) {
+            <p class="landing-hero__subtitle">{{ section.subtitulo }}</p>
+          }
+          @if (section.cuerpo) {
+            <p class="landing-hero__body">{{ section.cuerpo }}</p>
+          }
+          @if (section.ctaLabel && section.ctaUrl) {
+            @if (isInternal(section.ctaUrl)) {
+              <ion-button color="primary" [routerLink]="[section.ctaUrl]">
+                {{ section.ctaLabel }}
+              </ion-button>
+            } @else {
+              <ion-button color="primary" [href]="section.ctaUrl" rel="noopener noreferrer" target="_blank">
+                {{ section.ctaLabel }}
+                <ion-icon slot="end" name="open-outline" aria-hidden="true"></ion-icon>
+              </ion-button>
+            }
+          }
+        </div>
+      }
+      @case ('ANNOUNCEMENT') {
+        <div class="landing-announcement">
+          @if (section.titulo) {
+            <h2 class="landing-announcement__title">{{ section.titulo }}</h2>
+          }
+          @if (section.cuerpo) {
+            <p class="landing-announcement__body">{{ section.cuerpo }}</p>
+          }
+        </div>
+      }
+      @case ('QUICK_LINKS') {
+        <div class="landing-quicklinks" id="landing-quicklinks">
+          @if (section.titulo) {
+            <h2 class="landing-section__title">{{ section.titulo }}</h2>
+          }
+          <div class="landing-quicklinks__grid">
+            @for (link of section.quickLinks; track trackByLink($index, link)) {
+              @if (isInternal(link.url)) {
+                <a class="landing-quicklink" [routerLink]="[link.url]">
+                  @if (link.icon) {
+                    <ion-icon [name]="link.icon" aria-hidden="true"></ion-icon>
+                  }
+                  <span>{{ link.label }}</span>
+                </a>
+              } @else {
+                <a class="landing-quicklink" [href]="link.url" rel="noopener noreferrer" target="_blank">
+                  @if (link.icon) {
+                    <ion-icon [name]="link.icon" aria-hidden="true"></ion-icon>
+                  }
+                  <span>{{ link.label }}</span>
+                </a>
+              }
+            }
+          </div>
+        </div>
+      }
+      @case ('RICH_TEXT') {
+        <div class="landing-richtext">
+          @if (section.titulo) {
+            <h2 class="landing-section__title">{{ section.titulo }}</h2>
+          }
+          @if (section.cuerpo) {
+            <p class="landing-richtext__body">{{ section.cuerpo }}</p>
+          }
+        </div>
+      }
+    }
+  </section>
+}

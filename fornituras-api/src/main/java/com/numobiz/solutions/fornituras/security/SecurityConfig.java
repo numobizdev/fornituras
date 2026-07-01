@@ -34,14 +34,17 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomUserDetailsService userDetailsService;
 	private final CorsProperties corsProperties;
+	private final RestAuthenticationEntryPoint authenticationEntryPoint;
 
 	public SecurityConfig(
 			JwtAuthenticationFilter jwtAuthenticationFilter,
 			CustomUserDetailsService userDetailsService,
-			CorsProperties corsProperties) {
+			CorsProperties corsProperties,
+			RestAuthenticationEntryPoint authenticationEntryPoint) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.userDetailsService = userDetailsService;
 		this.corsProperties = corsProperties;
+		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	@Bean
@@ -50,6 +53,7 @@ public class SecurityConfig {
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/qr/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/v1/auth/change-password").authenticated()
@@ -61,6 +65,7 @@ public class SecurityConfig {
 						.permitAll()
 						.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/landing/public").permitAll()
 						.requestMatchers("/api/v1/**").authenticated()
 						.anyRequest().authenticated())
 				.authenticationProvider(authenticationProvider())

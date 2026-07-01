@@ -3,4 +3,5 @@ export const STORAGE_KEYS = {
   tokenType: 'sigefor.auth.tokenType',
   expiresAt: 'sigefor.auth.expiresAt',
   user: 'sigefor.auth.user',
+  tourHomeDone: 'sigefor.tour.home.done',
 } as const;

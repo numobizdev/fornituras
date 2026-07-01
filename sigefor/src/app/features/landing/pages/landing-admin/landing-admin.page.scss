@@ -1,0 +1,48 @@
+.admin-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--gobmx-gris);
+  text-align: center;
+}
+
+.admin-submit {
+  margin-top: 24px;
+}
+
+.quicklinks-editor {
+  margin-top: 16px;
+  border-top: 1px solid rgba(97, 18, 50, 0.12);
+  padding-top: 12px;
+}
+
+.quicklinks-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--gobmx-guinda);
+  }
+}
+
+.quicklink-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 4px;
+  align-items: end;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid rgba(97, 18, 50, 0.1);
+  border-radius: 6px;
+}
+
+@media (max-width: 640px) {
+  .quicklink-row {
+    grid-template-columns: 1fr;
+  }
+}

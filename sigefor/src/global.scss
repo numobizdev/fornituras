@@ -28,6 +28,32 @@
 @import "./theme/fonts.scss";
 @import "./theme/gobmx.scss";
 
+/* Recorrido guiado (driver.js, feature 016) + tematizado con la paleta institucional */
+@import "driver.js/dist/driver.css";
+
+.driver-popover.sigefor-tour,
+.driver-popover {
+  --driver-color: var(--gobmx-guinda);
+}
+
+.driver-popover .driver-popover-title {
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  color: var(--gobmx-guinda);
+}
+
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-prev-btn {
+  background-color: var(--gobmx-guinda);
+  color: #ffffff;
+  text-shadow: none;
+  border: none;
+  border-radius: 3px;
+}
+
+.driver-popover .driver-popover-progress-text {
+  color: var(--gobmx-gris);
+}
+
 html {
   color-scheme: light;
 }

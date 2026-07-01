@@ -37,6 +37,9 @@ public final class RolePolicy {
 	/** Administración de configuración: catálogos y almacenes. Solo ADMIN. */
 	public static final String MANAGE_CONFIG = "hasRole('ADMIN')";
 
+	/** Administración del contenido de la landing (secciones públicas y de inicio). Solo ADMIN (016). */
+	public static final String MANAGE_LANDING = "hasRole('ADMIN')";
+
 	/** Regla 5 — Gestión de usuarios y roles. Solo ADMIN. */
 	public static final String MANAGE_USERS = "hasRole('ADMIN')";
 

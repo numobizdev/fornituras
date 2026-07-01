@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -19,11 +19,17 @@ import {
   cloudOfflineOutline,
   constructOutline,
   cubeOutline,
+  helpCircleOutline,
   personOutline,
   refreshOutline,
   timeOutline,
 } from 'ionicons/icons';
+import type { DriveStep } from 'driver.js';
 import { firstValueFrom } from 'rxjs';
+import { LandingSectionsComponent } from '../../../landing/components/landing-sections/landing-sections.component';
+import { LandingSectionPublic } from '../../../landing/data/landing.model';
+import { LandingService } from '../../../landing/data/landing.service';
+import { TourService } from '../../../../core/tour/tour.service';
 import { DashboardService } from '../../data/dashboard.service';
 import {
   DASHBOARD_INDICATORS,
@@ -32,8 +38,9 @@ import {
 } from '../../data/dashboard.model';
 
 /**
- * Tablero de control (`/inicio`): al entrar muestra los indicadores clave del inventario con su color
- * semántico institucional. Los contadores llegan agregados del servidor (una sola llamada, sin PII).
+ * Inicio (`/inicio`): muestra el contenido de bienvenida configurable (secciones HOME activas, US1) y,
+ * debajo, los indicadores del inventario. La primera visita lanza el recorrido guiado (US4), relanzable
+ * con "Ver tutorial". Las secciones se renderizan con interpolación (sin `innerHTML`).
  */
 @Component({
   selector: 'app-inicio',
@@ -50,17 +57,20 @@ import {
     IonRefresherContent,
     IonIcon,
     IonButton,
+    LandingSectionsComponent,
   ],
 })
-export class InicioPage implements OnInit {
+export class InicioPage implements OnInit, OnDestroy {
   private readonly service = inject(DashboardService);
+  private readonly landing = inject(LandingService);
+  private readonly tour = inject(TourService);
 
   readonly summary = signal<DashboardSummary | null>(null);
+  readonly homeSections = signal<LandingSectionPublic[]>([]);
   readonly isLoading = signal(false);
   readonly hasError = signal(false);
 
   readonly indicators = DASHBOARD_INDICATORS;
-  // Placeholders para el skeleton de carga (uno por indicador).
   readonly skeletonSlots = DASHBOARD_INDICATORS.map((_, i) => i);
 
   constructor() {
@@ -73,6 +83,7 @@ export class InicioPage implements OnInit {
       constructOutline,
       cloudOfflineOutline,
       refreshOutline,
+      helpCircleOutline,
     });
   }
 
@@ -80,15 +91,34 @@ export class InicioPage implements OnInit {
     void this.load();
   }
 
+  ngOnDestroy(): void {
+    this.tour.destroy();
+  }
+
   async load(): Promise<void> {
     this.isLoading.set(true);
     this.hasError.set(false);
     try {
-      this.summary.set(await firstValueFrom(this.service.getSummary()));
+      const [summary, sections] = await Promise.all([
+        firstValueFrom(this.service.getSummary()),
+        this.loadHomeSections(),
+      ]);
+      this.summary.set(summary);
+      this.homeSections.set(sections);
     } catch {
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
+      this.scheduleFirstVisitTour();
+    }
+  }
+
+  private async loadHomeSections(): Promise<LandingSectionPublic[]> {
+    try {
+      return await firstValueFrom(this.landing.getHome());
+    } catch {
+      // El inicio sigue siendo útil con los indicadores aunque el contenido no cargue.
+      return [];
     }
   }
 
@@ -99,5 +129,41 @@ export class InicioPage implements OnInit {
 
   value(indicator: DashboardIndicator): number {
     return this.summary()?.[indicator.key] ?? 0;
+  }
+
+  /** Relanza el recorrido guiado a demanda ("Ver tutorial"). */
+  replayTour(): void {
+    this.tour.startHomeTour(this.buildSteps());
+  }
+
+  private scheduleFirstVisitTour(): void {
+    // Espera un ciclo para que el DOM de las secciones exista antes de resaltar.
+    setTimeout(() => {
+      void this.tour.autoStartHomeTour(this.buildSteps());
+    }, 400);
+  }
+
+  /** Construye los pasos del recorrido solo con los elementos presentes en la página. */
+  private buildSteps(): DriveStep[] {
+    const steps: DriveStep[] = [];
+    if (document.querySelector('#landing-hero')) {
+      steps.push({
+        element: '#landing-hero',
+        popover: { title: 'Bienvenida', description: 'Aquí verás los avisos y el encabezado institucional.' },
+      });
+    }
+    if (document.querySelector('#landing-quicklinks')) {
+      steps.push({
+        element: '#landing-quicklinks',
+        popover: { title: 'Accesos rápidos', description: 'Entra directo a las funciones que más usas.' },
+      });
+    }
+    if (document.querySelector('#inicio-menu-button')) {
+      steps.push({
+        element: '#inicio-menu-button',
+        popover: { title: 'Menú', description: 'Abre el menú para navegar por todo el sistema.' },
+      });
+    }
+    return steps;
   }
 }

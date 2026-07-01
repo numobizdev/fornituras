@@ -15,9 +15,10 @@ class DashboardAuthTest extends DashboardApiTestSupport {
 
 	@Test
 	void summary_withoutAuthentication_isDenied() throws Exception {
-		// Sin autenticación, la capa de seguridad deniega el acceso (403, convención del proyecto).
+		// Sin autenticación, la API responde 401 (no autenticado) vía RestAuthenticationEntryPoint;
+		// el 403 se reserva para un usuario autenticado sin permiso (convención REST, ADR 0015).
 		mockMvc.perform(get("/api/v1/dashboard/summary"))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test

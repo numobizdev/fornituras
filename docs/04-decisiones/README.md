@@ -46,6 +46,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0012](./0012-inmutabilidad-y-retencion-auditoria.md) — Inmutabilidad y retención de la bitácora de auditoría (append-only + triggers). **Aceptado.**
 - [0013](./0013-expansion-de-roles.md) — Expansión del enum de roles (RBAC) a cinco roles con matriz de permisos. **Aceptado.**
 - [0014](./0014-estrategia-mfa.md) — Estrategia de MFA para roles administrativos (TOTP con secreto cifrado). **Propuesto.**
+- [0015](./0015-landing-configurable.md) — Landing configurable (dos caras), endpoint público no-PII con rate limiting, anti-XSS por texto plano + `driver.js` para el tour. **Aceptado.**
 
 ## Decisiones pendientes de registrar
 

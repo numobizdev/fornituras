@@ -1,22 +1,33 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button id="inicio-menu-button"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Tablero</ion-title>
+    <ion-title>Inicio</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="replayTour()" aria-label="Ver tutorial">
+        <ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tablero</ion-title>
+      <ion-title size="large">Inicio</ion-title>
     </ion-toolbar>
   </ion-header>
 
   <ion-refresher slot="fixed" (ionRefresh)="refresh($any($event))">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
+
+  @if (homeSections().length > 0) {
+    <section class="section">
+      <app-landing-sections [sections]="homeSections()"></app-landing-sections>
+    </section>
+  }
 
   <section class="section" aria-labelledby="indicators-heading">
     <h2 id="indicators-heading" class="section-title">Indicadores del inventario</h2>
