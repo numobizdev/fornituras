@@ -11,6 +11,7 @@ public sealed class AppOptions
     public QrOptions Qr { get; set; } = new();
     public PiiOptions Pii { get; set; } = new();
     public MediaOptions Media { get; set; } = new();
+    public RateLimitOptions RateLimit { get; set; } = new();
     public SeedOptions Seed { get; set; } = new();
     public CorsOptions Cors { get; set; } = new();
 }
