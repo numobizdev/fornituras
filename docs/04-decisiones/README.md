@@ -49,6 +49,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0015](./0015-landing-configurable.md) — Landing configurable (dos caras), endpoint público no-PII con rate limiting, anti-XSS por texto plano + `driver.js` para el tour. **Aceptado.**
 - [0016](./0016-backend-aspnetcore.md) — Migración del backend a ASP.NET Core Web API (.NET 10). **Aceptado.**
 - [0017](./0017-almacenamiento-de-fotos.md) — Almacenamiento seguro de fotos: filesystem local cifrado (AES-256-GCM) tras `IFileStorage`, metadatos en BD, saneo con ImageSharp (EXIF stripping), servicio autenticado/auditado. **Aceptado** (resuelve el pendiente de foto de 0003/0006).
+- [0018](./0018-export-excel-dotnet.md) — Exportación de reportes a Excel en .NET con ClosedXML (MIT); sucede al 0011 (Apache POI/Java). **Aceptado.**
 
 ## Decisiones pendientes de registrar
 
