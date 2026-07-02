@@ -143,7 +143,8 @@ export class AlmacenFormPage implements OnInit {
 
   private async loadUsers(): Promise<void> {
     try {
-      const page = await firstValueFrom(this.users.list({ size: 200 }));
+      // Solo usuarios activos con rol ALMACEN pueden ser responsables (ADR 0013).
+      const page = await firstValueFrom(this.users.list({ size: 200, role: 'ALMACEN', enabled: true }));
       this.userOptions.set(page.content);
       this.resolveResponsableName();
     } catch {
@@ -255,6 +256,21 @@ export class AlmacenFormPage implements OnInit {
     const match = this.userOptions().find((u) => u.id === id);
     if (match) {
       this.responsableNombre.set(match.name);
+      return;
+    }
+    // Responsable asignado antes del filtro por rol (ya no es ALMACEN activo):
+    // se resuelve por id para seguir mostrando su nombre.
+    void this.resolveLegacyResponsableName(id);
+  }
+
+  private async resolveLegacyResponsableName(id: number): Promise<void> {
+    try {
+      const user = await firstValueFrom(this.users.getById(id));
+      if (this.responsableId() === id) {
+        this.responsableNombre.set(user.name);
+      }
+    } catch {
+      // Sin nombre resoluble; la ficha sigue mostrando "Sin asignar" hasta reelegir.
     }
   }
 

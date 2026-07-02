@@ -15,7 +15,11 @@ public interface IAuthService
 public interface IUserService
 {
     Task<UserResponse> FindByIdAsync(long id, CancellationToken cancellationToken = default);
-    Task<PageResult<UserResponse>> FindAllAsync(PaginationQuery pagination, CancellationToken cancellationToken = default);
+    Task<PageResult<UserResponse>> FindAllAsync(
+        PaginationQuery pagination,
+        string? role = null,
+        bool? enabled = null,
+        CancellationToken cancellationToken = default);
     Task<UserResponse> CreateAsync(UserRequest request, CancellationToken cancellationToken = default);
     Task<UserResponse> UpdateAsync(long id, UserUpdateRequest request, CancellationToken cancellationToken = default);
     Task<UserResponse> SetEnabledAsync(long id, bool enabled, CancellationToken cancellationToken = default);
