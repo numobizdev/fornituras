@@ -41,9 +41,27 @@ public sealed class DataSeeder(
             return;
         }
 
-        if (await db.Users.AnyAsync(u => u.Email == admin.Email, cancellationToken))
+        var existing = await db.Users.SingleOrDefaultAsync(u => u.Email == admin.Email, cancellationToken);
+        if (existing is not null)
         {
-            logger.LogDebug("Initial admin user already exists: {Email}", admin.Email);
+            // Ensure: la cuenta admin configurada debe quedar siempre ADMIN y habilitada
+            // (021, FR-001). Si existía con otro rol/deshabilitada, se corrige y se registra.
+            if (existing.Role == Role.ADMIN && existing.Enabled)
+            {
+                logger.LogDebug("Initial admin user already exists: {Email}", admin.Email);
+                return;
+            }
+
+            var previousRole = existing.Role;
+            var previousEnabled = existing.Enabled;
+            existing.Role = Role.ADMIN;
+            existing.Enabled = true;
+            existing.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync(cancellationToken);
+            logger.LogWarning(
+                "Seed admin corrected: role {PreviousRole} -> ADMIN, enabled {PreviousEnabled} -> true",
+                previousRole,
+                previousEnabled);
             return;
         }
 
