@@ -86,6 +86,12 @@ No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 7. **El backend (`fornituras-api-dotnet/`) es la API REST actual.** Organización por capas
    (Controllers / Services / Data / Dto / Security). El **frontend `sigefor/`** consume la API
    vía JWT; se extiende, no se reescribe. No añadir features nuevas en `fornituras-api/` (Java).
+8. **Una rama por spec, siempre.** Toda spec/feature se desarrolla en **su propia rama** creada
+   desde `dev` y nombrada con el **slug completo de la spec** (p. ej. `017-gestion-de-fotos`).
+   Esta regla aplica **sin importar la herramienta de IA** (Claude Code, Cursor, Copilot u otra)
+   ni desde dónde se lance el trabajo. **Nunca** se trabaja una spec directamente sobre `dev` o
+   `main`. La rama se **conserva** tras fusionarla (no se borra). Si por error una spec se
+   implementó sin rama propia, se crea la rama **retroactiva** apuntando a esos commits y se publica.
 
 ## 6. Convenciones de código (cuando empiece la implementación)
 
@@ -126,3 +132,5 @@ npm test                       # Ejecuta los tests
 - No almacenar contraseñas en texto plano (usar hashing fuerte: Argon2/bcrypt).
 - No desactivar validaciones de TLS/certificados "para que funcione".
 - No mover ni borrar `Planeacion.md` ni los ADRs sin acuerdo explícito.
+- No trabajar una spec directamente sobre `dev`/`main`: cada spec va en **su propia rama** (ver §5.8),
+  cualquiera que sea la IA (Claude Code, Cursor, Copilot…).
