@@ -130,7 +130,7 @@ error).
 
 - [ ] T035 [P] Ejecutar el **checklist de seguridad** `docs/02-seguridad.md` §8 sobre el cambio y registrar el resultado.
 - [ ] T036 [P] Documentar en `.env.example` los nombres de variables de media (ruta y, si aplica, clave dedicada) sin valores.
-- [ ] T037 Añadir el directorio de media a la política de **backup cifrado** / retención (nota operativa, ver ADR 0016).
+- [ ] T037 Añadir el directorio de media a la política de **backup cifrado** / retención (nota operativa, ver ADR 0017).
 - [ ] T038 Ejecutar la validación de `quickstart.md` de punta a punta (escenarios 1–6).
 - [ ] T039 [P] Correr `.\mvnw.cmd test` (backend) y `npm test` (frontend); dejar verde.
 

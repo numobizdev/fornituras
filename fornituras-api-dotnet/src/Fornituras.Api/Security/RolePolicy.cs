@@ -20,8 +20,21 @@ public static class RolePolicy
     private static readonly HashSet<string> FullPiiRoles =
         new(StringComparer.OrdinalIgnoreCase) { "ADMIN", "SUPERVISOR", "AUDITOR" };
 
-    public static bool CanViewFullPii(ClaimsPrincipal? user) =>
+    // Captura de foto de elemento (PII): mismos roles que escriben el padrón (WriteOfficers).
+    private static readonly HashSet<string> OfficerPhotoWriteRoles =
+        new(StringComparer.OrdinalIgnoreCase) { "ADMIN", "SUPERVISOR", "CAPTURISTA" };
+
+    public static bool CanViewFullPii(ClaimsPrincipal? user) => HasAnyRole(user, FullPiiRoles);
+
+    /// <summary>¿El actor puede capturar/subir la foto de un elemento (PII)?</summary>
+    public static bool CanCaptureOfficerPhoto(ClaimsPrincipal? user) =>
+        HasAnyRole(user, OfficerPhotoWriteRoles);
+
+    /// <summary>¿El actor puede ver sin enmascarar la foto de un elemento (PII)?</summary>
+    public static bool CanViewOfficerPhoto(ClaimsPrincipal? user) => HasAnyRole(user, FullPiiRoles);
+
+    private static bool HasAnyRole(ClaimsPrincipal? user, HashSet<string> roles) =>
         user?.Claims
             .Where(c => c.Type == ClaimTypes.Role)
-            .Any(c => FullPiiRoles.Contains(c.Value)) == true;
+            .Any(c => roles.Contains(c.Value)) == true;
 }

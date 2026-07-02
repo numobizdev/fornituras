@@ -12,7 +12,7 @@ respaldada por un **módulo `media`** en el backend que valida, sanea (EXIF stri
 **cifra en reposo** (AES-256-GCM) y **sirve** las imágenes solo a usuarios autenticados y
 autorizados, con **auditoría**. La foto de **elemento** es PII y recibe RBAC + enmascaramiento;
 su habilitación queda condicionada a la base legal de ADR 0003. Decisión de almacenamiento:
-[ADR 0016](../../docs/04-decisiones/0016-almacenamiento-de-fotos.md) (filesystem local cifrado
+[ADR 0017](../../docs/04-decisiones/0017-almacenamiento-de-fotos.md) (filesystem local cifrado
 tras un `FileStoragePort`).
 
 ## Technical Context
@@ -29,7 +29,7 @@ Ionic 8 + Angular (standalone components).
   de auth existente; Angular Reactive Forms.
 
 **Storage**: Filesystem local del servidor, **fuera del repo**, objetos cifrados AES-256-GCM;
-metadatos en **SQL Server** (tabla `media_asset`, migración Flyway nueva). Ver ADR 0016.
+metadatos en **SQL Server** (tabla `media_asset`, migración Flyway nueva). Ver ADR 0017.
 
 **Testing**: Backend `@SpringBootTest` + MockMvc sobre H2 (patrón
 [ADR 0009](../../docs/04-decisiones/0009-tests-integracion-h2-mockmvc.md)); Frontend Jasmine/Karma
@@ -60,7 +60,7 @@ de una corporación (miles de fotos, no millones). Sin galería múltiple en est
 | **III. Cero secretos en el repo** | Ruta de storage y clave de cifrado por variable de entorno; solo el **nombre** en `.env.example`. Storage fuera del repo. ✅ |
 | **IV. Mínimo privilegio y autorización** | Endpoints de media autenticados + RBAC; `is_pii` → solo roles autorizados; validación en el borde, rechazo por defecto. ✅ |
 | **V. Trazabilidad y auditoría sin fugas** | Auditoría de subida/visualización/exportación de foto de elemento; sin PII en logs (referencia por id). ✅ |
-| **VI. ADR y stack congelado** | Decisión de almacenamiento en **ADR 0016**; dependencia nueva `@capacitor/camera` justificada; sin cambio de stack. ✅ |
+| **VI. ADR y stack congelado** | Decisión de almacenamiento en **ADR 0017**; dependencia nueva `@capacitor/camera` justificada; sin cambio de stack. ✅ |
 
 **Resultado del gate**: PASA. Sin violaciones; no se requiere Complexity Tracking.
 

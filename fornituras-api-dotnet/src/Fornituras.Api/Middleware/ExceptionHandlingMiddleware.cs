@@ -34,6 +34,9 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
             BadRequestException badRequest => (HttpStatusCode.BadRequest, badRequest.Message),
             ConflictException conflict => (HttpStatusCode.Conflict, conflict.Message),
             UnauthorizedAppException unauthorized => (HttpStatusCode.Unauthorized, unauthorized.Message),
+            ForbiddenException forbidden => (HttpStatusCode.Forbidden, forbidden.Message),
+            PayloadTooLargeException tooLarge => (HttpStatusCode.RequestEntityTooLarge, tooLarge.Message),
+            UnprocessableEntityException unprocessable => (HttpStatusCode.UnprocessableEntity, unprocessable.Message),
             TooManyRequestsException tooMany => (HttpStatusCode.TooManyRequests, tooMany.Message),
             NotImplementedException => (HttpStatusCode.NotImplemented, "Funcionalidad pendiente de implementación."),
             _ => (HttpStatusCode.InternalServerError, "Error interno del servidor.")

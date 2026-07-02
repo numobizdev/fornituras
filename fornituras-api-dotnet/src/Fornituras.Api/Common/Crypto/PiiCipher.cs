@@ -69,6 +69,50 @@ public static class PiiCipher
         return Encoding.UTF8.GetString(plainBytes);
     }
 
+    /// <summary>
+    /// Cifra bytes arbitrarios (p. ej. una foto) con la misma clave AES-256-GCM que la PII textual.
+    /// Devuelve el objeto binario IV ‖ ciphertext ‖ tag, sin Base64 (para persistir en filesystem).
+    /// </summary>
+    public static byte[] EncryptBytes(ReadOnlySpan<byte> plain)
+    {
+        var key = RequireKey();
+        var iv = new byte[IvLength];
+        RandomNumberGenerator.Fill(iv);
+
+        var ciphertext = new byte[plain.Length];
+        var tag = new byte[TagBits / 8];
+
+        using var aesGcm = new AesGcm(key, TagBits / 8);
+        aesGcm.Encrypt(iv, plain, ciphertext, tag);
+
+        var combined = new byte[iv.Length + ciphertext.Length + tag.Length];
+        Buffer.BlockCopy(iv, 0, combined, 0, iv.Length);
+        Buffer.BlockCopy(ciphertext, 0, combined, iv.Length, ciphertext.Length);
+        Buffer.BlockCopy(tag, 0, combined, iv.Length + ciphertext.Length, tag.Length);
+        return combined;
+    }
+
+    /// <summary>Descifra un objeto binario producido por <see cref="EncryptBytes"/>.</summary>
+    public static byte[] DecryptBytes(ReadOnlySpan<byte> stored)
+    {
+        var key = RequireKey();
+        var tagLength = TagBits / 8;
+        if (stored.Length < IvLength + tagLength)
+        {
+            throw new ArgumentException("Objeto cifrado inválido.", nameof(stored));
+        }
+
+        var iv = stored.Slice(0, IvLength);
+        var ciphertextLength = stored.Length - IvLength - tagLength;
+        var ciphertext = stored.Slice(IvLength, ciphertextLength);
+        var tag = stored.Slice(IvLength + ciphertextLength, tagLength);
+        var plain = new byte[ciphertextLength];
+
+        using var aesGcm = new AesGcm(key, tagLength);
+        aesGcm.Decrypt(iv, ciphertext, tag, plain);
+        return plain;
+    }
+
     private static byte[] RequireKey()
     {
         if (_key is null)

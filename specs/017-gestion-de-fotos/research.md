@@ -3,7 +3,7 @@
 Feature: `017-gestion-de-fotos` · Fecha: 2026-07-01
 
 Este documento resuelve las incógnitas técnicas del plan. Las decisiones se apoyan en la
-exploración del código existente y en [ADR 0016](../../docs/04-decisiones/0016-almacenamiento-de-fotos.md).
+exploración del código existente y en [ADR 0017](../../docs/04-decisiones/0017-almacenamiento-de-fotos.md).
 
 ## 1. Backend de almacenamiento
 
@@ -12,7 +12,7 @@ exploración del código existente y en [ADR 0016](../../docs/04-decisiones/0016
 - **Rationale**: On-prem, sin infra de nube ni dictamen de soberanía pendiente; reutiliza el
   cifrado ya aprobado (ADR 0006). El puerto deja abierta la migración a MinIO/Azure.
 - **Alternativas**: BLOB en SQL Server (infla BD y backup, descartado); object storage en nube
-  (soberanía de PII sin base legal, descartado por ahora). Ver ADR 0016.
+  (soberanía de PII sin base legal, descartado por ahora). Ver ADR 0017.
 
 ## 2. Cifrado en reposo
 
@@ -109,4 +109,4 @@ exploración del código existente y en [ADR 0016](../../docs/04-decisiones/0016
 - **Clave de cifrado en el proceso** (heredado de ADR 0006): aceptable como interino; gestor de
   secretos pendiente.
 - **Coste de CPU** al re-codificar: aceptable por volumen; límites de tamaño acotan el peor caso.
-- **Backup del directorio de media**: incluirlo en la política de backup cifrado (ADR 0016).
+- **Backup del directorio de media**: incluirlo en la política de backup cifrado (ADR 0017).

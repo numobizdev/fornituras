@@ -1,10 +1,15 @@
-# 0016. Almacenamiento seguro de fotos (media assets)
+# 0017. Almacenamiento seguro de fotos (media assets)
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-07-01
 - **Relacionado:** [0003 Alcance de PII](./0003-pii-elementos.md) (Propuesto),
   [0006 Cifrado de PII a nivel de aplicación](./0006-cifrado-pii-nivel-aplicacion.md)
-  (Aceptado, interino), spec [`017-gestion-de-fotos`](../../specs/017-gestion-de-fotos/spec.md)
+  (Aceptado, interino), [0016 Backend ASP.NET Core](./0016-backend-aspnetcore.md) (Aceptado),
+  spec [`017-gestion-de-fotos`](../../specs/017-gestion-de-fotos/spec.md)
+
+> **Nota de implementación:** el módulo `media` se implementa en el backend **ASP.NET Core**
+> ([ADR 0016](./0016-backend-aspnetcore.md)); las referencias a tipos concretos usan la nomenclatura
+> .NET. Existió una implementación previa en el backend Java (obsoleto), hoy superada.
 
 ## Contexto
 
@@ -37,22 +42,25 @@ Adapters).
    aplicación (misma familia que [ADR 0006](./0006-cifrado-pii-nivel-aplicacion.md); se
    **reutiliza** el servicio de cifrado existente, no se crea cripto nueva). Formato por objeto:
    `IV ‖ ciphertext ‖ tag`. Ningún archivo queda en claro en disco.
-2. **Puerto `FileStoragePort` + adaptador `LocalEncryptedFileStorage`.** El dominio depende del
+2. **Puerto `IFileStorage` + adaptador `LocalEncryptedFileStorage`.** El dominio depende del
    puerto; migrar más adelante a MinIO/Azure Blob es cambiar de adaptador, sin tocar controllers
    ni servicios. Se descartan por ahora object storage en nube (soberanía de datos de PII
    policial sin dictamen legal) y BLOB en SQL Server (peso/rendimiento y acopla la imagen al
    backup transaccional de la BD).
-3. **Metadatos en BD, no la imagen.** Una tabla `media_asset` (migración Flyway nueva) guarda:
-   identificador opaco (UUID), `content_type`, `size_bytes`, huella `sha256`, referencia opaca al
-   objeto en storage (`storage_key`), el `iv`/nonce del cifrado, indicador `is_pii`, quién subió
-   y cuándo. **La tabla no contiene PII.**
+3. **Metadatos en BD, no la imagen.** Una tabla `media_asset` (migración **EF Core** nueva) guarda:
+   identificador opaco (**GUID**, no enumerable), `content_type`, `size_bytes`, referencia opaca al
+   objeto en storage (`storage_key`), indicador `is_pii` y `context`, y marcas de tiempo. El `iv`/nonce
+   viaja **dentro** del objeto cifrado (`IV ‖ ciphertext ‖ tag`), no en la BD. **La tabla no contiene PII.**
 4. **Entrada validada en el borde.** Whitelist de tipos (`JPEG`, `PNG`, `WEBP`), verificación por
    **magic bytes** (no confiar en la extensión ni en el `Content-Type` declarado), **rechazo de
    `SVG`** (contenido activo/XSS), y límites configurables de **peso** y **dimensiones**.
 5. **Sanitizado de la imagen.** Antes de cifrar y guardar, la imagen se **re-codifica** para
-   **eliminar metadatos EXIF** (crítico: EXIF puede llevar GPS → fuga de ubicación) y normalizar
-   el formato. Se prioriza `ImageIO` de la plataforma; si hace falta una librería para
-   miniaturas/robustez (p. ej. Thumbnailator), se justifica licencia/mantenimiento en el plan.
+   **eliminar metadatos EXIF/IPTC/XMP** (crítico: EXIF puede llevar GPS → fuga de ubicación) y
+   normalizar el formato. Se usa **SixLabors.ImageSharp 2.1.x** (licencia **Apache-2.0**,
+   multiplataforma, sin dependencias nativas): decodifica solo formatos soportados —rechazando SVG y
+   otros—, valida dimensiones y re-encoda sin perfiles de metadatos. Se prefiere una librería a un
+   parseo manual porque el stripping fiable de metadatos exige decode/encode reales (Principio VI:
+   dependencia justificada por necesidad de seguridad, licencia permisiva y proyecto mantenido).
 6. **Servicio autenticado, autorizado y auditado.** Se sirve por endpoint bajo sesión válida.
    Para `is_pii = true` (foto de elemento): **RBAC con enmascaramiento por defecto** (solo roles
    autorizados la ven) y **auditoría** de subida, visualización y exportación (módulo de auditoría
@@ -93,6 +101,6 @@ Adapters).
 ## Reversión / camino a la solución final
 
 Si se confirma object storage (MinIO on-prem o Azure Blob con dictamen de soberanía), se añade un
-adaptador `FileStoragePort` nuevo y se migran los objetos; metadatos, RBAC, enmascaramiento,
+adaptador `IFileStorage` nuevo y se migran los objetos; metadatos, RBAC, enmascaramiento,
 auditoría y contrato de la API permanecen igual. Cuando exista gestor de secretos, la clave de
 cifrado se mueve allí sin cambiar el formato de los objetos.
