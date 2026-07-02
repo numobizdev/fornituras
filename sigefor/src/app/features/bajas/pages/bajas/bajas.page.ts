@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -24,6 +24,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline } from 'ionicons/icons';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { EquipmentTypesService } from '../../../tipos/data/equipment-types.service';
@@ -77,7 +78,8 @@ export class BajasPage implements OnInit {
   readonly filterTipo = signal<number | ''>('');
   readonly filterMotivo = signal<number | ''>('');
 
-  readonly canWrite = this.auth.hasRole('ADMIN');
+  // Registrar una baja es autorizarla: POST /decommissions exige AUTHORIZE_DECOMMISSION.
+  readonly canWrite = computed(() => this.auth.hasAnyRole(ROLE_POLICY.AUTHORIZE_DECOMMISSION));
 
   constructor() {
     addIcons({ addOutline });

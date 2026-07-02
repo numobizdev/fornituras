@@ -4,7 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Traslados</ion-title>
-    @if (canWrite) {
+    @if (canWrite()) {
       <ion-buttons slot="end">
         <ion-button (click)="newTransfer()">
           <ion-icon slot="start" name="add-outline"></ion-icon>
@@ -63,7 +63,7 @@
             }
           </ion-label>
           <ion-badge slot="end" [color]="statusColor(item.status)">{{ statusLabel(item.status) }}</ion-badge>
-          @if (canWrite && item.status === 'ENVIADO') {
+          @if (canWrite() && item.status === 'ENVIADO') {
             <ion-button slot="end" fill="clear" (click)="receive(item)">Recibir</ion-button>
             <ion-button slot="end" fill="clear" color="danger" (click)="cancel(item)">Cancelar</ion-button>
           }

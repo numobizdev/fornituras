@@ -9,6 +9,9 @@
             @if (currentUser(); as user) {
               <p class="menu-user">{{ user.name }}</p>
               <ion-note class="menu-user-email">{{ user.email }}</ion-note>
+              @if (currentRoleLabel(); as role) {
+                <span class="menu-user-role">{{ role }}</span>
+              }
             }
           </div>
 
