@@ -24,7 +24,11 @@
     }
   } @else {
     <div class="photo-picker__actions">
-      <ion-button fill="outline" size="small" [disabled]="uploading()" (click)="takePhoto()">
+      <ion-button
+        fill="outline"
+        size="small"
+        [disabled]="uploading() || !cameraAvailable()"
+        (click)="takePhoto()">
         <ion-icon slot="start" name="camera-outline"></ion-icon>
         Tomar foto
       </ion-button>
@@ -39,6 +43,9 @@
         </ion-button>
       }
     </div>
+    @if (cameraHint()) {
+      <ion-note color="medium" class="photo-picker__hint">{{ cameraHint() }}</ion-note>
+    }
   }
 
   @if (error()) {

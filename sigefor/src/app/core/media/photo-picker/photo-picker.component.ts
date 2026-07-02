@@ -6,6 +6,7 @@ import {
   forwardRef,
   inject,
   input,
+  OnInit,
   signal,
   viewChild,
 } from '@angular/core';
@@ -15,6 +16,10 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { addIcons } from 'ionicons';
 import { cameraOutline, cloudUploadOutline, imagesOutline, trashOutline } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
+import {
+  CameraAvailability,
+  CameraAvailabilityService,
+} from '../camera-availability.service';
 import { MediaContext } from '../media.model';
 import { MediaService } from '../media.service';
 import { SecureImageComponent } from '../secure-image/secure-image.component';
@@ -44,8 +49,9 @@ import { SecureImageComponent } from '../secure-image/secure-image.component';
   templateUrl: './photo-picker.component.html',
   styleUrls: ['./photo-picker.component.scss'],
 })
-export class PhotoPickerComponent implements ControlValueAccessor {
+export class PhotoPickerComponent implements ControlValueAccessor, OnInit {
   private readonly media = inject(MediaService);
+  private readonly cameraAvailability = inject(CameraAvailabilityService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Contexto de la foto: fija `is_pii` y las reglas de RBAC/gating del servidor. */
@@ -60,6 +66,7 @@ export class PhotoPickerComponent implements ControlValueAccessor {
   protected readonly uploading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly disabled = signal(false);
+  protected readonly cameraStatus = signal<CameraAvailability>('available');
 
   private onChange: (value: string | null) => void = () => {};
   private onTouched: () => void = () => {};
@@ -67,6 +74,18 @@ export class PhotoPickerComponent implements ControlValueAccessor {
   constructor() {
     addIcons({ cameraOutline, imagesOutline, cloudUploadOutline, trashOutline });
     this.destroyRef.onDestroy(() => this.revokeLocalPreview());
+  }
+
+  ngOnInit(): void {
+    void this.refreshCameraAvailability();
+  }
+
+  protected cameraAvailable(): boolean {
+    return this.cameraStatus() === 'available';
+  }
+
+  protected cameraHint(): string | null {
+    return this.cameraAvailability.messageFor(this.cameraStatus());
   }
 
   writeValue(value: string | null): void {
@@ -91,7 +110,7 @@ export class PhotoPickerComponent implements ControlValueAccessor {
   }
 
   protected async takePhoto(): Promise<void> {
-    if (this.disabled() || this.uploading()) {
+    if (this.disabled() || this.uploading() || !this.cameraAvailable()) {
       return;
     }
     try {
@@ -105,7 +124,7 @@ export class PhotoPickerComponent implements ControlValueAccessor {
         await this.uploadBlob(blob, `photo.${photo.format ?? 'jpg'}`);
       }
     } catch {
-      // Sin cámara o permiso denegado: no bloquea, el usuario puede elegir un archivo (FR-004).
+      await this.refreshCameraAvailability();
       this.error.set('No se pudo usar la cámara. Puedes elegir un archivo.');
     }
   }
@@ -162,6 +181,10 @@ export class PhotoPickerComponent implements ControlValueAccessor {
       URL.revokeObjectURL(current);
       this.localPreview.set(null);
     }
+  }
+
+  private async refreshCameraAvailability(): Promise<void> {
+    this.cameraStatus.set(await this.cameraAvailability.checkAvailability());
   }
 
   private messageFor(error: unknown): string {
