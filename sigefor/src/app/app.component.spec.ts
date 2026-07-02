@@ -56,7 +56,7 @@ describe('AppComponent', () => {
     const labels = Array.from(host.querySelectorAll('ion-label')).map((el) => el.textContent ?? '');
     expect(labels.some((t) => t.includes('Inicio'))).toBeTrue();
     // Entrada solo-ADMIN visible para el rol ADMIN.
-    expect(labels.some((t) => t.includes('Contenido de bienvenida'))).toBeTrue();
+    expect(labels.some((t) => t.includes('Configurar landing'))).toBeTrue();
   });
 
   it('hides ADMIN-only items for non-admin roles', async () => {
@@ -70,7 +70,7 @@ describe('AppComponent', () => {
     const host = fixture.nativeElement as HTMLElement;
     const labels = Array.from(host.querySelectorAll('ion-label')).map((el) => el.textContent ?? '');
     expect(labels.some((t) => t.includes('Inicio'))).toBeTrue();
-    expect(labels.some((t) => t.includes('Contenido de bienvenida'))).toBeFalse();
+    expect(labels.some((t) => t.includes('Configurar landing'))).toBeFalse();
     expect(labels.some((t) => t.includes('Usuarios'))).toBeFalse();
   });
 });

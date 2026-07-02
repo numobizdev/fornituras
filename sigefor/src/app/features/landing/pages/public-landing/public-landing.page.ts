@@ -86,10 +86,10 @@ export class PublicLandingPage implements OnInit {
   }
 
   heroTitle(): string {
-    return this.heroSection()?.titulo || 'Sistema de Gestión de Blindajes';
+    return this.heroSection()?.titulo || 'Sistema Integral de Gestión de Fornituras';
   }
 
   heroSubtitle(): string {
-    return this.heroSection()?.subtitulo || 'Control institucional de blindajes y dotación de seguridad';
+    return this.heroSection()?.subtitulo || 'Control institucional de fornituras y dotación de seguridad';
   }
 }

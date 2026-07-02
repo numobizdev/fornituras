@@ -1,5 +1,10 @@
 <!--
 SYNC IMPACT REPORT
+Versión: 1.0.0 → 1.0.1
+Tipo de cambio: PATCH (corrección del título nominal del sistema a "Sistema Integral de
+Gestión de Fornituras (SIGEFOR)" conforme al ADR 0019; los principios no cambian)
+
+--- Historial 1.0.0 ---
 Versión: (plantilla) → 1.0.0
 Tipo de cambio: MAJOR (ratificación inicial; primera constitución concreta)
 Principios definidos:
@@ -18,7 +23,7 @@ Fuentes de verdad: AGENTS.md, docs/02-seguridad.md, docs/01-arquitectura.md
 TODOs diferidos: ninguno
 -->
 
-# Constitución — Sistema de Gestión de Blindajes
+# Constitución — Sistema Integral de Gestión de Fornituras (SIGEFOR)
 
 > Esta constitución concreta y hace exigibles los principios de [`AGENTS.md`](../../AGENTS.md)
 > y [`docs/02-seguridad.md`](../../docs/02-seguridad.md) dentro del flujo Spec-Driven
@@ -117,4 +122,4 @@ Estos requisitos son transversales a toda feature (ver detalle en `docs/02-segur
   complejidad o cualquier excepción debe justificarse explícitamente.
 - **Guía operativa en runtime:** `AGENTS.md` y los documentos de `docs/`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-29
+**Version**: 1.0.1 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-07-01

@@ -235,7 +235,7 @@ public sealed class DataSeeder(
             {
                 Scope = LandingScope.PUBLIC,
                 Type = LandingSectionType.HERO,
-                Titulo = "Sistema de Gestión de Blindajes",
+                Titulo = "Sistema Integral de Gestión de Fornituras",
                 Subtitulo = "Acceso institucional",
                 CtaLabel = "Acceder",
                 CtaUrl = "/login",

@@ -1,4 +1,4 @@
-# Sistema de Gestión de Blindajes
+# Sistema Integral de Gestión de Fornituras (SIGEFOR)
 
 Sistema para administrar el inventario, asignación y trazabilidad (vía QR) de **chalecos
 antibalas y equipo de seguridad** de una corporación policial.
