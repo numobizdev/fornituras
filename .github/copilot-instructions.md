@@ -9,4 +9,7 @@ Estas instrucciones solo la resumen; en caso de conflicto, manda `AGENTS.md`.
 - El **QR nunca contiene datos personales**: solo un identificador opaco y firmado.
 - **Nunca incluyas secretos** en el código.
 - Stack: Spring Boot · SQL Server 2022 · Ionic 8 + Angular + Capacitor.
+- **Una rama por spec, siempre.** Cada spec/feature va en su propia rama creada desde `dev`
+  (nombre = slug de la spec); nunca trabajes una spec directamente sobre `dev`/`main`. Aplica
+  aunque el trabajo se lance desde Copilot. Ver `AGENTS.md` §5.8.
 - Documentación/comentarios en español; identificadores de código en inglés.
