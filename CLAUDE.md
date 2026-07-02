@@ -11,11 +11,10 @@ antes de trabajar. Este archivo solo añade lo específico de Claude Code.
 
 - **Plataforma:** desarrollo en Windows (PowerShell). Usa rutas y sintaxis de Windows
   cuando ejecutes comandos de shell.
-- **Fase actual:** el backend está implementado en `fornituras-api/` (Spring Boot: auth,
-  usuarios, QR). El **frontend vive en `sigefor/`** (Ionic 8 + Angular) y ya tiene la
-  **autenticación** (login por email/JWT, guards, interceptor, recuperación por código). Para
-  builds/tests del backend usa el Maven wrapper desde `fornituras-api/` (`.\mvnw.cmd ...`); para
-  el frontend, `npm` desde `sigefor/`. El directorio `frontend/` (vacío) es obsoleto.
+- **Fase actual:** el backend vive en **`fornituras-api-dotnet/`** (ASP.NET Core Web API, .NET 10).
+  El **frontend vive en `sigefor/`** (Ionic 8 + Angular). Para el backend: `dotnet run --project
+  fornituras-api-dotnet/src/Fornituras.Api`; para el frontend: `npm` desde `sigefor/`.
+  **`fornituras-api/`** (Java) está obsoleto — ver [ADR 0016](./docs/04-decisiones/0016-backend-aspnetcore.md).
 - **Antes de tocar seguridad, QR, autenticación o datos personales**, lee
   [`docs/02-seguridad.md`](./docs/02-seguridad.md). Es información de alta sensibilidad
   (personal policial en México).

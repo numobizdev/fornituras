@@ -16,17 +16,18 @@ antibalas y equipo de seguridad** de una corporación policial.
 
 ## Stack
 
-- **Backend:** Java + Spring Boot (API REST)
+- **Backend:** ASP.NET Core Web API (.NET 10) — `fornituras-api-dotnet/`
 - **Base de datos:** Microsoft SQL Server 2022
-- **Frontend:** Ionic 8 + Angular + Capacitor
+- **Frontend:** Ionic 8 + Angular + Capacitor — `sigefor/`
 
 ## Estructura
 
 ```
-fornituras-api/   API Spring Boot (implementada: auth, usuarios, QR)
-frontend/         App Ionic + Angular (en construcción)
-docs/             Documentación: arquitectura, seguridad, modelo de datos, decisiones
-specs/            Especificaciones de features (spec-driven con .specify/)
+fornituras-api-dotnet/   API ASP.NET Core (backend actual)
+fornituras-api/          API Spring Boot (obsoleta, referencia)
+sigefor/                 App Ionic + Angular
+docs/                    Documentación: arquitectura, seguridad, modelo de datos, decisiones
+specs/                   Especificaciones de features (spec-driven con .specify/)
 ```
 
 ## Trabajo con asistentes de IA

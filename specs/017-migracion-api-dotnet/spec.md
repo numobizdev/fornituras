@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-01
 
-**Status**: Draft
+**Status**: Implemented (2026-07-01)
 
 **Input**: Reemplazar `fornituras-api/` (Java Spring Boot) por una API **ASP.NET Core Web API**
 (.NET 10) que preserve el contrato HTTP consumido por `sigefor/` (Ionic 8 + Angular). Entorno

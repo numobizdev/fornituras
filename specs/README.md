@@ -28,9 +28,9 @@ de prenda tiene hoy un único valor, "Fornitura".
 
 ## Orden de implementación recomendado
 
-> **Migración de stack (017):** la spec [017-migracion-api-dotnet](./017-migracion-api-dotnet/spec.md)
-> es transversal y **prioriza** reimplementar en .NET lo ya consumido por `sigefor/` antes de
-> continuar features nuevas en Java. Ver [tasks.md](./017-migracion-api-dotnet/tasks.md).
+> **Migración de stack (017):** **COMPLETADA** (2026-07-01). Backend en
+> [`fornituras-api-dotnet/`](../fornituras-api-dotnet/); Java obsoleto. Ver
+> [spec 017](./017-migracion-api-dotnet/spec.md) y [ADR 0016](../docs/04-decisiones/0016-backend-aspnetcore.md).
 
 Derivado de las dependencias declaradas en cada `plan.md` (los puertos permiten desarrollar y
 testear antes de que existan las features de las que se depende):
