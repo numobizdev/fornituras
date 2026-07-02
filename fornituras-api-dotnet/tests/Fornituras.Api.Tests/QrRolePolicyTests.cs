@@ -3,7 +3,7 @@ using Fornituras.Api.Security;
 namespace Fornituras.Api.Tests;
 
 /// <summary>
-/// Cobertura de RBAC para lotes QR (ADR 0020, spec 021).
+/// Cobertura de RBAC para lotes QR (ADR 0021, spec 021).
 /// </summary>
 public class QrRolePolicyTests
 {

@@ -58,7 +58,7 @@ Body `ReprintQrForm` (mismos rangos que `GenerateQrForm`, sin `descripcion`/`can
 ## Notas
 
 - **Autenticación:** JWT obligatorio (`Bearer`). **Autorización:** solo rol **`SUPER_ADMIN`**
-  (`RolePolicy.ManageQrLotes`, ADR 0020). Los roles operativos (`ADMIN`, `ALMACEN`, `CAPTURISTA`)
+  (`RolePolicy.ManageQrLotes`, ADR 0021). Los roles operativos (`ADMIN`, `ALMACEN`, `CAPTURISTA`)
   ya no tienen acceso a estos endpoints.
 - **UI:** módulo Ionic `/qr-lotes/**` (spec 021); la UI Thymeleaf Java (`/qr/**`) está obsoleta.
 - **Sin verificación de firma:** no existe `qr:verify`; los códigos no se firman (ADR 0005,

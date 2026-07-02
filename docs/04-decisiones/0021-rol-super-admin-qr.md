@@ -1,4 +1,7 @@
-# ADR 0020 — Rol SUPER_ADMIN para gestión de lotes QR
+# ADR 0021 — Rol SUPER_ADMIN para gestión de lotes QR
+
+> Renumerado de 0020 a 0021: el 0020 ya estaba tomado por la identidad del sistema
+> (colisión entre frentes al fusionar el PR #6).
 
 **Estado:** Aceptado  
 **Fecha:** 2026-07-01  
@@ -51,6 +54,6 @@ imprime/graba etiquetas QR, sin acceso al inventario, padrón ni administración
 ## Referencias
 
 - [ADR 0005](./0005-formato-qr-implementado.md) — formato `FOR-XXXXX`
-- [ADR 0013](./0013-rbac-roles.md) — matriz RBAC (si existe; extender con SUPER_ADMIN)
+- [ADR 0013](./0013-expansion-de-roles.md) — matriz RBAC (extender con SUPER_ADMIN)
 - Spec [002-qr-equipos](../../specs/002-qr-equipos/spec.md) — backend QR
 - Spec [018-auditoria-migracion-dotnet](../../specs/018-auditoria-migracion-dotnet/findings.md) — M-1

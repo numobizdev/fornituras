@@ -9,7 +9,7 @@
 Portar a Ionic las cuatro pantallas del módulo QR del backend Java obsoleto (generar, listar,
 detalle/reimprimir, éxito), consumiendo la API .NET existente (`/api/v1/qr/**`). Introducir el
 rol **`SUPER_ADMIN`** (QR-only) en backend y frontend; restringir API, menú, rutas y login
-redirect. Registrar decisión en [ADR 0020](../../docs/04-decisiones/0020-rol-super-admin-qr.md).
+redirect. Registrar decisión en [ADR 0021](../../docs/04-decisiones/0021-rol-super-admin-qr.md).
 
 ## Technical Context
 

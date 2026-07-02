@@ -33,4 +33,4 @@
 
 - Paridad UX con plantillas Java obsoletas (`generar.html`, `lotes.html`, `lote-detalle.html`,
   `exito.html`) documentada como referencia en el plan de implementación.
-- Detalle técnico (Ionic, guards, ADR 0020) vive en `plan.md` y `tasks.md`.
+- Detalle técnico (Ionic, guards, ADR 0021) vive en `plan.md` y `tasks.md`.

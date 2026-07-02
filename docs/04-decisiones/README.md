@@ -52,6 +52,7 @@ Qué implica esta decisión (positivo y negativo).
 - [0018](./0018-export-excel-dotnet.md) — Exportación de reportes a Excel en .NET con ClosedXML (MIT); sucede al 0011 (Apache POI/Java). **Aceptado.**
 - [0019](./0019-escaneo-qr-capacitor-barcode-scanner.md) — Escaneo QR con `@capacitor/barcode-scanner` (extiende 0008). **Aceptado.**
 - [0020](./0020-identidad-sigefor.md) — Identidad del sistema: "Sistema Integral de Gestión de Fornituras" (expansión de SIGEFOR); revierte el criterio del fix `6b99f21`. **Aceptado.**
+- [0021](./0021-rol-super-admin-qr.md) — Rol `SUPER_ADMIN` (QR-only) para gestión de lotes QR; `ManageQrLotes` sustituye a `WriteInventory` en `/api/v1/qr/**` (renumerado de 0020). **Aceptado.**
 
 ## Decisiones pendientes de registrar
 
