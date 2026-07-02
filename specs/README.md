@@ -28,6 +28,7 @@ de prenda tiene hoy un único valor, "Fornitura".
 | 017 | [gestion-de-fotos](./017-gestion-de-fotos/spec.md) — captura/almacenamiento seguro de fotos (cámara/upload, cifrado, RBAC PII); **implementada en .NET** | §2/§3/§10 (foto) | — (componente) |
 | 017 | [migracion-api-dotnet](./017-migracion-api-dotnet/spec.md) — **migración backend** Spring Boot → ASP.NET Core Web API (.NET 10); contrato transparente para Ionic | — (infraestructura) | — |
 | 018 | [auditoria-migracion-dotnet](./018-auditoria-migracion-dotnet/spec.md) — **auditoría de paridad**: verifica que las specs 001–017 estén aplicadas en `fornituras-api-dotnet/` y que no se haya perdido nada | — (calidad) | — |
+| 019 | [escaneo-qr-capacitor](./019-escaneo-qr-capacitor/spec.md) — escaneo QR con `@capacitor/barcode-scanner` (móvil + web) y UX de asignación en almacén | §1 Captura y asignación | — (extiende 014) |
 
 ## Orden de implementación recomendado
 

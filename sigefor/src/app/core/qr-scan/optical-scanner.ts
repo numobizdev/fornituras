@@ -8,6 +8,9 @@ import { QrCaptureError } from './qr-scan.types';
  * Ver ADR 0008.
  */
 export abstract class OpticalScanner {
+  /** Si es `false`, el escaneo abre un visor modal (p. ej. Capacitor) sin `<video>` embebido. */
+  abstract usesEmbeddedVideo(): boolean;
+
   /** ¿Hay soporte de escaneo óptico en esta plataforma? Si no, el flujo degrada a lector/manual. */
   abstract isSupported(): boolean;
 
@@ -38,6 +41,10 @@ const DETECT_INTERVAL_MS = 250;
  */
 @Injectable({ providedIn: 'root' })
 export class WebBarcodeDetectorScanner extends OpticalScanner {
+  usesEmbeddedVideo(): boolean {
+    return true;
+  }
+
   private get detectorCtor(): BarcodeDetectorCtor | undefined {
     return (globalThis as unknown as { BarcodeDetector?: BarcodeDetectorCtor }).BarcodeDetector;
   }

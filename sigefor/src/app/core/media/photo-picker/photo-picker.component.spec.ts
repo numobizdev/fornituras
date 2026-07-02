@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { CameraAvailabilityService } from '../camera-availability.service';
 import { MediaUploadResponse } from '../media.model';
 import { MediaService } from '../media.service';
 import { PhotoPickerComponent } from './photo-picker.component';
@@ -8,6 +9,7 @@ describe('PhotoPickerComponent', () => {
   let fixture: ComponentFixture<PhotoPickerComponent>;
   let component: PhotoPickerComponent;
   let mediaSpy: jasmine.SpyObj<MediaService>;
+  let cameraSpy: jasmine.SpyObj<CameraAvailabilityService>;
 
   beforeEach(async () => {
     mediaSpy = jasmine.createSpyObj<MediaService>('MediaService', [
@@ -18,15 +20,27 @@ describe('PhotoPickerComponent', () => {
     ]);
     mediaSpy.resolveInternalId.and.returnValue(null);
 
+    cameraSpy = jasmine.createSpyObj<CameraAvailabilityService>('CameraAvailabilityService', [
+      'checkAvailability',
+      'messageFor',
+      'isHardwareAvailable',
+    ]);
+    cameraSpy.checkAvailability.and.resolveTo('available');
+    cameraSpy.messageFor.and.returnValue(null);
+
     await TestBed.configureTestingModule({
       imports: [PhotoPickerComponent],
-      providers: [{ provide: MediaService, useValue: mediaSpy }],
+      providers: [
+        { provide: MediaService, useValue: mediaSpy },
+        { provide: CameraAvailabilityService, useValue: cameraSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PhotoPickerComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('context', 'equipment');
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('uploads the chosen file and emits the returned reference as its value', async () => {
@@ -63,5 +77,16 @@ describe('PhotoPickerComponent', () => {
   it('reflects the disabled state from the form control', () => {
     component.setDisabledState(true);
     expect((component as unknown as { disabled(): boolean }).disabled()).toBeTrue();
+  });
+
+  it('disables take photo when camera is unavailable', async () => {
+    cameraSpy.checkAvailability.and.resolveTo('unavailable');
+    cameraSpy.messageFor.and.returnValue('Cámara no disponible en este dispositivo. Usa «Elegir archivo».');
+
+    await (component as unknown as { ngOnInit(): Promise<void> }).ngOnInit();
+    fixture.detectChanges();
+
+    expect((component as unknown as { cameraAvailable(): boolean }).cameraAvailable()).toBeFalse();
+    expect((component as unknown as { cameraHint(): string | null }).cameraHint()).toContain('Elegir archivo');
   });
 });
