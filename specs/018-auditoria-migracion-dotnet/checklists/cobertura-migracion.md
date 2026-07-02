@@ -4,9 +4,13 @@ Matriz de auditoría (US1/US2/US3 de la spec 018). Marcar `[X]` cuando el elemen
 como **presente** en el backend .NET con evidencia; si falta o diverge, dejar `[ ]` y anotar la
 **brecha** (severidad + qué falta). Referencia de comparación: backend Java en `fornituras-api/`.
 
-> **EJECUTADA (2026-07-01).** Resultado completo en [findings.md](../findings.md): API y datos con
+> **EJECUTADA (2026-07-01).** Resultado estructural en [findings.md](../findings.md): API y datos con
 > paridad 1:1; **2 brechas Alta ya REMEDIADAS** (B-1 rate limiting, B-2 triggers de inmutabilidad de
 > auditoría) y **1 mejora** (M-1: brecha `/qr/**` anónima cerrada).
+> **Verificación requisito por requisito** de las 17 specs en [findings-fr.md](../findings-fr.md):
+> ~159 FR, mayoría cumplidos; **4 huecos nuevos** G-1..G-4 (trazabilidad/formato, Media/Baja):
+> G-1 export no-Excel, G-2 export sin auditoría (011), G-3 accesos denegados sin auditar (012),
+> G-4 limpieza de huérfanas (017/T034).
 
 Leyenda de estado por spec: **C** = Cubierta · **P** = Parcial · **A** = Ausente · **FE** = Fuera
 de alcance del backend (frontend).
