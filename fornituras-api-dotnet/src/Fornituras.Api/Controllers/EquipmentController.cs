@@ -1,9 +1,11 @@
 using Fornituras.Api.Common;
 using Fornituras.Api.Dto;
+using Fornituras.Api.Configuration;
 using Fornituras.Api.Security;
 using Fornituras.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Fornituras.Api.Controllers;
 
@@ -34,6 +36,7 @@ public sealed class EquipmentController(IEquipmentService equipmentService) : Co
         return Ok(ApiResponse<EquipmentDetail>.Ok(equipment));
     }
 
+    [EnableRateLimiting(RateLimitPolicies.ByCodigo)]
     [HttpGet("by-codigo/{codigo}")]
     public async Task<ActionResult<ApiResponse<EquipmentDetail>>> GetByCodigo(
         string codigo,

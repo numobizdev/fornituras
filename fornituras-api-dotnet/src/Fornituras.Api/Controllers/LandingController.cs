@@ -1,9 +1,11 @@
 using Fornituras.Api.Common;
 using Fornituras.Api.Dto;
+using Fornituras.Api.Configuration;
 using Fornituras.Api.Security;
 using Fornituras.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Fornituras.Api.Controllers;
 
@@ -12,6 +14,7 @@ namespace Fornituras.Api.Controllers;
 public sealed class LandingController(ILandingService landingService) : ControllerBase
 {
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.Public)]
     [HttpGet("public")]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<LandingSectionPublic>>>> GetPublic(
         CancellationToken cancellationToken)

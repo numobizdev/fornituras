@@ -1,4 +1,8 @@
+using System.Net;
 using System.Text;
+using System.Text.Json;
+using System.Threading.RateLimiting;
+using Fornituras.Api.Common;
 using Fornituras.Api.Common.Crypto;
 using Fornituras.Api.Configuration;
 using Fornituras.Api.Data;
@@ -121,10 +125,57 @@ public static class ServiceCollectionExtensions
             o.Limits.MaxRequestBodySize = maxUploadBytes;
         });
 
+        AddRateLimiting(services, appOptions.RateLimit);
+
         services.AddControllers();
         services.AddOpenApi();
         services.AddHealthChecks();
 
         return services;
+    }
+
+    /// <summary>
+    /// Rate limiting (ADR 0010) con el limitador nativo de ASP.NET Core (ventana fija). Reemplaza al
+    /// `Bucket4jRateLimiter` del backend Java sin dependencias nuevas. Rechazo con 429 en `ApiResponse`.
+    /// </summary>
+    private static void AddRateLimiting(IServiceCollection services, RateLimitOptions options)
+    {
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+        services.AddRateLimiter(limiter =>
+        {
+            limiter.RejectionStatusCode = (int)HttpStatusCode.TooManyRequests;
+
+            limiter.AddPolicy(RateLimitPolicies.ByCodigo, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    // Por actor autenticado; si no hay identidad, por IP.
+                    partitionKey: httpContext.User?.Identity?.Name
+                        ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                        ?? "anonymous",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = options.ByCodigo.PermitLimit,
+                        Window = TimeSpan.FromSeconds(options.ByCodigo.WindowSeconds),
+                        QueueLimit = 0
+                    }));
+
+            limiter.AddPolicy(RateLimitPolicies.Public, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    // Endpoint público: por IP.
+                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = options.Public.PermitLimit,
+                        Window = TimeSpan.FromSeconds(options.Public.WindowSeconds),
+                        QueueLimit = 0
+                    }));
+
+            limiter.OnRejected = async (context, token) =>
+            {
+                context.HttpContext.Response.ContentType = "application/json";
+                var payload = ApiResponse<object>.Error("Demasiadas solicitudes. Inténtalo más tarde.");
+                await context.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(payload, jsonOptions), token);
+            };
+        });
     }
 }
