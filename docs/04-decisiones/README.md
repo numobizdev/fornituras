@@ -50,7 +50,8 @@ Qué implica esta decisión (positivo y negativo).
 - [0016](./0016-backend-aspnetcore.md) — Migración del backend a ASP.NET Core Web API (.NET 10). **Aceptado.**
 - [0017](./0017-almacenamiento-de-fotos.md) — Almacenamiento seguro de fotos: filesystem local cifrado (AES-256-GCM) tras `IFileStorage`, metadatos en BD, saneo con ImageSharp (EXIF stripping), servicio autenticado/auditado. **Aceptado** (resuelve el pendiente de foto de 0003/0006).
 - [0018](./0018-export-excel-dotnet.md) — Exportación de reportes a Excel en .NET con ClosedXML (MIT); sucede al 0011 (Apache POI/Java). **Aceptado.**
-- [0019](./0019-identidad-sigefor.md) — Identidad del sistema: "Sistema Integral de Gestión de Fornituras" (expansión de SIGEFOR); revierte el criterio del fix `6b99f21`. **Aceptado.**
+- [0019](./0019-escaneo-qr-capacitor-barcode-scanner.md) — Escaneo QR con `@capacitor/barcode-scanner` (extiende 0008). **Aceptado.**
+- [0020](./0020-identidad-sigefor.md) — Identidad del sistema: "Sistema Integral de Gestión de Fornituras" (expansión de SIGEFOR); revierte el criterio del fix `6b99f21`. **Aceptado.**
 
 ## Decisiones pendientes de registrar
 

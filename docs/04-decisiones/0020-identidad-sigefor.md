@@ -1,4 +1,4 @@
-# 0019. Identidad del sistema: Sistema Integral de Gestión de Fornituras
+# 0020. Identidad del sistema: Sistema Integral de Gestión de Fornituras
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-07-01

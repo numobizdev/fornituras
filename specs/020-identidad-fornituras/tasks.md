@@ -1,6 +1,6 @@
 # Tasks: Identidad del sistema — Sistema Integral de Gestión de Fornituras
 
-**Input**: Design documents from `specs/019-identidad-fornituras/`
+**Input**: Design documents from `specs/020-identidad-fornituras/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, quickstart.md
 
 **Organization**: tareas agrupadas por user story para permitir implementación y prueba
@@ -13,7 +13,7 @@ existentes que asuman los textos antiguos.
 
 ## Phase 2: Foundational (bloqueante — principio VI de la constitución)
 
-- [X] T002 Crear ADR `docs/04-decisiones/0019-identidad-sigefor.md`: identidad oficial "Sistema Integral de Gestión de Fornituras", revierte la justificación del commit `6b99f21` (fix/landing-hero-title) y de la V24 del backend Java obsoleto; alcance nombre/marca (no dominio); enlazarlo en `docs/04-decisiones/README.md` si existe índice
+- [X] T002 Crear ADR `docs/04-decisiones/0020-identidad-sigefor.md`: identidad oficial "Sistema Integral de Gestión de Fornituras", revierte la justificación del commit `6b99f21` (fix/landing-hero-title) y de la V24 del backend Java obsoleto; alcance nombre/marca (no dominio); enlazarlo en `docs/04-decisiones/README.md` si existe índice
 
 **Checkpoint**: decisión documentada — las user stories pueden ejecutarse
 
@@ -57,7 +57,7 @@ existentes que asuman los textos antiguos.
 - [X] T011 [P] Actualizar `README.md` (título → "Sistema Integral de Gestión de Fornituras (SIGEFOR)")
 - [X] T012 [P] Enmienda PATCH de `.specify/memory/constitution.md` (título nominal + versión 1.0.0 → 1.0.1 con nota en el Sync Impact Report)
 - [X] T013 [P] Actualizar mención del nombre en `.github/copilot-instructions.md` si aplica
-- [X] T014 Verificación final: grep de "Gobierno de México" y "Sistema de Gestión de Blindajes" (solo deben quedar en `Planeacion.md`, backend Java obsoleto, specs/ADRs históricos y el propio ADR 0019); ejecutar `dotnet test` y `npm test`; validar quickstart.md end-to-end
+- [X] T014 Verificación final: grep de "Gobierno de México" y "Sistema de Gestión de Blindajes" (solo deben quedar en `Planeacion.md`, backend Java obsoleto, specs/ADRs históricos y el propio ADR 0020); ejecutar `dotnet test` y `npm test`; validar quickstart.md end-to-end
 
 ## Dependencies
 

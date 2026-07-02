@@ -1,8 +1,8 @@
 # Implementation Plan: Identidad del sistema — Sistema Integral de Gestión de Fornituras
 
-**Branch**: `019-identidad-fornituras` | **Date**: 2026-07-01 | **Spec**: [spec.md](./spec.md)
+**Branch**: `020-identidad-fornituras` | **Date**: 2026-07-01 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/019-identidad-fornituras/spec.md`
+**Input**: Feature specification from `/specs/020-identidad-fornituras/spec.md`
 
 ## Summary
 
@@ -48,7 +48,7 @@ deliberadas del administrador (se acota al valor exacto sembrado anterior)
 | III. Cero secretos en el repo | ✅ No se introducen secretos; la migración solo contiene texto público. |
 | IV. Mínimo privilegio y authz | ✅ El gating ADMIN del módulo de landing **se conserva sin cambios** (menú `roles: ['ADMIN']` + `adminGuard` + `[Authorize(Roles = ManageLanding)]`). Solo cambia la etiqueta visible. |
 | V. Trazabilidad sin fugas | ✅ La migración actualiza `updated_at`; no se loguea PII. |
-| VI. Decisiones documentadas (ADR) | ✅ Se registra **ADR 0019** (identidad del sistema) que revierte la justificación del commit `6b99f21`. La constitución recibe una enmienda PATCH (solo su título nominal). |
+| VI. Decisiones documentadas (ADR) | ✅ Se registra **ADR 0020** (identidad del sistema) que revierte la justificación del commit `6b99f21`. La constitución recibe una enmienda PATCH (solo su título nominal). |
 | Migraciones versionadas | ✅ El cambio de datos va en una migración EF Core, nunca manual. |
 
 **Resultado**: PASS — sin violaciones que justificar.
@@ -58,7 +58,7 @@ deliberadas del administrador (se acota al valor exacto sembrado anterior)
 ### Documentation (this feature)
 
 ```text
-specs/019-identidad-fornituras/
+specs/020-identidad-fornituras/
 ├── spec.md              # Especificación
 ├── plan.md              # Este archivo
 ├── research.md          # Fase 0 — decisiones y alternativas
@@ -92,7 +92,7 @@ sigefor/src/
 README.md                                     # Título del proyecto
 .specify/memory/constitution.md               # Título nominal (enmienda PATCH)
 .github/copilot-instructions.md               # Mención del nombre
-docs/04-decisiones/0019-identidad-sigefor.md  # NUEVO ADR
+docs/04-decisiones/0020-identidad-sigefor.md  # NUEVO ADR
 ```
 
 **Structure Decision**: web application existente (backend + frontend en monorepo); no se
