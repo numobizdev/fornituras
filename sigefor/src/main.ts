@@ -14,7 +14,6 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { AuthService } from './app/core/services/auth.service';
-import { WebBarcodeDetectorScanner } from './app/core/qr-scan/optical-scanner';
 import { provideOpticalScanner } from './app/core/qr-scan/optical-scanner.provider';
 import { CapacitorBarcodeScannerService } from './app/core/qr-scan/capacitor-barcode-scanner';
 
@@ -28,8 +27,7 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAppInitializer(() => inject(AuthService).restoreSession()),
     CapacitorBarcodeScannerService,
-    WebBarcodeDetectorScanner,
-    // Escaneo óptico: Capacitor barcode-scanner (019) con fallback BarcodeDetector web (ADR 0008).
+    // Escaneo óptico: Capacitor barcode-scanner (ADR 0019).
     provideOpticalScanner(),
   ],
 });

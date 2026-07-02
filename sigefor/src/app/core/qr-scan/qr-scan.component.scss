@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 
   &__row {
     display: flex;
@@ -11,43 +12,26 @@
 
   &__input {
     flex: 1;
+    min-width: 0;
   }
 
-  &__camera {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  &__viewport {
-    position: relative;
-    width: 100%;
-    max-width: 320px;
-  }
-
-  &__video {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 8px;
-    background: #000;
-  }
-
-  // Marco guía para encuadrar el QR (solo visual; no comunica por sí solo).
-  &__frame {
-    position: absolute;
-    inset: 12%;
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.25);
-  }
-
-  &__hint {
+  &__camera-btn {
+    flex-shrink: 0;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    min-width: 56px;
+    min-height: 56px;
     margin: 0;
-    font-size: 13px;
-    color: var(--ion-color-medium);
-    text-align: center;
+
+    ion-icon {
+      font-size: 30px;
+    }
+
+    ion-spinner {
+      width: 28px;
+      height: 28px;
+    }
   }
 }

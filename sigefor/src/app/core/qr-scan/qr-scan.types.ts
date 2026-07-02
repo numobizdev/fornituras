@@ -33,3 +33,9 @@ export interface QrCaptureError {
   /** Mensaje legible para el usuario, sin filtrar detalles internos ni PII. */
   readonly message: string;
 }
+
+/** Opciones de escaneo óptico (p. ej. cámara elegida en web). */
+export interface OpticalScanOptions {
+  /** `deviceId` de `mediaDevices` en web; ignorado en Android/iOS. */
+  readonly deviceId?: string;
+}

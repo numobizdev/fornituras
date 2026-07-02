@@ -33,8 +33,32 @@
       </ion-item>
 
       @if (resolvingEquipment()) {
-        <ion-item lines="none"><ion-spinner></ion-spinner></ion-item>
-      } @else if (equipment(); as eq) {
+        <ion-item lines="none" class="scan-loading">
+          <ion-spinner slot="start" name="crescent"></ion-spinner>
+          <ion-label>Buscando fornitura…</ion-label>
+        </ion-item>
+      } @else if (equipmentFeedback(); as feedback) {
+        <div
+          class="scan-result-banner"
+          [attr.data-color]="feedback.color"
+          role="alert"
+          aria-live="assertive">
+          <div class="scan-result-banner__content">
+            <strong>{{ feedback.title }}</strong>
+            <p>{{ feedback.message }}</p>
+          </div>
+          <ion-button
+            fill="clear"
+            size="small"
+            class="scan-result-banner__close"
+            aria-label="Cerrar mensaje"
+            (click)="dismissEquipmentFeedback()">
+            <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+          </ion-button>
+        </div>
+      }
+
+      @if (!resolvingEquipment() && equipment(); as eq) {
         <ion-item lines="none">
           <ion-label>
             <h2>{{ eq.codigoQr }}</h2>

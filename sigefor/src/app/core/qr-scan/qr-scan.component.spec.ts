@@ -3,23 +3,19 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { QrScanComponent } from './qr-scan.component';
 import { OpticalScanner } from './optical-scanner';
+import { CameraSelectionService } from './camera-selection.service';
 import { QrCaptureError } from './qr-scan.types';
 
 /** Escáner óptico de prueba, configurable para resolver un valor o rechazar con un error. */
 class FakeOpticalScanner extends OpticalScanner {
   supported = true;
-  embeddedVideo = true;
   result: { code?: string; error?: QrCaptureError } = {};
-
-  usesEmbeddedVideo(): boolean {
-    return this.embeddedVideo;
-  }
 
   isSupported(): boolean {
     return this.supported;
   }
 
-  scan(_video: HTMLVideoElement, _signal: AbortSignal): Promise<string> {
+  scan(_signal: AbortSignal): Promise<string> {
     if (this.result.error) {
       return Promise.reject(this.result.error);
     }
@@ -39,6 +35,12 @@ describe('QrScanComponent', () => {
       imports: [QrScanComponent],
       providers: [
         { provide: OpticalScanner, useValue: scanner },
+        {
+          provide: CameraSelectionService,
+          useValue: {
+            resolveDeviceIdForScan: async () => undefined,
+          },
+        },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -71,6 +73,8 @@ describe('QrScanComponent', () => {
     await component.startCamera();
 
     expect(emitted).toEqual(['manual:FOR-1A2B3', 'camera:FOR-1A2B3']);
+    expect(component.isScanning()).toBeFalse();
+    expect(component.value()).toBe('FOR-1A2B3');
   });
 
   // SC-002 / FR-005: permiso de cámara denegado → captureError y el modo manual sigue operativo.
