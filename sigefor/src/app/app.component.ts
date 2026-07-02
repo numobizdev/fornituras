@@ -48,6 +48,7 @@ import {
   warningSharp,
 } from 'ionicons/icons';
 import { APP_NAV_ITEMS } from './core/constants/app-navigation';
+import { roleLabel } from './core/constants/role-labels';
 import { NavItem } from './core/models/nav-item.model';
 import { AuthService } from './core/services/auth.service';
 
@@ -77,6 +78,9 @@ export class AppComponent {
   private readonly authService = inject(AuthService);
 
   public readonly currentUser = this.authService.currentUser;
+
+  /** Etiqueta es-MX del rol conectado, visible en el encabezado del menú (021/FR-005). */
+  public readonly currentRoleLabel = computed(() => roleLabel(this.currentUser()?.role));
 
   /** Menú filtrado por rol: las entradas con `roles` solo se muestran a esos roles (mínimo privilegio). */
   public readonly appPages = computed<NavItem[]>(() => {

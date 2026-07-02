@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -21,15 +21,13 @@ import {
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { PhotoPickerComponent } from '../../../../core/media/photo-picker/photo-picker.component';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
-import { UserRole } from '../../../../core/models/auth.model';
 import { OfficersService } from '../../data/officers.service';
 import { CatalogItem, OfficerCreateRequest } from '../../data/officer.model';
-
-/** Roles que pueden capturar la foto de un elemento (PII); coincide con la matriz del backend (ADR 0013). */
-const OFFICER_PHOTO_ROLES: readonly UserRole[] = ['ADMIN', 'SUPERVISOR', 'CAPTURISTA'];
 
 @Component({
   selector: 'app-elemento-form',
@@ -54,6 +52,7 @@ const OFFICER_PHOTO_ROLES: readonly UserRole[] = ['ADMIN', 'SUPERVISOR', 'CAPTUR
     IonButton,
     IonSpinner,
     PhotoPickerComponent,
+    FieldErrorsComponent,
   ],
 })
 export class ElementoFormPage implements OnInit {
@@ -64,10 +63,8 @@ export class ElementoFormPage implements OnInit {
   private readonly toastController = inject(ToastController);
   private readonly authService = inject(AuthService);
 
-  /** La foto de elemento es PII: solo roles autorizados pueden capturarla (además del gating legal). */
-  readonly canCapturePhoto = OFFICER_PHOTO_ROLES.includes(
-    this.authService.currentUser()?.role as UserRole,
-  );
+  /** La foto de elemento es PII: mismos roles que escriben el padrón (RolePolicy, ADR 0013). */
+  readonly canCapturePhoto = computed(() => this.authService.hasAnyRole(ROLE_POLICY.WRITE_OFFICERS));
 
   readonly officerId = signal<number | null>(null);
   readonly isLoading = signal(false);
@@ -97,13 +94,13 @@ export class ElementoFormPage implements OnInit {
 
   /** Mensaje mostrado cuando la captura de foto de elemento está deshabilitada por rol. */
   get photoDisabledReason(): string | null {
-    return this.canCapturePhoto
+    return this.canCapturePhoto()
       ? null
       : 'No tienes autorización para capturar la foto del elemento.';
   }
 
   ngOnInit(): void {
-    if (!this.canCapturePhoto) {
+    if (!this.canCapturePhoto()) {
       this.form.controls.fotoUrl.disable();
     }
     void this.bootstrap();

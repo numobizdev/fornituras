@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -27,6 +27,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, chevronBack, chevronForward, personCircleOutline } from 'ionicons/icons';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { OfficersService } from '../../data/officers.service';
@@ -80,7 +81,7 @@ export class ElementosPage implements OnInit {
 
   readonly sexos = signal<CatalogItem[]>([]);
 
-  readonly canWrite = this.auth.hasRole('ADMIN') || this.auth.hasRole('CAPTURISTA');
+  readonly canWrite = computed(() => this.auth.hasAnyRole(ROLE_POLICY.WRITE_OFFICERS));
 
   constructor() {
     addIcons({ add, chevronBack, chevronForward, personCircleOutline });

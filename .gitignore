@@ -11,6 +11,8 @@
 *.jks
 *.keystore
 secrets/
+**/appsettings.Development.json
+!**/appsettings.Development.json.example
 **/application-local.properties
 **/application-local.yml
 **/application-secret*.properties

@@ -1,16 +1,96 @@
+// Asistente de asignación en tarjetas numeradas (021/US5): cada paso es una sección
+// visual independiente; "Asignaciones vigentes" vive en su propia sección.
+
 .wizard {
-  margin-bottom: 0.5rem;
+  padding: 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.wizard__heading {
+  margin: 0;
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gobmx-guinda);
+}
+
+.step-card {
+  margin: 0;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid var(--gobmx-guinda);
+  transition: opacity 200ms ease-out;
+}
+
+.step-card--pending {
+  opacity: 0.6;
+  border-top-color: var(--ion-color-medium);
+}
+
+.step-card__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.step-card__number {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gobmx-guinda);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.step-card--pending .step-card__number {
+  background: var(--ion-color-medium);
+}
+
+.step-card__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.step-card__subtitle {
+  font-size: 0.85rem;
+}
+
+.wizard__searchbar {
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.wizard__empty,
+.wizard__pending-hint {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
 }
 
 .scan-loading {
-  --min-height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 0;
+  color: var(--ion-color-medium);
 }
 
 .scan-result-banner {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  margin: 0.75rem 1rem;
+  margin-top: 12px;
   padding: 1rem 0.75rem 1rem 1rem;
   border-radius: 8px;
   border: 1px solid var(--banner-border, #e5e5e5);
@@ -66,25 +146,87 @@
   }
 }
 
+.equipment-detail {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--gobmx-fondo-suave, #f6f6f6);
+
+  &__info {
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 2px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.officer-results {
+  margin-top: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.selected-officer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--ion-color-success-tint, #e7f7ee);
+
+  ion-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+  }
+}
+
 .wizard-actions {
-  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding: 0;
 }
 
-.selected {
-  --background: var(--ion-color-success-tint, #e7f7ee);
-}
+.vigentes {
+  margin-top: 24px;
+  padding-bottom: 16px;
 
-.state-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  color: var(--ion-color-medium);
-  text-align: center;
+  ion-list {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  ion-list-header {
+    font-family: 'Patria', 'Noto Sans', sans-serif;
+    color: var(--gobmx-guinda);
+  }
 }
 
 .pager {

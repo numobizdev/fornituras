@@ -75,6 +75,12 @@ export class AuthService {
     return this.currentUser()?.role === role;
   }
 
+  /** Autorización visual por capacidad (espejo de RolePolicy.cs): rechazo por defecto. */
+  hasAnyRole(roles: ReadonlyArray<UserSummary['role']>): boolean {
+    const role = this.currentUser()?.role;
+    return role != null && roles.includes(role);
+  }
+
   async logout(redirectToLogin = true): Promise<void> {
     await this.clearSession();
     if (redirectToLogin) {

@@ -25,6 +25,7 @@
           }
         </ion-select>
       </ion-item>
+      <app-field-errors [control]="form.controls.equipmentTypeId" />
       <ion-item>
         <ion-select label="Talla" labelPlacement="stacked" formControlName="sizeId" placeholder="Sin talla">
           <ion-select-option [value]="''">Sin talla</ion-select-option>
@@ -44,6 +45,7 @@
           }
         </ion-select>
       </ion-item>
+      <app-field-errors [control]="form.controls.warehouseId" />
       <ion-item>
         <ion-input label="Descripción" labelPlacement="stacked" formControlName="descripcion" maxlength="255"></ion-input>
       </ion-item>

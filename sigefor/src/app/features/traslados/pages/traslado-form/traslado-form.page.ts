@@ -24,6 +24,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { trashOutline } from 'ionicons/icons';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
 import { QrCaptureError } from '../../../../core/qr-scan/qr-scan.types';
@@ -58,6 +59,7 @@ import { TransferCreateRequest } from '../../data/transfer.model';
     IonIcon,
     IonSpinner,
     QrScanComponent,
+    FieldErrorsComponent,
   ],
 })
 export class TrasladoFormPage implements OnInit {

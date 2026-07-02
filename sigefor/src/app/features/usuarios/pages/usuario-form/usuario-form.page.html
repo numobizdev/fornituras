@@ -26,6 +26,7 @@
             maxlength="100"
             placeholder="Ej. María López"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.name" />
         <ion-item>
           <ion-input
             type="email"
@@ -35,6 +36,7 @@
             maxlength="255"
             placeholder="usuario@corporacion.gob.mx"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.email" />
         @if (isEditing) {
           <ion-item lines="none">
             <ion-note color="medium">
@@ -53,6 +55,7 @@
             }
           </ion-select>
         </ion-item>
+        <app-field-errors [control]="form.controls.role" />
       </ion-list>
 
       @if (!isEditing) {

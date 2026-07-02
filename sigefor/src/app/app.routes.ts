@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from './core/guards/admin.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { rolesGuard } from './core/guards/roles.guard';
+import { ROLE_POLICY } from './core/security/role-policy';
 
 export const routes: Routes = [
   {
@@ -85,7 +86,7 @@ export const routes: Routes = [
       },
       {
         path: 'landing-admin',
-        canActivate: [adminGuard],
+        canActivate: [rolesGuard(ROLE_POLICY.MANAGE_LANDING)],
         loadChildren: () =>
           import('./features/landing/landing.routes').then((m) => m.LANDING_ROUTES),
       },

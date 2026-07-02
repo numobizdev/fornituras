@@ -20,6 +20,7 @@
           }
         </ion-select>
       </ion-item>
+      <app-field-errors [control]="form.controls.origenId" />
       <ion-item>
         <ion-select label="Destino" labelPlacement="stacked" formControlName="destinoId" placeholder="Seleccione el destino">
           @for (warehouse of warehouses(); track warehouse.id) {
@@ -27,6 +28,7 @@
           }
         </ion-select>
       </ion-item>
+      <app-field-errors [control]="form.controls.destinoId" />
       <ion-item>
         <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
       </ion-item>

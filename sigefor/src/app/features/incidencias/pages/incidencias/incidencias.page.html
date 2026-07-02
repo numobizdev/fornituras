@@ -4,7 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Incidencias</ion-title>
-    @if (canWrite) {
+    @if (canWrite()) {
       <ion-buttons slot="end">
         <ion-button (click)="newIncident()">
           <ion-icon slot="start" name="add-outline"></ion-icon>
@@ -81,7 +81,7 @@
             }
           </ion-label>
           <ion-badge slot="end" [color]="statusColor(item.estado)">{{ statusLabel(item.estado) }}</ion-badge>
-          @if (canWrite) {
+          @if (canWrite()) {
             <ion-button slot="end" fill="clear" (click)="openUpdate(item)">Actualizar</ion-button>
           }
         </ion-item>

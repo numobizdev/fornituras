@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -24,6 +24,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, createOutline, powerOutline } from 'ionicons/icons';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { EquipmentTypesService } from '../../data/equipment-types.service';
@@ -63,7 +64,7 @@ export class TiposPage {
   readonly types = signal<EquipmentTypeSummary[]>([]);
   readonly isLoading = signal(false);
   readonly filter = signal<'active' | 'inactive'>('active');
-  readonly isAdmin = this.auth.hasRole('ADMIN');
+  readonly isAdmin = computed(() => this.auth.hasAnyRole(ROLE_POLICY.MANAGE_CONFIG));
 
   constructor() {
     addIcons({ add, createOutline, powerOutline });

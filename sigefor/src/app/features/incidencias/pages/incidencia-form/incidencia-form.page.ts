@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -23,6 +24,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { searchOutline } from 'ionicons/icons';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { EquipmentService } from '../../../fornituras/data/equipment.service';
 import { EquipmentDetail } from '../../../fornituras/data/equipment.model';
@@ -34,6 +36,7 @@ import { INCIDENT_TYPES, IncidentType } from '../../data/incident.model';
   templateUrl: './incidencia-form.page.html',
   styleUrls: ['./incidencia-form.page.scss'],
   imports: [
+    ReactiveFormsModule,
     IonHeader,
     IonToolbar,
     IonButtons,
@@ -51,44 +54,46 @@ import { INCIDENT_TYPES, IncidentType } from '../../data/incident.model';
     IonNote,
     IonLabel,
     IonSpinner,
+    FieldErrorsComponent,
   ],
 })
 export class IncidenciaFormPage {
   private readonly service = inject(IncidentsService);
   private readonly equipmentService = inject(EquipmentService);
+  private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
 
-  readonly codigo = signal('');
+  // Mismo esquema de validación que el resto de los formularios (021, FR-011).
+  readonly form = this.formBuilder.nonNullable.group({
+    codigo: ['', [Validators.required]],
+    tipo: this.formBuilder.control<IncidentType | null>(null, [Validators.required]),
+    descripcion: ['', [Validators.required, Validators.maxLength(500)]],
+  });
+
   readonly resolved = signal<EquipmentDetail | null>(null);
   readonly codigoError = signal<string | null>(null);
   readonly resolving = signal(false);
-
-  readonly tipo = signal<IncidentType | null>(null);
-  readonly descripcion = signal('');
   readonly submitting = signal(false);
 
   readonly typeOptions = Object.entries(INCIDENT_TYPES) as [IncidentType, { label: string }][];
-
-  readonly canSubmit = computed(
-    () => this.resolved() !== null && this.tipo() !== null && this.descripcion().trim().length > 0,
-  );
 
   constructor() {
     addIcons({ searchOutline });
   }
 
   onCodigoInput(value: string): void {
-    this.codigo.set(value);
+    this.form.controls.codigo.setValue(value);
     // Al editar el código, la fornitura previamente resuelta deja de ser válida.
     this.resolved.set(null);
     this.codigoError.set(null);
   }
 
   async resolveCodigo(): Promise<void> {
-    const code = this.codigo().trim();
+    const codigoControl = this.form.controls.codigo;
+    const code = codigoControl.value.trim();
     if (!code) {
-      this.codigoError.set('Ingresa un código de fornitura.');
+      codigoControl.markAsTouched();
       return;
     }
     this.resolving.set(true);
@@ -104,16 +109,21 @@ export class IncidenciaFormPage {
   }
 
   async submit(): Promise<void> {
-    if (!this.canSubmit()) {
+    if (this.form.invalid || this.resolved() === null) {
+      this.form.markAllAsTouched();
+      if (this.form.controls.codigo.valid && this.resolved() === null) {
+        this.codigoError.set('Busque el código para identificar la fornitura antes de reportar.');
+      }
       return;
     }
     this.submitting.set(true);
     try {
+      const value = this.form.getRawValue();
       await firstValueFrom(
         this.service.report({
           equipmentId: this.resolved()!.id,
-          tipo: this.tipo()!,
-          descripcion: this.descripcion().trim(),
+          tipo: value.tipo!,
+          descripcion: value.descripcion.trim(),
         }),
       );
       await this.showToast('Incidencia reportada.', 'success');

@@ -26,6 +26,7 @@
             maxlength="40"
             placeholder="Ej. ALM-01"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.codigo" />
         <ion-item>
           <ion-input
             label="Nombre"
@@ -34,6 +35,7 @@
             maxlength="120"
             placeholder="Ej. Almacén Central"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.nombre" />
         <ion-item>
           <ion-select
             label="Tipo"
@@ -45,6 +47,7 @@
             }
           </ion-select>
         </ion-item>
+        <app-field-errors [control]="form.controls.tipoItemId" />
       </ion-list>
 
       <ion-list>
@@ -132,6 +135,7 @@
             formControlName="emailContacto"
             maxlength="255"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.emailContacto" />
       </ion-list>
 
       <ion-list>

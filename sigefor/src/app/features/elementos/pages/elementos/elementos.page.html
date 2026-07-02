@@ -87,7 +87,7 @@
     </div>
   }
 
-  @if (canWrite) {
+  @if (canWrite()) {
     <ion-fab slot="fixed" vertical="bottom" horizontal="end">
       <ion-fab-button (click)="goToNew()" aria-label="Nuevo elemento">
         <ion-icon name="add"></ion-icon>
