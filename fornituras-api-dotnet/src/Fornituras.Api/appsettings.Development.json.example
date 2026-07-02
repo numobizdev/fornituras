@@ -1,0 +1,28 @@
+{
+  "ConnectionStrings": {
+    "Default": "__SET_ME__ (cadena de conexión a SQL Server; NUNCA la versiones)"
+  },
+  "App": {
+    "Seed": {
+      "Admin": {
+        "Enabled": true,
+        "Name": "Administrador",
+        "Email": "__SET_ME__",
+        "Password": "__SET_ME__"
+      }
+    },
+    "Cors": {
+      "AllowedOrigins": [
+        "http://localhost:4200",
+        "http://localhost:8100",
+        "capacitor://localhost"
+      ]
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug",
+      "Microsoft.AspNetCore": "Information"
+    }
+  }
+}
