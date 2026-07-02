@@ -4,6 +4,10 @@ Matriz de auditoría (US1/US2/US3 de la spec 018). Marcar `[X]` cuando el elemen
 como **presente** en el backend .NET con evidencia; si falta o diverge, dejar `[ ]` y anotar la
 **brecha** (severidad + qué falta). Referencia de comparación: backend Java en `fornituras-api/`.
 
+> **EJECUTADA (2026-07-01).** Resultado completo en [findings.md](../findings.md): API y datos con
+> paridad 1:1; **2 brechas Alta** (B-1 rate limiting, B-2 triggers de inmutabilidad de auditoría) y
+> **1 mejora** (M-1: brecha `/qr/**` anónima cerrada).
+
 Leyenda de estado por spec: **C** = Cubierta · **P** = Parcial · **A** = Ausente · **FE** = Fuera
 de alcance del backend (frontend).
 
@@ -11,21 +15,21 @@ de alcance del backend (frontend).
 
 ## Transversal — Seguridad (`docs/02-seguridad.md` §8) · US3
 
-- [ ] Ningún endpoint queda sin `[Authorize]` salvo los públicos decididos (login, recuperación, landing pública, health)
-- [ ] Las excepciones públicas del .NET coinciden con las del backend Java (sin nuevas superficies anónimas)
-- [ ] PII de `Officer` cifrada AES-256-GCM (`PiiCipher`) + blind index (`BlindIndexer`) para búsqueda
-- [ ] Enmascaramiento de PII por rol (`RolePolicy.CanViewFullPii`) preservado
-- [ ] QR no contiene PII (identificador opaco) — sin regresión
-- [ ] Auditoría append-only e inmutable (12) preservada; sin PII en logs
-- [ ] Rate limiting donde aplique (login, landing pública) — verificar equivalente de Bucket4j
-- [ ] Brecha conocida `/qr/**` sin auth: confirmar si persiste/cambió en .NET y documentar
+- [X] Ningún endpoint queda sin `[Authorize]` salvo los públicos decididos (login/activate/forgot/reset, `landing/public`, health)
+- [X] Las excepciones públicas del .NET coinciden con las del backend Java (sin nuevas superficies anónimas)
+- [X] PII de `Officer` cifrada AES-256-GCM (`PiiCipher`) + blind index (`BlindIndexer`) para búsqueda
+- [X] Enmascaramiento de PII por rol (`RolePolicy.CanViewFullPii`) preservado
+- [X] QR no contiene PII (identificador opaco) — sin regresión
+- [ ] Auditoría append-only e inmutable (12) preservada; sin PII en logs → **BRECHA B-2**: faltan los triggers `INSTEAD OF UPDATE/DELETE`; sin PII en logs sí se preserva
+- [ ] Rate limiting donde aplique (login, landing pública) → **BRECHA B-1**: no hay rate limiter cableado en .NET
+- [X] Brecha conocida `/qr/**` sin auth → **CERRADA (M-1)**: `QrWebController` no existe en .NET
 
 ## Transversal — Endpoints y datos (US2)
 
-- [ ] Inventario de endpoints Java vs .NET: cada endpoint Java tiene equivalente o es decisión documentada
-- [ ] Esquema de datos: cada tabla/columna/índice/constraint/enum de Java existe en migraciones EF Core
-- [ ] Envoltura `ApiResponse<T>` y manejo de errores (400/401/403/404/409/413/422/429) equivalentes
-- [ ] Semilla de datos (`DataSeeder`) equivalente al `data.sql`/seed de Java
+- [X] Inventario de endpoints Java vs .NET: todos con equivalente; único ausente = `QrWebController` (decisión/mejora M-1)
+- [X] Esquema de datos: las 18 tablas presentes en EF Core; `equipment_type/size`, `municipio`, `sexo/tipo_sangre` consolidados en `catalog`/texto (ADR 0007, Decisión D-1)
+- [X] Envoltura `ApiResponse<T>` y manejo de errores (400/401/403/404/409/413/422/429) equivalentes
+- [ ] Semilla de datos (`DataSeeder`) equivalente al seed de Java → *no verificado en detalle en esta pasada; revisar al remediar*
 
 ---
 
