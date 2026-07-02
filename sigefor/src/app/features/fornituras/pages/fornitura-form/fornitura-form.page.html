@@ -26,6 +26,7 @@
               formControlName="codigoQr"
               maxlength="60"></ion-input>
           </ion-item>
+          <app-field-errors [control]="form.controls.codigoQr" />
         } @else {
           <ion-item lines="none">
             <ion-label position="stacked">Código QR / serie</ion-label>
@@ -43,6 +44,7 @@
               <ion-label>Código: <strong>{{ form.controls.codigoQr.value }}</strong></ion-label>
             </ion-item>
           }
+          <app-field-errors [control]="form.controls.codigoQr" />
         }
         <ion-item>
           <ion-select
@@ -56,6 +58,7 @@
             }
           </ion-select>
         </ion-item>
+        <app-field-errors [control]="form.controls.equipmentTypeId" />
         <ion-item>
           <ion-select label="Talla" labelPlacement="stacked" formControlName="sizeId" placeholder="Sin talla">
             <ion-select-option [value]="''">Sin talla</ion-select-option>
@@ -75,6 +78,7 @@
             }
           </ion-select>
         </ion-item>
+        <app-field-errors [control]="form.controls.warehouseId" />
       </ion-list>
 
       <ion-list>

@@ -44,7 +44,7 @@
           @if (!type.active) {
             <ion-badge slot="end" color="medium">Inactivo</ion-badge>
           }
-          @if (isAdmin) {
+          @if (isAdmin()) {
             <ion-button
               slot="end"
               fill="clear"
@@ -68,7 +68,7 @@
     </ion-list>
   }
 
-  @if (isAdmin) {
+  @if (isAdmin()) {
     <ion-fab slot="fixed" vertical="bottom" horizontal="end">
       <ion-fab-button (click)="goToNew()" aria-label="Nuevo tipo de prenda">
         <ion-icon name="add"></ion-icon>

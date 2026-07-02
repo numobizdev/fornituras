@@ -18,7 +18,7 @@ import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
-  styleUrls: ['../../styles/auth-page.scss'],
+  styleUrls: ['../../styles/auth-page.scss', './login.page.scss'],
   imports: [
     ReactiveFormsModule,
     RouterLink,

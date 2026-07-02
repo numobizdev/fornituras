@@ -73,8 +73,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(100).IsRequired();
             entity.Property(e => e.Email).HasColumnName("email").HasMaxLength(255).IsRequired();
             entity.Property(e => e.Password).HasColumnName("password").HasMaxLength(255).IsRequired();
+            // Sin default de BD: Role.ADMIN es el default CLR del enum (valor 0) y EF lo trataba
+            // como "no asignado", dejando que la BD escribiera CAPTURISTA en el INSERT (bug 021).
+            // El rol SIEMPRE se asigna explícitamente en código (seeder y UserService).
             entity.Property(e => e.Role).HasColumnName("role").HasMaxLength(20)
-                .HasConversion<string>().HasDefaultValue(Role.CAPTURISTA);
+                .HasConversion<string>().IsRequired();
             entity.Property(e => e.Enabled).HasColumnName("enabled").HasDefaultValue(true);
             entity.Property(e => e.FailedAttempts).HasColumnName("failed_attempts").HasDefaultValue(0);
             entity.Property(e => e.LockedUntil).HasColumnName("locked_until");

@@ -29,6 +29,7 @@ import { addIcons } from 'ionicons';
 import { closeOutline, personOutline, searchOutline } from 'ionicons/icons';
 import { CATALOG_CODES, CatalogItemSummary } from '../../../../core/catalog/catalog.model';
 import { CatalogService } from '../../../../core/catalog/catalog.service';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { UserSummary } from '../../../usuarios/data/user.model';
 import { UsersService } from '../../../usuarios/data/users.service';
@@ -61,6 +62,7 @@ import { WarehouseCreateRequest } from '../../data/warehouse.model';
     IonSpinner,
     IonModal,
     IonSearchbar,
+    FieldErrorsComponent,
   ],
 })
 export class AlmacenFormPage implements OnInit {

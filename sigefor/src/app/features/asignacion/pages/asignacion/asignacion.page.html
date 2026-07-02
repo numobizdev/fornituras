@@ -14,110 +14,129 @@
     </ion-toolbar>
   </ion-header>
 
-  @if (canAssign) {
-    <ion-list class="wizard">
-      <ion-list-header>
-        <ion-label>Nueva asignación</ion-label>
-      </ion-list-header>
+  @if (canAssign()) {
+    <section class="wizard" aria-label="Nueva asignación">
+      <h2 class="wizard__heading">Nueva asignación</h2>
 
       <!-- Paso 1: identificar la fornitura -->
-      <ion-item lines="none">
-        <ion-label position="stacked">Paso 1 — Código QR</ion-label>
-      </ion-item>
-      <ion-item lines="none">
-        <app-qr-scan
-          class="ion-margin-vertical"
-          actionLabel="Buscar"
-          (codeCaptured)="onCodeCaptured($event)"
-          (captureError)="onCaptureError($event)"></app-qr-scan>
-      </ion-item>
-
-      @if (resolvingEquipment()) {
-        <ion-item lines="none" class="scan-loading">
-          <ion-spinner slot="start" name="crescent"></ion-spinner>
-          <ion-label>Buscando fornitura…</ion-label>
-        </ion-item>
-      } @else if (equipmentFeedback(); as feedback) {
-        <div
-          class="scan-result-banner"
-          [attr.data-color]="feedback.color"
-          role="alert"
-          aria-live="assertive">
-          <div class="scan-result-banner__content">
-            <strong>{{ feedback.title }}</strong>
-            <p>{{ feedback.message }}</p>
+      <ion-card class="step-card">
+        <ion-card-header class="step-card__header">
+          <span class="step-card__number" aria-hidden="true">1</span>
+          <div>
+            <ion-card-title class="step-card__title">Identificar fornitura</ion-card-title>
+            <ion-card-subtitle class="step-card__subtitle">
+              Escanee el QR o capture el código
+            </ion-card-subtitle>
           </div>
-          <ion-button
-            fill="clear"
-            size="small"
-            class="scan-result-banner__close"
-            aria-label="Cerrar mensaje"
-            (click)="dismissEquipmentFeedback()">
-            <ion-icon slot="icon-only" name="close-circle"></ion-icon>
-          </ion-button>
-        </div>
-      }
+        </ion-card-header>
+        <ion-card-content>
+          <app-qr-scan
+            actionLabel="Buscar"
+            (codeCaptured)="onCodeCaptured($event)"
+            (captureError)="onCaptureError($event)"></app-qr-scan>
 
-      @if (!resolvingEquipment() && equipment(); as eq) {
-        <ion-item lines="none">
-          <ion-label>
-            <h2>{{ eq.codigoQr }}</h2>
-            <p>{{ eq.descripcion }}@if (eq.tipoNombre) { · {{ eq.tipoNombre }} }</p>
-            @if (eq.almacenNombre) {
-              <ion-note color="medium">Almacén: {{ eq.almacenNombre }}</ion-note>
-            }
-          </ion-label>
-          @if (equipmentAvailable) {
-            <ion-badge slot="end" color="success">Disponible</ion-badge>
-          } @else {
-            <ion-badge slot="end" color="danger">No disponible</ion-badge>
+          @if (resolvingEquipment()) {
+            <div class="scan-loading">
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>Buscando fornitura…</span>
+            </div>
+          } @else if (equipmentFeedback(); as feedback) {
+            <div
+              class="scan-result-banner"
+              [attr.data-color]="feedback.color"
+              role="alert"
+              aria-live="assertive">
+              <div class="scan-result-banner__content">
+                <strong>{{ feedback.title }}</strong>
+                <p>{{ feedback.message }}</p>
+              </div>
+              <ion-button
+                fill="clear"
+                size="small"
+                class="scan-result-banner__close"
+                aria-label="Cerrar mensaje"
+                (click)="dismissEquipmentFeedback()">
+                <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+              </ion-button>
+            </div>
           }
-        </ion-item>
-        @if (!equipmentAvailable) {
-          <ion-item lines="none">
-            <ion-note color="danger">
-              @if (equipment()?.status === 'ASIGNADA') {
-                Esta fornitura ya está asignada a un elemento; no está disponible en almacén.
+
+          @if (!resolvingEquipment() && equipment(); as eq) {
+            <div class="equipment-detail">
+              <div class="equipment-detail__info">
+                <h3>{{ eq.codigoQr }}</h3>
+                <p>{{ eq.descripcion }}@if (eq.tipoNombre) { · {{ eq.tipoNombre }} }</p>
+                @if (eq.almacenNombre) {
+                  <ion-note color="medium">Almacén: {{ eq.almacenNombre }}</ion-note>
+                }
+              </div>
+              @if (equipmentAvailable) {
+                <ion-badge color="success">Disponible</ion-badge>
               } @else {
-                Esta fornitura no está disponible en almacén; no se puede asignar.
+                <ion-badge color="danger">No disponible</ion-badge>
               }
-            </ion-note>
-          </ion-item>
-        }
-      }
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
 
       <!-- Paso 2: identificar el elemento -->
-      @if (equipmentAvailable) {
-        <ion-item lines="none">
-          <ion-label position="stacked">Paso 2 — Elemento</ion-label>
-        </ion-item>
-        <ion-searchbar
-          placeholder="Buscar por placa, CURP o RFC"
-          [debounce]="400"
-          (ionInput)="searchOfficer($any($event.target).value)"></ion-searchbar>
+      <ion-card class="step-card" [class.step-card--pending]="!equipmentAvailable">
+        <ion-card-header class="step-card__header">
+          <span class="step-card__number" aria-hidden="true">2</span>
+          <div>
+            <ion-card-title class="step-card__title">Seleccionar elemento</ion-card-title>
+            <ion-card-subtitle class="step-card__subtitle">
+              Busque por placa, CURP o RFC
+            </ion-card-subtitle>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          @if (equipmentAvailable) {
+            <ion-searchbar
+              class="wizard__searchbar"
+              placeholder="Buscar por placa, CURP o RFC"
+              [debounce]="400"
+              (ionInput)="searchOfficer($any($event.target).value)"></ion-searchbar>
 
-        @if (searchingOfficer()) {
-          <ion-item lines="none"><ion-spinner></ion-spinner></ion-item>
-        }
-        @for (officer of officerResults(); track officer.id) {
-          <ion-item button (click)="selectOfficer(officer)" [detail]="false">
-            <ion-label>
-              <h3>{{ officer.nombreCompleto }}</h3>
-              <p>Placa {{ officer.placa }}@if (officer.municipio) { · {{ officer.municipio }} }</p>
-            </ion-label>
-          </ion-item>
-        }
+            @if (searchingOfficer()) {
+              <div class="scan-loading">
+                <ion-spinner name="crescent"></ion-spinner>
+                <span>Buscando elemento…</span>
+              </div>
+            } @else if (showNoResults()) {
+              <p class="wizard__empty">Sin resultados para «{{ officerQuery() }}».</p>
+            }
 
-        @if (selectedOfficer(); as officer) {
-          <ion-item lines="none" class="selected">
-            <ion-icon slot="start" name="checkmark-circle" color="success"></ion-icon>
-            <ion-label>
-              <h3>{{ officer.nombreCompleto }}</h3>
-              <p>Placa {{ officer.placa }}</p>
-            </ion-label>
-          </ion-item>
-        }
-      }
+            @if (officerResults().length > 0) {
+              <ion-list class="officer-results" lines="full">
+                @for (officer of officerResults(); track officer.id) {
+                  <ion-item button (click)="selectOfficer(officer)" [detail]="false">
+                    <ion-label>
+                      <h3>{{ officer.nombreCompleto }}</h3>
+                      <p>Placa {{ officer.placa }}@if (officer.municipio) { · {{ officer.municipio }} }</p>
+                    </ion-label>
+                  </ion-item>
+                }
+              </ion-list>
+            }
+
+            @if (selectedOfficer(); as officer) {
+              <div class="selected-officer">
+                <ion-icon name="checkmark-circle" color="success" aria-hidden="true"></ion-icon>
+                <div>
+                  <h3>{{ officer.nombreCompleto }}</h3>
+                  <p>Placa {{ officer.placa }}</p>
+                </div>
+              </div>
+            }
+          } @else {
+            <p class="wizard__pending-hint">
+              Primero identifique una fornitura disponible en el paso 1.
+            </p>
+          }
+        </ion-card-content>
+      </ion-card>
 
       <div class="wizard-actions">
         <ion-button expand="block" [disabled]="!canConfirm || isSubmitting()" (click)="confirmAssign()">
@@ -129,39 +148,41 @@
         </ion-button>
         <ion-button expand="block" fill="clear" color="medium" (click)="clear()">Limpiar</ion-button>
       </div>
-    </ion-list>
+    </section>
   }
 
-  <ion-list>
-    <ion-list-header>
-      <ion-label>Asignaciones vigentes</ion-label>
-    </ion-list-header>
+  <section class="vigentes" aria-label="Asignaciones vigentes">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Asignaciones vigentes</ion-label>
+      </ion-list-header>
 
-    @if (isLoading()) {
-      <div class="state-message"><ion-spinner></ion-spinner></div>
-    } @else if (vigentes().length === 0) {
-      <div class="state-message"><p>No hay asignaciones vigentes.</p></div>
-    } @else {
-      @for (item of vigentes(); track item.id) {
-        <ion-item>
-          <ion-label>
-            <h2>{{ item.codigoQr }}</h2>
-            <p>{{ item.elementoNombre }} · Placa {{ item.placa }}</p>
-            @if (item.equipmentDescripcion) {
-              <ion-note color="medium">{{ item.equipmentDescripcion }}</ion-note>
+      @if (isLoading()) {
+        <div class="state-message"><ion-spinner></ion-spinner></div>
+      } @else if (vigentes().length === 0) {
+        <div class="state-message"><p>No hay asignaciones vigentes.</p></div>
+      } @else {
+        @for (item of vigentes(); track item.id) {
+          <ion-item>
+            <ion-label>
+              <h2>{{ item.codigoQr }}</h2>
+              <p>{{ item.elementoNombre }} · Placa {{ item.placa }}</p>
+              @if (item.equipmentDescripcion) {
+                <ion-note color="medium">{{ item.equipmentDescripcion }}</ion-note>
+              }
+            </ion-label>
+            @if (canAssign()) {
+              <ion-button slot="end" fill="clear" (click)="confirmReturn(item)">Devolver</ion-button>
             }
-          </ion-label>
-          @if (canAssign) {
-            <ion-button slot="end" fill="clear" (click)="confirmReturn(item)">Devolver</ion-button>
-          }
-        </ion-item>
-      }
+          </ion-item>
+        }
 
-      <div class="pager">
-        <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
-        <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
-        <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
-      </div>
-    }
-  </ion-list>
+        <div class="pager">
+          <ion-button fill="clear" size="small" [disabled]="page() === 0" (click)="prev()">Anterior</ion-button>
+          <span class="pager-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+          <ion-button fill="clear" size="small" [disabled]="page() + 1 >= totalPages()" (click)="next()">Siguiente</ion-button>
+        </div>
+      }
+    </ion-list>
+  </section>
 </ion-content>

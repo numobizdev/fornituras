@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -26,6 +26,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, chevronBack, chevronForward, layersOutline } from 'ionicons/icons';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { EquipmentTypesService } from '../../../tipos/data/equipment-types.service';
@@ -93,7 +94,7 @@ export class ForniturasPage implements OnInit {
   readonly warehouses = signal<WarehouseSummary[]>([]);
 
   readonly statuses = EQUIPMENT_STATUSES;
-  readonly canWrite = this.auth.hasRole('ADMIN') || this.auth.hasRole('CAPTURISTA');
+  readonly canWrite = computed(() => this.auth.hasAnyRole(ROLE_POLICY.WRITE_INVENTORY));
 
   constructor() {
     addIcons({ add, layersOutline, chevronBack, chevronForward });

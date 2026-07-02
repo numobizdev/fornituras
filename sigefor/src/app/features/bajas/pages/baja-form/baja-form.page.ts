@@ -21,6 +21,7 @@ import {
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
 import { QrCaptureError } from '../../../../core/qr-scan/qr-scan.types';
@@ -52,6 +53,7 @@ import { DecommissionReasonItem, DecommissionRequest } from '../../data/decommis
     IonButton,
     IonSpinner,
     QrScanComponent,
+    FieldErrorsComponent,
   ],
 })
 export class BajaFormPage implements OnInit {

@@ -1090,10 +1090,8 @@ namespace Fornituras.Api.Data.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("CAPTURISTA")
                         .HasColumnName("role");
 
                     b.Property<DateTime>("UpdatedAt")

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import {
@@ -25,6 +25,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline } from 'ionicons/icons';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { WarehousesService } from '../../../almacenes/data/warehouses.service';
@@ -77,7 +78,7 @@ export class TrasladosPage implements OnInit {
   readonly filterOrigen = signal<number | ''>('');
 
   readonly statuses = TRANSFER_STATUSES;
-  readonly canWrite = this.auth.hasRole('ADMIN') || this.auth.hasRole('CAPTURISTA');
+  readonly canWrite = computed(() => this.auth.hasAnyRole(ROLE_POLICY.WRITE_TRANSFERS));
 
   constructor() {
     addIcons({ addOutline });

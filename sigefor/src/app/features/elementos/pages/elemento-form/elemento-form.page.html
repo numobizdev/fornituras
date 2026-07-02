@@ -21,15 +21,18 @@
         <ion-item>
           <ion-input label="Nombre" labelPlacement="stacked" formControlName="nombre" maxlength="120"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.nombre" />
         <ion-item>
           <ion-input label="Apellido paterno" labelPlacement="stacked" formControlName="apellidoPaterno" maxlength="120"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.apellidoPaterno" />
         <ion-item>
           <ion-input label="Apellido materno" labelPlacement="stacked" formControlName="apellidoMaterno" maxlength="120"></ion-input>
         </ion-item>
         <ion-item>
           <ion-input label="Placa (identificador)" labelPlacement="stacked" formControlName="placa" maxlength="40"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.placa" />
       </ion-list>
 
       <ion-list>
@@ -43,6 +46,7 @@
             }
           </ion-select>
         </ion-item>
+        <app-field-errors [control]="form.controls.sexoId" />
         <ion-item>
           <ion-select label="Tipo de sangre" labelPlacement="stacked" formControlName="tipoSangreId" placeholder="Sin especificar">
             <ion-select-option [value]="''">Sin especificar</ion-select-option>
@@ -71,9 +75,15 @@
         <ion-item>
           <ion-input label="CURP" labelPlacement="stacked" formControlName="curp" maxlength="18" placeholder="18 caracteres"></ion-input>
         </ion-item>
+        <app-field-errors
+          [control]="form.controls.curp"
+          patternMessage="La CURP debe tener 18 caracteres alfanuméricos." />
         <ion-item>
           <ion-input label="RFC" labelPlacement="stacked" formControlName="rfc" maxlength="13" placeholder="12 o 13 caracteres"></ion-input>
         </ion-item>
+        <app-field-errors
+          [control]="form.controls.rfc"
+          patternMessage="El RFC debe tener 12 o 13 caracteres alfanuméricos." />
         <ion-item lines="none">
           <ion-label position="stacked">Foto del elemento</ion-label>
           <app-photo-picker

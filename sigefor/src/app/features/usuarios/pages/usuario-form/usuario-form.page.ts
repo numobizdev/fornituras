@@ -21,6 +21,7 @@ import {
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { UserRole } from '../../../../core/models/auth.model';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { ROLE_OPTIONS } from '../../data/role-options';
@@ -48,6 +49,7 @@ import { UsersService } from '../../data/users.service';
     IonSelectOption,
     IonButton,
     IonSpinner,
+    FieldErrorsComponent,
   ],
 })
 export class UsuarioFormPage implements OnInit {

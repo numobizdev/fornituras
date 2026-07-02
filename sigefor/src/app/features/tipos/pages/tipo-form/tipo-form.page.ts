@@ -23,6 +23,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, trashOutline } from 'ionicons/icons';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { PhotoPickerComponent } from '../../../../core/media/photo-picker/photo-picker.component';
 import { EquipmentTypesService } from '../../data/equipment-types.service';
@@ -50,6 +51,7 @@ import { SizeSummary } from '../../data/equipment-type.model';
     IonIcon,
     IonSpinner,
     PhotoPickerComponent,
+    FieldErrorsComponent,
   ],
 })
 export class TipoFormPage implements OnInit {

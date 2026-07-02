@@ -1,14 +1,14 @@
 {
   "ConnectionStrings": {
-    "Default": "Server=SQL8012.site4now.net;Database=db_a986f5_forniturasdata;TrustServerCertificate=True;User Id=db_a986f5_forniturasdata_admin;Password=F0rn1tur4sDbNum0b1z#"
+    "Default": "__SET_ME__ (cadena de conexión a SQL Server; NUNCA la versiones)"
   },
   "App": {
     "Seed": {
       "Admin": {
         "Enabled": true,
         "Name": "Administrador",
-        "Email": "maguilleng@outlook.com",
-        "Password": "F0rn1tur4s#"
+        "Email": "__SET_ME__",
+        "Password": "__SET_ME__"
       }
     },
     "Cors": {

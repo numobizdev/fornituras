@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -6,6 +6,11 @@ import {
   IonBadge,
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
   IonContent,
   IonHeader,
   IonIcon,
@@ -23,6 +28,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { checkmarkCircle, closeCircle } from 'ionicons/icons';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
@@ -53,6 +59,11 @@ interface EquipmentFeedback {
     IonMenuButton,
     IonTitle,
     IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
     IonList,
     IonListHeader,
     IonItem,
@@ -96,7 +107,15 @@ export class AsignacionPage {
   readonly selectedOfficer = signal<OfficerSummary | null>(null);
 
   readonly isSubmitting = signal(false);
-  readonly canAssign = this.auth.hasRole('ADMIN') || this.auth.hasRole('CAPTURISTA');
+  readonly canAssign = computed(() => this.auth.hasAnyRole(ROLE_POLICY.WRITE_OPERATIONS));
+
+  /** Búsqueda hecha (≥2 chars) sin coincidencias y sin selección previa: se comunica, no silencio. */
+  readonly showNoResults = computed(
+    () =>
+      this.officerQuery().trim().length >= 2 &&
+      this.officerResults().length === 0 &&
+      this.selectedOfficer() === null,
+  );
 
   constructor() {
     addIcons({ checkmarkCircle, closeCircle });

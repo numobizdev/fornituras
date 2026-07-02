@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -29,6 +29,7 @@ import { addIcons } from 'ionicons';
 import { add, createOutline, powerOutline } from 'ionicons/icons';
 import { CATALOG_CODES, CatalogItemSummary } from '../../../../core/catalog/catalog.model';
 import { CatalogService } from '../../../../core/catalog/catalog.service';
+import { ROLE_POLICY } from '../../../../core/security/role-policy';
 import { AuthService } from '../../../../core/services/auth.service';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { WarehousesService } from '../../data/warehouses.service';
@@ -73,7 +74,7 @@ export class AlmacenesPage implements OnInit {
   readonly isLoading = signal(false);
   readonly filter = signal<'active' | 'inactive'>('active');
   readonly tipoFilter = signal<number | null>(null);
-  readonly isAdmin = this.auth.hasRole('ADMIN');
+  readonly isAdmin = computed(() => this.auth.hasAnyRole(ROLE_POLICY.MANAGE_CONFIG));
   readonly tipoOptions = signal<CatalogItemSummary[]>([]);
 
   constructor() {

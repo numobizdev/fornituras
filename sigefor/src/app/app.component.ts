@@ -50,6 +50,7 @@ import {
   warningSharp,
 } from 'ionicons/icons';
 import { APP_NAV_ITEMS } from './core/constants/app-navigation';
+import { roleLabel } from './core/constants/role-labels';
 import { NavItem } from './core/models/nav-item.model';
 import { AuthService } from './core/services/auth.service';
 
@@ -80,7 +81,10 @@ export class AppComponent {
 
   public readonly currentUser = this.authService.currentUser;
 
-  /** Menú filtrado por rol: SUPER_ADMIN solo ve Lotes QR; entradas con `roles` filtran al resto. */
+  /** Etiqueta es-MX del rol conectado, visible en el encabezado del menú (021/FR-005). */
+  public readonly currentRoleLabel = computed(() => roleLabel(this.currentUser()?.role));
+
+  /** Menú filtrado por rol: SUPER_ADMIN solo ve Lotes QR; el resto por matriz espejo (mínimo privilegio). */
   public readonly appPages = computed<NavItem[]>(() => {
     const role = this.currentUser()?.role;
     if (role === 'SUPER_ADMIN') {
