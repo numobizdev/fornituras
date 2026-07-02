@@ -11,13 +11,21 @@ export class UsersService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/users`;
 
-  list(options: { page?: number; size?: number } = {}): Observable<Page<UserSummary>> {
+  list(
+    options: { page?: number; size?: number; role?: UserRole; enabled?: boolean } = {},
+  ): Observable<Page<UserSummary>> {
     let params = new HttpParams();
     if (options.page !== undefined) {
       params = params.set('page', options.page);
     }
     if (options.size !== undefined) {
       params = params.set('size', options.size);
+    }
+    if (options.role !== undefined) {
+      params = params.set('role', options.role);
+    }
+    if (options.enabled !== undefined) {
+      params = params.set('enabled', options.enabled);
     }
     return this.http
       .get<ApiResponse<Page<UserSummary>>>(this.baseUrl, { params })

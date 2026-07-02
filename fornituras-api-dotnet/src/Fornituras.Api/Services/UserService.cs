@@ -19,18 +19,35 @@ public sealed class UserService(
 
     public async Task<PageResult<UserResponse>> FindAllAsync(
         PaginationQuery pagination,
-        CancellationToken cancellationToken = default) =>
-        await FindAllInternalAsync(pagination.Page, pagination.Size, cancellationToken);
-
-    private async Task<PageResult<UserResponse>> FindAllInternalAsync(
-        int page,
-        int size,
+        string? role = null,
+        bool? enabled = null,
         CancellationToken cancellationToken = default)
     {
-        var query = db.Users.AsNoTracking().OrderBy(u => u.Id);
-        var total = await query.CountAsync(cancellationToken);
-        var items = await query.Skip(page * size).Take(size).ToListAsync(cancellationToken);
-        return PageResult<UserResponse>.From(items.Select(ToResponse).ToList(), total, page, size);
+        var query = db.Users.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            if (!Enum.TryParse<Role>(role, true, out var parsedRole))
+            {
+                throw new BadRequestException($"Rol inválido: {role}");
+            }
+
+            query = query.Where(u => u.Role == parsedRole);
+        }
+
+        if (enabled is not null)
+        {
+            query = query.Where(u => u.Enabled == enabled);
+        }
+
+        var ordered = query.OrderBy(u => u.Id);
+        var total = await ordered.CountAsync(cancellationToken);
+        var items = await ordered
+            .Skip(pagination.Page * pagination.Size)
+            .Take(pagination.Size)
+            .ToListAsync(cancellationToken);
+        return PageResult<UserResponse>.From(
+            items.Select(ToResponse).ToList(), total, pagination.Page, pagination.Size);
     }
 
     public async Task<UserResponse> FindByEmailAsync(string email, CancellationToken cancellationToken = default)

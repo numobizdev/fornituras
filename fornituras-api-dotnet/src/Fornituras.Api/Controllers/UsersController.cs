@@ -28,9 +28,11 @@ public sealed class UsersController(IUserService userService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PageResult<UserResponse>>>> GetAll(
         [FromQuery] PaginationQuery pagination,
+        [FromQuery] string? role,
+        [FromQuery] bool? enabled,
         CancellationToken cancellationToken)
     {
-        var page = await userService.FindAllAsync(pagination, cancellationToken);
+        var page = await userService.FindAllAsync(pagination, role, enabled, cancellationToken);
         return Ok(ApiResponse<PageResult<UserResponse>>.Ok(page));
     }
 
