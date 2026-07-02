@@ -7,8 +7,9 @@ de [findings.md](./findings.md). Solo lectura (SC-005).
 ## Resumen
 
 De ~159 FR en las specs 001–017, la **gran mayoría está implementada** en el backend .NET. Se
-identifican **4 huecos nuevos** a nivel FR (trazabilidad/formato, severidad Media/Baja) y varias
-diferencias **intencionales** ya cubiertas por ADR. Ningún hueco es de núcleo funcional ni de PII.
+identificaron **4 huecos nuevos** a nivel FR (trazabilidad/formato, severidad Media/Baja), **todos
+ya REMEDIADOS** (ver §Huecos), y varias diferencias **intencionales** ya cubiertas por ADR. Ningún
+hueco fue de núcleo funcional ni de PII.
 
 | Nivel | Resultado |
 |-------|-----------|
@@ -70,24 +71,28 @@ diferencias **intencionales** ya cubiertas por ADR. Ningún hueco es de núcleo 
 `ReportService.ExportActiveAssignmentsAsync`/`ExportPredefinedReportAsync` generan **CSV**
 (`text/...`), no un `.xlsx`. La spec 011 pide "exportar a **Excel**" y **ADR 0011** eligió Apache POI
 (en Java). Funciona (Excel abre CSV) pero no cumple el formato decidido.
-- **Remediación:** generar `.xlsx` con una librería .NET (p. ej. ClosedXML/OpenXML, evaluar licencia
-  por Principio VI) o registrar un ADR que acepte CSV como formato.
+- **✅ REMEDIADA** (`fix/reports-xlsx-dotnet`): genera `.xlsx` real con **ClosedXML** (MIT) vía
+  `Common/XlsxWriter.cs`; **ADR 0018**. El content-type ya coincide con el contenido.
 
 ### G-2 — 🟡 Media · 011 FR-005: las exportaciones no se auditan
 Ni `ExportActiveAssignmentsAsync` ni `ExportPredefinedReportAsync` (ni el controller) registran
 auditoría. FR-005 exige que **toda exportación** quede auditada (quién/qué/cuándo) — Principio V.
-- **Remediación:** añadir `audit.RecordEventAsync("EXPORT_REPORT", ...)` en los endpoints de export.
+- **✅ REMEDIADA** (`fix/audit-trazabilidad-dotnet`): `ReportService` audita
+  `EXPORT_ACTIVE_ASSIGNMENTS` y `EXPORT_PREDEFINED_REPORT` (solo volumen/tipo, sin PII).
 
 ### G-3 — 🟡 Media · 012 FR-006: los accesos denegados no se auditan
 `AuthService.LoginAsync` audita el **login exitoso** (`LOGIN`) e incrementa el contador de fallos
 (`OnFailedAttemptAsync`), pero **no registra en auditoría** los intentos fallidos/denegados. FR-006
 pide registrarlos "igual que los exitosos".
-- **Remediación:** auditar `LOGIN_FAILED`/`ACCESS_DENIED` (login fallido y, si aplica, 403).
+- **✅ REMEDIADA** (`fix/audit-trazabilidad-dotnet`): `AuthService` audita `LOGIN_FAILED`
+  (usuario inexistente / contraseña incorrecta) y `LOGIN_DENIED_DISABLED`, sin registrar el correo.
 
 ### G-4 — 🟢 Baja · 017 FR-016: limpieza de imágenes huérfanas
 El picker sube la foto antes de guardar la ficha; no hay purga de `media_asset` sin asociar. Ya
 estaba identificado como pendiente (**T034** de la spec 017).
-- **Remediación:** tarea de limpieza de huérfanas / borrado en el flujo de guardado (spec 017 T034).
+- **✅ REMEDIADA** (`fix/media-orphan-cleanup-dotnet`): `MediaCleanupService` +
+  `MediaCleanupHostedService` purgan huérfanas tras un periodo de gracia; **deshabilitado por
+  defecto** (borrado destructivo de PII, opt-in `App:Media:OrphanCleanupEnabled`). Cierra T034 de 017.
 
 ## Diferencias intencionales (no huecos)
 
@@ -97,8 +102,8 @@ estaba identificado como pendiente (**T034** de la spec 017).
 
 ## Conclusión
 
-La migración a .NET **aplica las specs 001–017 a nivel de requisito**, salvo cuatro huecos de
-**trazabilidad/formato** (G-1..G-4), ninguno de núcleo funcional ni de protección de PII, y todos
-con remediación acotada. Sumados a B-1/B-2 (ya remediados), constituyen el backlog para dar la
-migración por 100% cerrada a nivel FR. Cada remediación va en la rama de la spec correspondiente
-(011 para G-1/G-2, 012/013 para G-3, 017 para G-4).
+La migración a .NET **aplica las specs 001–017 a nivel de requisito**. Los cuatro huecos de
+**trazabilidad/formato** (G-1..G-4) — ninguno de núcleo funcional ni de protección de PII — **ya
+fueron remediados** (ramas `fix/reports-xlsx-dotnet`, `fix/audit-trazabilidad-dotnet`,
+`fix/media-orphan-cleanup-dotnet`), igual que B-1/B-2. **La migración queda cerrada a nivel FR.**
+Quedan como intencionales, sujetos a su ADR: MFA (013, ADR 0014) y firma del QR (002, ADR 0005).

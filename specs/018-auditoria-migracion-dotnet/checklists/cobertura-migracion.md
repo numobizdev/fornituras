@@ -8,9 +8,9 @@ como **presente** en el backend .NET con evidencia; si falta o diverge, dejar `[
 > paridad 1:1; **2 brechas Alta ya REMEDIADAS** (B-1 rate limiting, B-2 triggers de inmutabilidad de
 > auditoría) y **1 mejora** (M-1: brecha `/qr/**` anónima cerrada).
 > **Verificación requisito por requisito** de las 17 specs en [findings-fr.md](../findings-fr.md):
-> ~159 FR, mayoría cumplidos; **4 huecos nuevos** G-1..G-4 (trazabilidad/formato, Media/Baja):
-> G-1 export no-Excel, G-2 export sin auditoría (011), G-3 accesos denegados sin auditar (012),
-> G-4 limpieza de huérfanas (017/T034).
+> ~159 FR, mayoría cumplidos; **4 huecos G-1..G-4 ya REMEDIADOS** (trazabilidad/formato):
+> G-1 export .xlsx real (ClosedXML/ADR 0018), G-2 export auditada (011), G-3 accesos denegados
+> auditados (012), G-4 limpieza de huérfanas (017/T034). Migración cerrada a nivel FR.
 
 Leyenda de estado por spec: **C** = Cubierta · **P** = Parcial · **A** = Ausente · **FE** = Fuera
 de alcance del backend (frontend).
