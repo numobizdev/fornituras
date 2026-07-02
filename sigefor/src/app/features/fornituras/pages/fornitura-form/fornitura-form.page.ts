@@ -21,6 +21,7 @@ import {
   IonToolbar,
   ToastController,
 } from '@ionic/angular/standalone';
+import { FieldErrorsComponent } from '../../../../core/forms/field-errors.component';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
 import { PhotoPickerComponent } from '../../../../core/media/photo-picker/photo-picker.component';
 import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
@@ -63,6 +64,7 @@ import {
     IonSpinner,
     QrScanComponent,
     PhotoPickerComponent,
+    FieldErrorsComponent,
   ],
 })
 export class FornituraFormPage implements OnInit {

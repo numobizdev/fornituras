@@ -23,6 +23,7 @@
             maxlength="120"
             placeholder="Ej. Fornitura"></ion-input>
         </ion-item>
+        <app-field-errors [control]="form.controls.nombre" />
         <ion-item>
           <ion-textarea
             label="Descripción"

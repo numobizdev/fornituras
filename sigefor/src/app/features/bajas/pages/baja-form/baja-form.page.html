@@ -49,6 +49,7 @@
           }
         </ion-select>
       </ion-item>
+      <app-field-errors [control]="form.controls.motivoId" />
       <ion-item>
         <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
       </ion-item>
