@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
   AlertController,
@@ -33,6 +34,14 @@ import { OfficerSummary } from '../../../elementos/data/officer.model';
 import { AssignmentsService } from '../../data/assignments.service';
 import { AssignmentSummary } from '../../data/assignment.model';
 
+type EquipmentFeedbackColor = 'success' | 'warning' | 'danger' | 'medium';
+
+interface EquipmentFeedback {
+  title: string;
+  message: string;
+  color: EquipmentFeedbackColor;
+}
+
 @Component({
   selector: 'app-asignacion',
   templateUrl: './asignacion.page.html',
@@ -58,6 +67,8 @@ import { AssignmentSummary } from '../../data/assignment.model';
   ],
 })
 export class AsignacionPage {
+  private readonly qrScan = viewChild(QrScanComponent);
+
   private readonly assignmentsService = inject(AssignmentsService);
   private readonly equipmentService = inject(EquipmentService);
   private readonly officersService = inject(OfficersService);
@@ -76,6 +87,7 @@ export class AsignacionPage {
   readonly codigo = signal('');
   readonly resolvingEquipment = signal(false);
   readonly equipment = signal<EquipmentDetail | null>(null);
+  readonly equipmentFeedback = signal<EquipmentFeedback | null>(null);
 
   // Paso 2: elemento
   readonly officerQuery = signal('');
@@ -121,24 +133,49 @@ export class AsignacionPage {
   /** Código capturado por lector/cámara/manual (componente 014): resuelve la fornitura server-side. */
   async onCodeCaptured(code: string): Promise<void> {
     this.codigo.set(code);
-    await this.resolveEquipment();
+    await this.resolveEquipment(code);
   }
 
   async onCaptureError(error: QrCaptureError): Promise<void> {
-    await this.showToast(error.message, 'warning');
+    this.setEquipmentFeedback('No se pudo usar la cámara', error.message, 'warning');
   }
 
-  async resolveEquipment(): Promise<void> {
-    const code = this.codigo().trim();
-    if (!code) {
+  dismissEquipmentFeedback(): void {
+    this.equipmentFeedback.set(null);
+  }
+
+  async resolveEquipment(code?: string): Promise<void> {
+    const resolvedCode = (code ?? this.codigo()).trim();
+    if (!resolvedCode) {
       return;
     }
+    this.codigo.set(resolvedCode);
     this.resolvingEquipment.set(true);
     this.equipment.set(null);
+    this.equipmentFeedback.set(null);
     try {
-      this.equipment.set(await firstValueFrom(this.equipmentService.getByCodigo(code)));
+      const equipment = await firstValueFrom(this.equipmentService.getByCodigo(resolvedCode));
+      this.equipment.set(equipment);
+      if (equipment.status === 'DISPONIBLE') {
+        this.setEquipmentFeedback(
+          'Fornitura encontrada',
+          `Código ${equipment.codigoQr} identificado y disponible para asignar.`,
+          'success',
+        );
+        return;
+      }
+      const message =
+        equipment.status === 'ASIGNADA'
+          ? `La fornitura ${equipment.codigoQr} ya está asignada a un elemento y no puede asignarse de nuevo.`
+          : `La fornitura ${equipment.codigoQr} existe, pero no está disponible en almacén.`;
+      this.setEquipmentFeedback('Fornitura no disponible', message, 'warning');
     } catch (error) {
-      await this.showToast(extractApiErrorMessage(error, 'No se encontró la fornitura.'), 'danger');
+      const message = this.equipmentLookupErrorMessage(error, resolvedCode);
+      const title =
+        error instanceof HttpErrorResponse && error.status === 404
+          ? 'Fornitura no encontrada'
+          : 'Error al buscar fornitura';
+      this.setEquipmentFeedback(title, message, 'danger');
     } finally {
       this.resolvingEquipment.set(false);
     }
@@ -193,9 +230,11 @@ export class AsignacionPage {
   clear(): void {
     this.codigo.set('');
     this.equipment.set(null);
+    this.equipmentFeedback.set(null);
     this.officerQuery.set('');
     this.officerResults.set([]);
     this.selectedOfficer.set(null);
+    this.qrScan()?.reset();
   }
 
   async confirmReturn(assignment: AssignmentSummary): Promise<void> {
@@ -237,6 +276,26 @@ export class AsignacionPage {
       this.page.update((p) => p + 1);
       void this.loadVigentes();
     }
+  }
+
+  private setEquipmentFeedback(
+    title: string,
+    message: string,
+    color: EquipmentFeedbackColor,
+  ): void {
+    this.equipmentFeedback.set({ title, message, color });
+  }
+
+  private equipmentLookupErrorMessage(error: unknown, code: string): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 404) {
+        return `No existe ninguna fornitura registrada con el código ${code}. Verifique el código escaneado o registre la fornitura antes de asignar.`;
+      }
+      if (error.status === 429) {
+        return 'Demasiadas búsquedas seguidas. Espere un momento e intente de nuevo.';
+      }
+    }
+    return extractApiErrorMessage(error, `No se pudo buscar la fornitura ${code}.`);
   }
 
   private async showToast(message: string, color: string): Promise<void> {

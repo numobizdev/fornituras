@@ -16,11 +16,17 @@
     @if (cameraSupported) {
       <ion-button
         type="button"
-        fill="clear"
-        aria-label="Escanear con la cámara"
+        fill="outline"
+        color="primary"
+        class="qr-scan__camera-btn"
+        aria-label="Escanear código QR con la cámara"
         [disabled]="isScanning()"
         (click)="startCamera()">
-        <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+        @if (isScanning()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <ion-icon slot="icon-only" name="camera-outline" aria-hidden="true"></ion-icon>
+        }
       </ion-button>
     }
 
@@ -32,25 +38,4 @@
   @if (formatError()) {
     <ion-note color="danger" role="alert">El código no tiene el formato esperado (FOR-XXXXX).</ion-note>
   }
-
-  @if (isScanning() && !usesEmbeddedVideo()) {
-    <p class="qr-scan__hint" aria-live="polite">
-      <ion-spinner name="crescent"></ion-spinner>
-      Abriendo escáner de cámara…
-    </p>
-  }
-
-  <div class="qr-scan__camera" [hidden]="!isScanning() || !usesEmbeddedVideo()">
-    <div class="qr-scan__viewport">
-      <video #video class="qr-scan__video" playsinline muted></video>
-      <div class="qr-scan__frame" aria-hidden="true"></div>
-    </div>
-    <p class="qr-scan__hint" aria-live="polite">
-      @if (isScanning()) { Escaneando… apunte la cámara al código QR. }
-    </p>
-    <ion-button type="button" fill="outline" size="small" (click)="stopCamera()">
-      <ion-icon slot="start" name="close-outline"></ion-icon>
-      Cancelar
-    </ion-button>
-  </div>
 </div>
