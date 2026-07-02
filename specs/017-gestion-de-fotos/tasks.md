@@ -41,6 +41,7 @@ Paths base (histórico — backend Java, sustituido por `fornituras-api-dotnet/`
 
 - [X] T001 Crear la rama `017-gestion-de-fotos` desde `dev` (una rama por spec; conservar tras merge).
 - [X] T002 [P] Añadir `@capacitor/camera` a `sigefor/package.json` y correr `npm install`; registrar permisos de cámara en config de Capacitor.
+- [X] T002b [P] Añadir `@ionic/pwa-elements`, registrar `defineCustomElements(window)` en `main.ts` y `CameraAvailabilityService` para cámara web (FR-004).
 - [X] T003 [P] Añadir `MediaProperties` en `api/config/MediaProperties.java` (`app.media.storage-path`, `max-size`, `max-width`, `max-height`, tipos permitidos) y sus claves en `res/application.yml` leyendo de entorno; documentar los **nombres** en `.env.example`.
 - [X] T004 [P] Configurar límites de multipart en `res/application.yml` (`spring.servlet.multipart.max-file-size` / `max-request-size`) acordes al límite de peso.
 
@@ -84,7 +85,7 @@ el objeto en disco está cifrado y sin EXIF; fila en `media_asset` con `is_pii =
 - [ ] T017 [US1] Integrar en `api/modules/equipment/**`: al guardar equipo, `foto_url` acepta la referencia interna del media; lectura tolera URL previa (FR-013).
 - [ ] T018 [US1] Integrar en el flujo de catálogo de tipos (`api/modules/catalog/**`) para la foto de tipo de prenda.
 - [ ] T019 [P] [US1] Frontend: `fe/core/media/media.service.ts` con `upload(file) → {id,url}` (multipart, usa interceptor de auth).
-- [ ] T020 [P] [US1] Frontend: `fe/core/media/photo-picker/photo-picker.component.ts` (standalone, reutilizable): botones Tomar foto (`@capacitor/camera`) / Elegir archivo, **vista previa**, quitar/reemplazar; fallback web si no hay cámara (FR-004). Usar la skill `ui-ux-pro-max`.
+- [X] T020 [P] [US1] Frontend: `fe/core/media/photo-picker/photo-picker.component.ts` (standalone, reutilizable): botones Tomar foto (`@capacitor/camera`) / Elegir archivo, **vista previa**, quitar/reemplazar; fallback web si no hay cámara (FR-004). PWA Elements + botón deshabilitado con mensaje.
 - [ ] T021 [P] [US1] Frontend: `fe/core/media/secure-image/secure-image.component.ts`: descarga blob autenticada → `objectURL`, revoca al destruir.
 - [ ] T022 [US1] Reemplazar el input "URL de foto" por `<app-photo-picker>` en `fe/features/fornituras/pages/fornitura-form/` y en `fe/features/tipos/pages/tipo-form/`; al guardar, subir primero y setear `fotoUrl` con la referencia. Mostrar la foto con `<app-secure-image>`.
 - [ ] T023 [P] [US1] Tests frontend (`npm test`) de `MediaService`, `PhotoPickerComponent` y `SecureImageComponent`.

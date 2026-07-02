@@ -85,6 +85,8 @@ exploración del código existente y en [ADR 0017](../../docs/04-decisiones/0017
   mantenibilidad y licencia MIT. El proyecto ya tiene precedente de cámara web para QR.
 - **Acción**: añadir `@capacitor/camera` a `package.json`; gestionar permisos y el caso de
   permiso denegado (fallback a subir archivo, FR-004).
+- **Web (PWA Elements)**: instalar `@ionic/pwa-elements` y llamar `defineCustomElements(window)`
+  en `main.ts` antes del bootstrap para habilitar `pwa-camera-modal` en navegador.
 - **Alternativas**: solo `input[type=file]` (pierde la captura nativa fluida en móvil; el usuario
   pidió cámara explícitamente).
 

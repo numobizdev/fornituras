@@ -1,3 +1,4 @@
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
@@ -14,6 +15,8 @@ import { AppComponent } from './app/app.component';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { AuthService } from './app/core/services/auth.service';
 import { OpticalScanner, WebBarcodeDetectorScanner } from './app/core/qr-scan/optical-scanner';
+
+defineCustomElements(window);
 
 bootstrapApplication(AppComponent, {
   providers: [
