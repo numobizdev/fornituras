@@ -12,6 +12,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
   { title: 'Bitácora de Auditoría', url: '/auditoria', icon: 'shield-checkmark', roles: ['ADMIN'] },
   { title: 'Usuarios', url: '/usuarios', icon: 'person-circle', roles: ['ADMIN'] },
   { title: 'Configurar landing', url: '/landing-admin', icon: 'megaphone', roles: ['ADMIN'] },
+  { title: 'Lotes QR', url: '/qr-lotes', icon: 'qr-code', roles: ['SUPER_ADMIN'] },
   { title: 'Catálogo de Tipos', url: '/tipos', icon: 'pricetags' },
   { title: 'Almacenes', url: '/almacenes', icon: 'business' },
 ];

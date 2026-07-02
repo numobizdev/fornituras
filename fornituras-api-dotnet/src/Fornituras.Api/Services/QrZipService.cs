@@ -1,19 +1,28 @@
 using System.IO.Compression;
 using Fornituras.Api.Common;
 using Fornituras.Api.Data.Entities;
+using DtoLabelPosition = Fornituras.Api.Dto.LabelPosition;
+using EntityLabelPosition = Fornituras.Api.Data.Entities.LabelPosition;
 
 namespace Fornituras.Api.Services;
 
 public sealed class QrZipService
 {
     public byte[] GenerateZip(LoteQr lote, IReadOnlyList<string> codigos) =>
-        GenerateZip(lote, codigos, lote.QrSizeCm, lote.PaddingCm, lote.MostrarBordes);
+        GenerateZip(
+            lote,
+            codigos,
+            lote.QrSizeCm,
+            lote.PaddingCm,
+            ToDtoLabel(lote.LabelPosition),
+            lote.MostrarBordes);
 
     public byte[] GenerateZip(
         LoteQr lote,
         IReadOnlyList<string> codigos,
         decimal qrSizeCm,
         decimal paddingCm,
+        DtoLabelPosition labelPosition,
         bool mostrarBordes)
     {
         if (codigos.Count == 0)
@@ -30,7 +39,12 @@ public sealed class QrZipService
                 var fileName = SanitizeFileName(codigo, usedNames);
                 var entry = archive.CreateEntry(fileName, CompressionLevel.Fastest);
                 using var entryStream = entry.Open();
-                var png = QrImageHelper.GenerateStickerPng(codigo, mostrarBordes);
+                var png = QrImageHelper.GenerateCodeUnitPng(
+                    codigo,
+                    (double)qrSizeCm,
+                    (double)paddingCm,
+                    labelPosition,
+                    mostrarBordes);
                 entryStream.Write(png);
             }
         }
@@ -52,4 +66,7 @@ public sealed class QrZipService
 
         return candidate;
     }
+
+    private static DtoLabelPosition ToDtoLabel(EntityLabelPosition position) =>
+        Enum.Parse<DtoLabelPosition>(position.ToString());
 }

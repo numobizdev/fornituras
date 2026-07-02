@@ -1,4 +1,10 @@
-export type UserRole = 'ADMIN' | 'SUPERVISOR' | 'ALMACEN' | 'AUDITOR' | 'CAPTURISTA';
+export type UserRole =
+  | 'ADMIN'
+  | 'SUPER_ADMIN'
+  | 'SUPERVISOR'
+  | 'ALMACEN'
+  | 'AUDITOR'
+  | 'CAPTURISTA';
 
 export interface UserSummary {
   id: number;

@@ -13,8 +13,10 @@ public class LoteQr : BaseEntity
 
     public string Descripcion { get; set; } = string.Empty;
 
+    /// <summary>Tamaño total del cuadrado de corte (cm), sin contar la etiqueta legible.</summary>
     public decimal QrSizeCm { get; set; }
 
+    /// <summary>Margen blanco interno por lado, dentro del cuadrado (<see cref="QrSizeCm"/>).</summary>
     public decimal PaddingCm { get; set; }
 
     public LabelPosition LabelPosition { get; set; }

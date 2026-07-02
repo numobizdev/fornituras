@@ -61,7 +61,7 @@ export class LoginPage {
       }
 
       await this.authService.handleLoginSuccess(response.data);
-      await this.router.navigate(['/inicio']);
+      await this.router.navigate([this.authService.getPostLoginRoute()]);
     } catch (error) {
       await this.showError(extractApiErrorMessage(error, 'Correo o contraseña incorrectos.'));
     } finally {

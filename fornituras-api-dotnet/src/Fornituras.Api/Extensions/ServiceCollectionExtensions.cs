@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Fornituras.Api.Common;
 using Fornituras.Api.Common.Crypto;
@@ -129,7 +130,12 @@ public static class ServiceCollectionExtensions
 
         AddRateLimiting(services, appOptions.RateLimit);
 
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         services.AddOpenApi();
         services.AddHealthChecks();
 

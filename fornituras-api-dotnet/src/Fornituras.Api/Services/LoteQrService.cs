@@ -40,6 +40,8 @@ public sealed class LoteQrService(
             throw new BadRequestException("Se agotó el rango de consecutivos disponibles.");
         }
 
+        ValidatePrintSettings(form.QrSizeCm, form.PaddingCm);
+
         var now = DateTime.UtcNow;
         var lote = new LoteQr
         {
@@ -85,6 +87,18 @@ public sealed class LoteQrService(
 
     public IReadOnlyList<string> ListCodigos(LoteQr lote) =>
         qrCodeGenerator.FormatRange(lote.ConsecutivoInicial, lote.ConsecutivoFinal);
+
+    private static void ValidatePrintSettings(decimal squareSizeCm, decimal paddingCm)
+    {
+        if (squareSizeCm <= 2 * paddingCm)
+        {
+            throw new BadRequestException(
+                "El tamaño del cuadrado debe ser mayor que el doble del padding interno.");
+        }
+    }
+
+    public static void ValidatePrintSettingsOrThrow(decimal squareSizeCm, decimal paddingCm) =>
+        ValidatePrintSettings(squareSizeCm, paddingCm);
 
     private static LoteQrResponse ToResponse(LoteQr lote) =>
         new(

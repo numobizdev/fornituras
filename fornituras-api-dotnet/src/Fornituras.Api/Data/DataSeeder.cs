@@ -19,6 +19,9 @@ public sealed class DataSeeder(
     private const string TestUserEmail = "responsable.prueba@fornituras.local";
     private const string TestUserName = "Responsable de Prueba";
     private const string TestUserPassword = "Prueba#2026";
+    private const string SuperAdminEmail = "superadmin@fornituras.local";
+    private const string SuperAdminName = "Super Admin QR";
+    private const string SuperAdminPassword = "SuperAdmin#2026";
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
@@ -30,6 +33,7 @@ public sealed class DataSeeder(
         {
             await SeedAdminAsync(cancellationToken);
             await SeedTestUserAsync(cancellationToken);
+            await SeedSuperAdminAsync(cancellationToken);
         }
     }
 
@@ -82,6 +86,28 @@ public sealed class DataSeeder(
         });
         await db.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Test user seeded (dev): {Email}", TestUserEmail);
+    }
+
+    private async Task SeedSuperAdminAsync(CancellationToken cancellationToken)
+    {
+        if (await db.Users.AnyAsync(u => u.Email == SuperAdminEmail, cancellationToken))
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        db.Users.Add(new User
+        {
+            Name = SuperAdminName,
+            Email = SuperAdminEmail,
+            Password = BCrypt.Net.BCrypt.HashPassword(SuperAdminPassword),
+            Role = Role.SUPER_ADMIN,
+            Enabled = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        });
+        await db.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("Super admin QR user seeded (dev): {Email}", SuperAdminEmail);
     }
 
     private async Task SeedCatalogsAsync(CancellationToken cancellationToken)

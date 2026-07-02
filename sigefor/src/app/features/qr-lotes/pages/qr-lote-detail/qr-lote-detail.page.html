@@ -1,0 +1,121 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/qr-lotes" text="Lotes"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del lote</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (isExporting()) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>{{ exportMessage() }}</p>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="centered">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (lote(); as lote) {
+    <h1 class="page-title">Lote #{{ lote.id }}</h1>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ lote.descripcion }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item>
+            <ion-label>
+              <p>Cantidad</p>
+              <h3>{{ lote.cantidad }} códigos</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Rango</p>
+              <h3>{{ formatRange(lote.consecutivoInicial, lote.consecutivoFinal) }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Fecha de generación</p>
+              <h3>{{ lote.createdAt | date: 'dd/MM/yyyy HH:mm' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Configuración original</p>
+              <h3>
+                Cuadrado {{ lote.qrSizeCm }} cm · Padding {{ lote.paddingCm }} cm/lado ·
+                {{ lote.mostrarBordes ? 'Con bordes' : 'Sin bordes' }}
+              </h3>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <h2 class="section-title">Reimprimir / exportar</h2>
+    <p class="section-intro">Seleccione las opciones de impresión. Los códigos del lote no cambiarán.</p>
+
+    <form [formGroup]="form">
+      <ion-item>
+        <ion-input
+          label="Tamaño del cuadrado (cm)"
+          labelPlacement="stacked"
+          type="number"
+          step="0.1"
+          formControlName="qrSizeCm"
+          min="1"
+          max="15"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Padding alrededor del QR (cm)"
+          labelPlacement="stacked"
+          type="number"
+          step="0.1"
+          formControlName="paddingCm"
+          min="0"
+          max="5"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select label="Mostrar código legible" labelPlacement="stacked" formControlName="labelPosition">
+          @for (option of labelOptions; track option.value) {
+            <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-select label="Imprimir bordes del código" labelPlacement="stacked" formControlName="mostrarBordes">
+          <ion-select-option [value]="true">Sí</ion-select-option>
+          <ion-select-option [value]="false">No</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <div class="actions">
+        <ion-button expand="block" (click)="reprintPdf()" [disabled]="isExporting()">
+          Reimprimir PDF
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="reprintZip()" [disabled]="isExporting()">
+          Reimprimir ZIP (PNG)
+        </ion-button>
+        <ion-button expand="block" fill="clear" (click)="downloadOriginalPdf()" [disabled]="isExporting()">
+          PDF con config. original
+        </ion-button>
+        <ion-button expand="block" fill="clear" (click)="downloadOriginalZip()" [disabled]="isExporting()">
+          ZIP con config. original
+        </ion-button>
+      </div>
+    </form>
+  }
+</ion-content>

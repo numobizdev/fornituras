@@ -42,6 +42,8 @@ import {
   personCircleSharp,
   pricetagsOutline,
   pricetagsSharp,
+  qrCodeOutline,
+  qrCodeSharp,
   swapHorizontalOutline,
   swapHorizontalSharp,
   warningOutline,
@@ -78,9 +80,14 @@ export class AppComponent {
 
   public readonly currentUser = this.authService.currentUser;
 
-  /** Menú filtrado por rol: las entradas con `roles` solo se muestran a esos roles (mínimo privilegio). */
+  /** Menú filtrado por rol: SUPER_ADMIN solo ve Lotes QR; entradas con `roles` filtran al resto. */
   public readonly appPages = computed<NavItem[]>(() => {
     const role = this.currentUser()?.role;
+    if (role === 'SUPER_ADMIN') {
+      return APP_NAV_ITEMS.filter(
+        (item) => item.roles?.includes('SUPER_ADMIN') ?? false,
+      );
+    }
     return APP_NAV_ITEMS.filter((item) => !item.roles || (role != null && item.roles.includes(role)));
   });
 
@@ -113,6 +120,8 @@ export class AppComponent {
       megaphoneSharp,
       pricetagsOutline,
       pricetagsSharp,
+      qrCodeOutline,
+      qrCodeSharp,
       businessOutline,
       businessSharp,
       shieldCheckmarkOutline,

@@ -75,6 +75,11 @@ export class AuthService {
     return this.currentUser()?.role === role;
   }
 
+  /** Destino tras login según rol (SUPER_ADMIN → módulo QR). */
+  getPostLoginRoute(): string {
+    return this.hasRole('SUPER_ADMIN') ? '/qr-lotes' : '/inicio';
+  }
+
   async logout(redirectToLogin = true): Promise<void> {
     await this.clearSession();
     if (redirectToLogin) {

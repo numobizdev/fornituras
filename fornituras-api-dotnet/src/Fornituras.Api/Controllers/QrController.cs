@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fornituras.Api.Controllers;
 
 [ApiController]
-[Authorize(Roles = RolePolicy.WriteInventory)]
+[Authorize(Roles = RolePolicy.ManageQrLotes)]
 [Route("api/v1/qr")]
 public sealed class QrController(IQrService qrService) : ControllerBase
 {
