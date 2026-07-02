@@ -62,13 +62,13 @@ Paths base: `api = fornituras-api-dotnet/src/Fornituras.Api` · `itest = fornitu
 
 **Goal**: restaurar el rate limiting perdido en la migración con el limitador nativo de ASP.NET Core.
 
-- [ ] T015 Crear `api/Configuration/RateLimitOptions.cs` (`ByCodigo` 30/60s, `Public` 60/60s) y `RateLimitPolicies` (nombres); añadir `RateLimit` a `api/Configuration/AppOptions.cs`.
-- [ ] T016 Registrar el limitador en `api/Extensions/ServiceCollectionExtensions.cs`: `AddRateLimiter` con políticas `by-codigo` (partición por actor) y `public` (partición por IP), `OnRejected` → **429** con `ApiResponse`.
-- [ ] T017 Añadir `app.UseRateLimiter()` en `api/Program.cs` (tras `UseAuthentication`/`UseAuthorization`, antes de `MapControllers`).
-- [ ] T018 Aplicar `[EnableRateLimiting("by-codigo")]` en `EquipmentController.GetByCodigo` y `[EnableRateLimiting("public")]` en `LandingController.GetPublic` (`api/Controllers`).
-- [ ] T019 Añadir la sección `App:RateLimit` a `api/appsettings.json`.
-- [ ] T020 [P] Test unitario aislable en `itest/RateLimitTests.cs` (resolución de opciones/partición); documentar validación manual (quickstart §B).
-- [ ] T021 `dotnet build` + `dotnet test` verdes; commit en `fix/rate-limiting-dotnet` y merge a `dev`.
+- [X] T015 Crear `api/Configuration/RateLimitOptions.cs` (`ByCodigo` 30/60s, `Public` 60/60s) y `RateLimitPolicies` (nombres); añadir `RateLimit` a `api/Configuration/AppOptions.cs`.
+- [X] T016 Registrar el limitador en `api/Extensions/ServiceCollectionExtensions.cs`: `AddRateLimiter` con políticas `by-codigo` (partición por actor) y `public` (partición por IP), `OnRejected` → **429** con `ApiResponse`.
+- [X] T017 Añadir `app.UseRateLimiter()` en `api/Program.cs` (tras `UseAuthentication`/`UseAuthorization`, antes de `MapControllers`).
+- [X] T018 Aplicar `[EnableRateLimiting("by-codigo")]` en `EquipmentController.GetByCodigo` y `[EnableRateLimiting("public")]` en `LandingController.GetPublic` (`api/Controllers`).
+- [X] T019 Añadir la sección `App:RateLimit` a `api/appsettings.json`.
+- [X] T020 [P] Test unitario aislable en `itest/RateLimitTests.cs` (resolución de opciones/partición); documentar validación manual (quickstart §B).
+- [X] T021 `dotnet build` + `dotnet test` verdes; commit en `fix/rate-limiting-dotnet` y merge a `dev`.
 
 **Checkpoint**: B-1 cerrada — `by-codigo` y `landing/public` responden 429 al exceder el límite.
 
@@ -76,9 +76,9 @@ Paths base: `api = fornituras-api-dotnet/src/Fornituras.Api` · `itest = fornitu
 
 **Goal**: restaurar la garantía append-only de `audit_log` a nivel de BD.
 
-- [ ] T022 Crear migración EF `AddAuditImmutabilityTriggers` (`dotnet ef migrations add`) con `migrationBuilder.Sql(...)` que cree `trg_audit_log_no_update` y `trg_audit_log_no_delete` (`INSTEAD OF UPDATE/DELETE`); `Down` los elimina.
-- [ ] T023 Verificar que el snapshot EF no cambia el esquema (solo triggers) y que `InitialCreate` sigue intacto.
-- [ ] T024 `dotnet build` + `dotnet test` verdes; documentar validación manual en SQL Server (quickstart §C); commit en `fix/audit-inmutable-dotnet` y merge a `dev`.
+- [X] T022 Crear migración EF `AddAuditImmutabilityTriggers` (`dotnet ef migrations add`) con `migrationBuilder.Sql(...)` que cree `trg_audit_log_no_update` y `trg_audit_log_no_delete` (`INSTEAD OF UPDATE/DELETE`); `Down` los elimina.
+- [X] T023 Verificar que el snapshot EF no cambia el esquema (solo triggers) y que `InitialCreate` sigue intacto.
+- [X] T024 `dotnet build` + `dotnet test` verdes; documentar validación manual en SQL Server (quickstart §C); commit en `fix/audit-inmutable-dotnet` y merge a `dev`.
 
 **Checkpoint**: B-2 cerrada — `UPDATE`/`DELETE` sobre `audit_log` rechazados por la BD.
 
@@ -86,9 +86,9 @@ Paths base: `api = fornituras-api-dotnet/src/Fornituras.Api` · `itest = fornitu
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T025 Actualizar `findings.md` marcando B-1 y B-2 como **remediadas** (con commits/ramas) y la nota de proyecto de la brecha `/qr/**` como resuelta (M-1).
-- [ ] T026 [P] Actualizar la memoria del proyecto (estado de la auditoría 018 y cierre de brechas).
-- [ ] T027 Confirmar que la Fase A no tocó código de producción (SC-005) y que la remediación no altera el contrato Ionic (quickstart §D).
+- [X] T025 Actualizar `findings.md` marcando B-1 y B-2 como **remediadas** (con commits/ramas) y la nota de proyecto de la brecha `/qr/**` como resuelta (M-1).
+- [X] T026 [P] Actualizar la memoria del proyecto (estado de la auditoría 018 y cierre de brechas).
+- [X] T027 Confirmar que la Fase A no tocó código de producción (SC-005) y que la remediación no altera el contrato Ionic (quickstart §D).
 
 ---
 

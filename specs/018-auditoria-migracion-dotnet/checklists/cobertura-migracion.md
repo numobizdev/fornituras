@@ -5,8 +5,8 @@ como **presente** en el backend .NET con evidencia; si falta o diverge, dejar `[
 **brecha** (severidad + qué falta). Referencia de comparación: backend Java en `fornituras-api/`.
 
 > **EJECUTADA (2026-07-01).** Resultado completo en [findings.md](../findings.md): API y datos con
-> paridad 1:1; **2 brechas Alta** (B-1 rate limiting, B-2 triggers de inmutabilidad de auditoría) y
-> **1 mejora** (M-1: brecha `/qr/**` anónima cerrada).
+> paridad 1:1; **2 brechas Alta ya REMEDIADAS** (B-1 rate limiting, B-2 triggers de inmutabilidad de
+> auditoría) y **1 mejora** (M-1: brecha `/qr/**` anónima cerrada).
 
 Leyenda de estado por spec: **C** = Cubierta · **P** = Parcial · **A** = Ausente · **FE** = Fuera
 de alcance del backend (frontend).
@@ -20,8 +20,8 @@ de alcance del backend (frontend).
 - [X] PII de `Officer` cifrada AES-256-GCM (`PiiCipher`) + blind index (`BlindIndexer`) para búsqueda
 - [X] Enmascaramiento de PII por rol (`RolePolicy.CanViewFullPii`) preservado
 - [X] QR no contiene PII (identificador opaco) — sin regresión
-- [ ] Auditoría append-only e inmutable (12) preservada; sin PII en logs → **BRECHA B-2**: faltan los triggers `INSTEAD OF UPDATE/DELETE`; sin PII en logs sí se preserva
-- [ ] Rate limiting donde aplique (login, landing pública) → **BRECHA B-1**: no hay rate limiter cableado en .NET
+- [X] Auditoría append-only e inmutable (12) preservada; sin PII en logs → **B-2 REMEDIADA** (`fix/audit-inmutable-dotnet`: triggers `INSTEAD OF UPDATE/DELETE` recreados)
+- [X] Rate limiting donde aplique (by-codigo, landing pública) → **B-1 REMEDIADA** (`fix/rate-limiting-dotnet`: rate limiter nativo, 429)
 - [X] Brecha conocida `/qr/**` sin auth → **CERRADA (M-1)**: `QrWebController` no existe en .NET
 
 ## Transversal — Endpoints y datos (US2)

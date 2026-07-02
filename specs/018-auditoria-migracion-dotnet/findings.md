@@ -14,9 +14,12 @@ se portaron) y **1 mejora** (una brecha de seguridad conocida quedó cerrada). E
 
 | Severidad | # | 
 |-----------|---|
-| 🔴 Alta   | 2 |
+| 🔴 Alta   | 2 (**ambas REMEDIADAS**, ver §Brechas) |
 | 🟡 Media  | 0 |
 | 🟢 Mejora | 1 |
+
+> **Actualización — remediación (2026-07-01):** B-1 y B-2 fusionadas a `dev`
+> (`fix/rate-limiting-dotnet`, `fix/audit-inmutable-dotnet`). Ver detalle al pie de cada brecha.
 
 ## Matriz de cobertura por spec (001–017)
 
@@ -57,6 +60,10 @@ texto libre (ADR 0007) — ver Decisión D-1.
 - **Remediación propuesta:** cablear el rate limiter nativo de ASP.NET Core (`AddRateLimiter` con
   ventana fija por IP en `/auth/login`, resolución de QR y `/landing/public`); no requiere Bucket4j.
   Ejecutar en una rama de remediación (¿reabrir alcance de spec 016/013 o ADR 0010?).
+- **✅ REMEDIADA** (`fix/rate-limiting-dotnet`): `AddRateLimiter`/`UseRateLimiter` con políticas
+  `by-codigo` (30/60s por actor) y `public` (60/60s por IP), 429 en `ApiResponse`, aplicadas a
+  `EquipmentController.GetByCodigo` y `LandingController.GetPublic`; límites en `App:RateLimit`.
+  El login sigue protegido por *lockout*. Sin dependencias nuevas.
 
 ### B-2 — 🔴 Alta · Inmutabilidad de la bitácora (ADR 0012) no portada
 - **Qué:** Java `V21__create_audit_log.sql` crea triggers `trg_audit_log_no_update` y
@@ -69,6 +76,10 @@ texto libre (ADR 0007) — ver Decisión D-1.
 - **Remediación propuesta:** añadir una migración EF con `migrationBuilder.Sql(...)` que recree los
   dos triggers `INSTEAD OF`. También evaluar el encadenamiento por `prev_hash` (hoy reservado en
   ambos backends, sin calcular).
+- **✅ REMEDIADA** (`fix/audit-inmutable-dotnet`): migración EF `AddAuditImmutabilityTriggers`
+  recrea `trg_audit_log_no_update` y `trg_audit_log_no_delete` (`INSTEAD OF UPDATE/DELETE`,
+  `RAISERROR`) vía `migrationBuilder.Sql`; `Down` los elimina. Sin cambio de esquema. El
+  encadenamiento por `prev_hash` queda como mejora futura (no era peor que en Java).
 
 ## Mejora detectada
 
@@ -99,14 +110,15 @@ texto libre (ADR 0007) — ver Decisión D-1.
 | PII de elemento cifrada AES-256-GCM + blind index | **Preservado** (`PiiCipher` + `BlindIndexer`, entidad `Officer`) |
 | Enmascaramiento de PII por rol | **Preservado** (`RolePolicy.CanViewFullPii`, `PiiMasker`) |
 | QR sin PII / sin acceso anónimo | **Mejorado** (M-1: UI web anónima eliminada) |
-| Rate limiting | **Brecha (B-1)** |
-| Auditoría inmutable append-only | **Brecha (B-2)** — la tabla existe, faltan los triggers |
+| Rate limiting | **Preservado** (B-1 remediada: rate limiter nativo) |
+| Auditoría inmutable append-only | **Preservado** (B-2 remediada: triggers `INSTEAD OF` recreados) |
 | Sin PII en logs | **Preservado** (auditoría por id/evento, no vuelca PII) |
 
 ## Conclusión
 
-Nada del **contrato funcional** (endpoints, entidades, reglas) se perdió en la migración. Lo que se
-perdió son **dos controles transversales de seguridad** (rate limiting y triggers de inmutabilidad
-de auditoría) que deben re-implementarse en .NET antes de considerar la migración cerrada. Cada
-remediación se hará en su rama (AGENTS.md §5.8): sugerido `fix/rate-limiting-dotnet` (B-1) y
-`fix/audit-inmutable-dotnet` (B-2).
+Nada del **contrato funcional** (endpoints, entidades, reglas) se perdió en la migración. Los dos
+controles transversales de seguridad que faltaban (rate limiting y triggers de inmutabilidad de
+auditoría) **ya fueron remediados** en `dev` (`fix/rate-limiting-dotnet`, `fix/audit-inmutable-dotnet`),
+sin dependencias nuevas. **Migración cerrada** desde la perspectiva de paridad: API, datos y
+controles de seguridad quedan al nivel del backend Java o por encima (brecha `/qr/**` cerrada).
+Mejora futura opcional: encadenamiento por hash de la auditoría e infra de tests de integración.
