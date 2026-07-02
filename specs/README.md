@@ -24,7 +24,10 @@ de prenda tiene hoy un único valor, "Fornitura".
 | 013 | [usuarios](./013-usuarios/spec.md) — usuarios y roles (RBAC) | §8 Usuarios | Usuarios y Roles |
 | 014 | [escaneo-qr](./014-escaneo-qr/spec.md) — captura QR (lector/cámara/manual) | §1/§3/§5 (captura) | — (componente) |
 | 015 | [catalogos-sexo-sangre](./015-catalogos-sexo-sangre/spec.md) — migrar `SEXO`/`TIPO_SANGRE` a la estructura genérica (ADR 0007) | — (deuda técnica) | — (parte de Catálogos) |
+| 016 | [landing-configurable](./016-landing-configurable/spec.md) — landing configurable (pública + panel), rate limiting, anti-XSS (ADR 0015) | — | Landing |
+| 017 | [gestion-de-fotos](./017-gestion-de-fotos/spec.md) — captura/almacenamiento seguro de fotos (cámara/upload, cifrado, RBAC PII); **implementada en .NET** | §2/§3/§10 (foto) | — (componente) |
 | 017 | [migracion-api-dotnet](./017-migracion-api-dotnet/spec.md) — **migración backend** Spring Boot → ASP.NET Core Web API (.NET 10); contrato transparente para Ionic | — (infraestructura) | — |
+| 018 | [auditoria-migracion-dotnet](./018-auditoria-migracion-dotnet/spec.md) — **auditoría de paridad**: verifica que las specs 001–017 estén aplicadas en `fornituras-api-dotnet/` y que no se haya perdido nada | — (calidad) | — |
 
 ## Orden de implementación recomendado
 
