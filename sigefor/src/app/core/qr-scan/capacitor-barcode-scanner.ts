@@ -5,18 +5,15 @@ import {
   CapacitorBarcodeScannerTypeHint,
 } from '@capacitor/barcode-scanner';
 import { OpticalScanner } from './optical-scanner';
-import { QrCaptureError } from './qr-scan.types';
+import { OpticalScanOptions, QrCaptureError } from './qr-scan.types';
+import { scanQrOnWeb } from './web-html5-qrcode-scanner';
 
 /**
- * Escaneo óptico con `@capacitor/barcode-scanner` (ADR 0019): modal nativo en Android/iOS y
- * Html5Qrcode en web con selector de cámara. No usa el `<video>` embebido del componente.
+ * Escaneo óptico con `@capacitor/barcode-scanner` (ADR 0019): modal nativo en Android/iOS.
+ * En web usa Html5Qrcode con `deviceId` elegido por el usuario (varias webcams).
  */
 @Injectable({ providedIn: 'root' })
 export class CapacitorBarcodeScannerService extends OpticalScanner {
-  usesEmbeddedVideo(): boolean {
-    return false;
-  }
-
   isSupported(): boolean {
     if (typeof navigator === 'undefined') {
       return false;
@@ -27,12 +24,27 @@ export class CapacitorBarcodeScannerService extends OpticalScanner {
     return false;
   }
 
-  async scan(_video: HTMLVideoElement, signal: AbortSignal): Promise<string> {
+  async scan(signal: AbortSignal, options?: OpticalScanOptions): Promise<string> {
     if (signal.aborted) {
       throw this.error('scan-failed', 'Escaneo cancelado.');
     }
     if (!this.isSupported()) {
       throw this.error('unsupported', 'El escaneo por cámara no está disponible en este dispositivo.');
+    }
+
+    if (Capacitor.getPlatform() === 'web') {
+      const deviceId = options?.deviceId?.trim();
+      if (!deviceId) {
+        throw this.error('scan-failed', 'Escaneo cancelado.');
+      }
+      try {
+        return await scanQrOnWeb(deviceId, signal);
+      } catch (cause) {
+        if (isQrCaptureError(cause)) {
+          throw cause;
+        }
+        throw this.error('scan-failed', 'No se pudo completar el escaneo. Use el lector o teclee el código.');
+      }
     }
 
     const abortPromise = new Promise<never>((_, reject) => {
@@ -48,10 +60,6 @@ export class CapacitorBarcodeScannerService extends OpticalScanner {
         CapacitorBarcodeScanner.scanBarcode({
           hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
           scanInstructions: 'Apunte la cámara al código QR de la fornitura',
-          web: {
-            showCameraSelection: true,
-            scannerFPS: 10,
-          },
         }),
         abortPromise,
       ]);

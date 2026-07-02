@@ -4,35 +4,36 @@ import { CapacitorBarcodeScannerService } from './capacitor-barcode-scanner';
 
 describe('CapacitorBarcodeScannerService', () => {
   let service: CapacitorBarcodeScannerService;
+  let scanBarcodeSpy: jasmine.Spy;
 
   beforeEach(() => {
     service = new CapacitorBarcodeScannerService();
     spyOn(Capacitor, 'isPluginAvailable').and.returnValue(true);
+    scanBarcodeSpy = spyOn(CapacitorBarcodeScanner, 'scanBarcode');
     Object.defineProperty(navigator, 'mediaDevices', {
       configurable: true,
       value: { getUserMedia: jasmine.createSpy('getUserMedia') },
     });
   });
 
-  it('uses modal scan (no embedded video)', () => {
-    expect(service.usesEmbeddedVideo()).toBeFalse();
+  it('requires deviceId on web before opening the scanner', async () => {
+    spyOn(Capacitor, 'getPlatform').and.returnValue('web');
+
+    await expectAsync(service.scan(new AbortController().signal)).toBeRejected();
+    expect(scanBarcodeSpy).not.toHaveBeenCalled();
   });
 
-  it('returns the scanned QR code from CapacitorBarcodeScanner', async () => {
-    spyOn(CapacitorBarcodeScanner, 'scanBarcode').and.resolveTo({
+  it('uses CapacitorBarcodeScanner on native platforms', async () => {
+    spyOn(Capacitor, 'getPlatform').and.returnValue('android');
+    scanBarcodeSpy.and.resolveTo({
       ScanResult: 'FOR-ABC12',
       format: CapacitorBarcodeScannerTypeHint.QR_CODE,
     });
 
-    const code = await service.scan(document.createElement('video'), new AbortController().signal);
+    const code = await service.scan(new AbortController().signal);
 
     expect(code).toBe('FOR-ABC12');
-    expect(CapacitorBarcodeScanner.scanBarcode).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
-        web: jasmine.objectContaining({ showCameraSelection: true }),
-      }),
-    );
+    expect(scanBarcodeSpy).toHaveBeenCalled();
   });
 
   it('is not supported when getUserMedia is unavailable', () => {

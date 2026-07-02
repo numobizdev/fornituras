@@ -1,18 +1,17 @@
 import {
   Component,
-  ElementRef,
   OnDestroy,
   computed,
   inject,
   input,
   output,
   signal,
-  viewChild,
 } from '@angular/core';
 import { IonButton, IonIcon, IonInput, IonNote, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cameraOutline, closeOutline } from 'ionicons/icons';
+import { cameraOutline } from 'ionicons/icons';
 import { HidDetector } from './hid-detector';
+import { CameraSelectionService } from './camera-selection.service';
 import { OpticalScanner } from './optical-scanner';
 import { QrScanService } from './qr-scan.service';
 import { QrCapture, QrCaptureError } from './qr-scan.types';
@@ -21,9 +20,9 @@ import { QrCapture, QrCaptureError } from './qr-scan.types';
  * Componente único de captura de QR (feature 014), reutilizado por 001/004/007/009.
  *
  * Un campo de texto cubre **lector HID** (detección por ráfaga) y **tecleo manual**; el botón de
- * cámara abre el **escaneo óptico** (best-effort, ver {@link OpticalScanner}). Emite el código
- * capturado por `codeCaptured` y errores de cámara por `captureError`. **No** resuelve datos:
- * la relación código → fornitura/elemento la hace el servidor en el consumidor (Principios II/IV).
+ * cámara abre el **escaneo óptico** (Capacitor barcode-scanner). Emite el código capturado por
+ * `codeCaptured` y errores de cámara por `captureError`. **No** resuelve datos: la relación código
+ * → fornitura/elemento la hace el servidor en el consumidor (Principios II/IV).
  */
 @Component({
   selector: 'app-qr-scan',
@@ -34,6 +33,7 @@ import { QrCapture, QrCaptureError } from './qr-scan.types';
 export class QrScanComponent implements OnDestroy {
   private readonly service = inject(QrScanService);
   private readonly scanner = inject(OpticalScanner);
+  private readonly cameraSelection = inject(CameraSelectionService);
 
   /** Texto del placeholder del campo (lector + manual). */
   readonly placeholder = input('Escanee con el lector o teclee el código');
@@ -51,16 +51,10 @@ export class QrScanComponent implements OnDestroy {
   /** Error de captura (cámara denegada/no disponible). El flujo sigue por lector/manual. */
   readonly captureError = output<QrCaptureError>();
 
-  private readonly videoRef = viewChild<ElementRef<HTMLVideoElement>>('video');
-
   readonly value = signal('');
   readonly isScanning = signal(false);
   readonly formatError = signal(false);
   readonly cameraSupported = this.scanner.isSupported();
-
-  protected usesEmbeddedVideo(): boolean {
-    return this.scanner.usesEmbeddedVideo();
-  }
 
   readonly canSubmit = computed(() => this.value().trim().length > 0);
 
@@ -68,7 +62,7 @@ export class QrScanComponent implements OnDestroy {
   private abortController?: AbortController;
 
   constructor() {
-    addIcons({ cameraOutline, closeOutline });
+    addIcons({ cameraOutline });
   }
 
   ngOnDestroy(): void {
@@ -101,13 +95,27 @@ export class QrScanComponent implements OnDestroy {
     if (!this.cameraSupported || this.isScanning()) {
       return;
     }
+
+    let deviceId: string | null | undefined;
+    try {
+      deviceId = await this.cameraSelection.resolveDeviceIdForScan();
+    } catch (error) {
+      if ((error as QrCaptureError).reason) {
+        this.captureError.emit(error as QrCaptureError);
+      }
+      return;
+    }
+    if (deviceId === null) {
+      return;
+    }
+
     this.isScanning.set(true);
     this.abortController = new AbortController();
+    let capturedRaw: string | null = null;
     try {
-      const raw = this.scanner.usesEmbeddedVideo()
-        ? await this.scanWithEmbeddedVideo(this.abortController.signal)
-        : await this.scanner.scan(document.createElement('video'), this.abortController.signal);
-      this.emit(raw, 'camera');
+      capturedRaw = await this.scanner.scan(this.abortController.signal, {
+        deviceId: deviceId ?? undefined,
+      });
     } catch (error) {
       if ((error as QrCaptureError).reason !== 'scan-failed') {
         this.captureError.emit(error as QrCaptureError);
@@ -115,14 +123,15 @@ export class QrScanComponent implements OnDestroy {
     } finally {
       this.stopCamera();
     }
+    if (capturedRaw !== null) {
+      this.emit(capturedRaw, 'camera');
+    }
   }
 
-  private async scanWithEmbeddedVideo(signal: AbortSignal): Promise<string> {
-    const video = this.videoRef()?.nativeElement;
-    if (!video) {
-      throw { reason: 'scan-failed', message: 'Escaneo cancelado.' } satisfies QrCaptureError;
-    }
-    return this.scanner.scan(video, signal);
+  /** Restablece el campo (p. ej. al limpiar el formulario del consumidor). */
+  reset(): void {
+    this.value.set('');
+    this.formatError.set(false);
   }
 
   stopCamera(): void {
@@ -141,6 +150,9 @@ export class QrScanComponent implements OnDestroy {
       return;
     }
     this.formatError.set(false);
+    if (!this.clearOnCapture()) {
+      this.value.set(capture.code);
+    }
     this.codeCaptured.emit(capture.code);
     this.captured.emit(capture);
     if (this.clearOnCapture()) {
