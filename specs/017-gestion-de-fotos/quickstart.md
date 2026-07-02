@@ -6,8 +6,9 @@ diseño en [plan.md](./plan.md), [data-model.md](./data-model.md) y
 
 ## Prerrequisitos
 
-- Backend levantado: desde `fornituras-api/` → `.\mvnw.cmd spring-boot:run`
-  (con la migración `V25` aplicada y `app.media.*` configurado por entorno/.env).
+- Backend levantado: desde `fornituras-api-dotnet/` → `dotnet run --project src/Fornituras.Api`
+  (con la migración `AddMediaAsset` aplicada y `App:Media:*` configurado; `OfficerPhotoEnabled`
+  gobierna el gating de la foto de elemento).
 - Frontend levantado: desde `sigefor/` → `npm install` (incluye `@capacitor/camera`) y
   `npm start`.
 - Un usuario con rol autorizado y otro sin rol de PII, para probar el enmascaramiento.
@@ -58,9 +59,8 @@ diseño en [plan.md](./plan.md), [data-model.md](./data-model.md) y
 
 ## Pruebas automatizadas (referencia)
 
-- **Backend** (desde `fornituras-api/`): `.\mvnw.cmd test`. Incluir `@SpringBootTest`+MockMvc
-  (H2, ADR 0009) que: suba una imagen y verifique cifrado en disco + ausencia de EXIF; rechace
-  SVG/no-imagen/oversize; compruebe `401/403` de autorización y el registro en auditoría del
-  `GET` de un asset PII.
+- **Backend** (desde `fornituras-api-dotnet/`): `dotnet test`. Tests xUnit que: saneen una imagen
+  y verifiquen cifrado en disco + ausencia de EXIF; rechacen SVG/no-imagen/oversize; comprueben el
+  gating y el RBAC de PII (upload y `GET` de un asset PII → `403` sin rol autorizado).
 - **Frontend** (desde `sigefor/`): `npm test` para `MediaService`, `PhotoPickerComponent`
   (cámara/archivo/preview) y `SecureImageComponent` (carga blob autenticada).

@@ -18,9 +18,9 @@ Sube una imagen: valida, sanea (EXIF stripping), cifra y almacena. Devuelve la r
   | `image`   | file   | sí        | `JPEG`/`PNG`/`WEBP`; ≤ límite de peso/dimensiones. |
   | `context` | text   | sí        | `equipment` \| `equipment_type` \| `officer` → fija `is_pii`. |
 
-- **200 OK**:
+- **201 Created**:
   ```json
-  { "success": true, "message": "Foto subida", "data": { "id": "<uuid>", "url": "/api/v1/media/<uuid>", "contentType": "image/jpeg" } }
+  { "success": true, "message": "Foto subida.", "data": { "id": "<uuid>", "url": "/api/v1/media/<uuid>", "contentType": "image/jpeg" } }
   ```
 - **Errores**:
   | Código | Caso |
@@ -45,9 +45,8 @@ Descarga/streamea la imagen descifrada, si el solicitante está autorizado.
 
 Elimina la foto y purga el objeto conforme a retención/ARCO.
 
-- **Autorización**: rol con permiso de edición sobre la entidad dueña; para PII, además rol
-  autorizado. Evento auditado.
-- **204 No Content** al eliminar; `404` si no existe.
+- **Autorización**: usuario autenticado; para PII, además rol autorizado. Evento auditado.
+- **200 OK** con `ApiResponse` (`{ success, message, data: null }`) al eliminar; `404` si no existe.
 
 ## Integración con las entidades
 

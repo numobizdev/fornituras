@@ -19,7 +19,15 @@ description: "Task list — 017 Captura y almacenamiento seguro de fotos"
 - **[Story]**: US1/US2/US3
 - Rutas relativas a la raíz del monorepo (`fornituras-api/`, `sigefor/`)
 
-Paths base:
+> **Actualización (migración a .NET):** las rutas Java de abajo son **históricas**. La feature se
+> implementó en el backend **ASP.NET Core** (`fornituras-api-dotnet/`, ver [ADR 0016] y plan.md):
+> el módulo `media` (T005–T018, T024–T030) vive en `Controllers/`, `Services/`, `Data/`, `Dto/`,
+> `Configuration/`; migración EF `AddMediaAsset` (no Flyway V25); saneo con SixLabors.ImageSharp;
+> tests xUnit (`dotnet test`). El frontend (T019–T023, T031–T032) sí está en `sigefor/` como se
+> describe. La verificación de que nada se perdió en la migración se cubre en la spec
+> `018-auditoria-migracion-dotnet`.
+
+Paths base (histórico — backend Java, sustituido por `fornituras-api-dotnet/`):
 `api = fornituras-api/src/main/java/com/numobiz/solutions/fornituras`
 `res = fornituras-api/src/main/resources`
 `itest = fornituras-api/src/test/java/com/numobiz/solutions/fornituras`
