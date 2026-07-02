@@ -6,6 +6,7 @@ namespace Fornituras.Api.Data.Entities;
 public enum Role
 {
     ADMIN,
+    SUPER_ADMIN,
     SUPERVISOR,
     ALMACEN,
     AUDITOR,

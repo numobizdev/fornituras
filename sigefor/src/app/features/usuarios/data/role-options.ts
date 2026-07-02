@@ -6,6 +6,7 @@ import { UserRole } from '../../../core/models/auth.model';
  */
 export const ROLE_OPTIONS: ReadonlyArray<{ value: UserRole; label: string }> = [
   { value: 'ADMIN', label: 'Administrador' },
+  { value: 'SUPER_ADMIN', label: 'Super Admin QR' },
   { value: 'SUPERVISOR', label: 'Supervisor' },
   { value: 'ALMACEN', label: 'Almacén' },
   { value: 'AUDITOR', label: 'Auditor' },
@@ -14,6 +15,7 @@ export const ROLE_OPTIONS: ReadonlyArray<{ value: UserRole; label: string }> = [
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   ADMIN: 'Administrador',
+  SUPER_ADMIN: 'Super Admin QR',
   SUPERVISOR: 'Supervisor',
   ALMACEN: 'Almacén',
   AUDITOR: 'Auditor',

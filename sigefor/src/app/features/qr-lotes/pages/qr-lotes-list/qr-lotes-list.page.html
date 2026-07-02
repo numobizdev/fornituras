@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Lotes QR</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToGenerate()">
+        <ion-icon slot="start" name="add" aria-hidden="true"></ion-icon>
+        Generar lote
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h1 class="page-title">Lotes de QR generados</h1>
+
+  @if (isLoading()) {
+    <div class="centered">
+      <ion-spinner name="crescent" aria-label="Cargando lotes"></ion-spinner>
+    </div>
+  } @else if (lotes().length === 0) {
+    <p class="empty-state">No hay lotes generados todavía.</p>
+    <ion-button expand="block" (click)="goToGenerate()">Generar primer lote</ion-button>
+  } @else {
+    <ion-list lines="full">
+      @for (lote of lotes(); track lote.id) {
+        <ion-item button detail (click)="goToDetail(lote.id)">
+          <ion-label>
+            <h2>#{{ lote.id }} — {{ lote.descripcion }}</h2>
+            <p>{{ lote.cantidad }} códigos · {{ formatRange(lote.consecutivoInicial, lote.consecutivoFinal) }}</p>
+            <p>
+              {{ lote.createdAt | date: 'dd/MM/yyyy HH:mm' }} ·
+              {{ lote.qrSizeCm }} cm · {{ labelPositionLabels[lote.labelPosition] }}
+            </p>
+          </ion-label>
+          <ion-icon slot="end" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

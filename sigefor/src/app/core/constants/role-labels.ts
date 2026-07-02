@@ -2,6 +2,7 @@ import { UserRole } from '../models/auth.model';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   ADMIN: 'Administrador',
+  SUPER_ADMIN: 'Super Admin QR',
   SUPERVISOR: 'Supervisor',
   ALMACEN: 'Almacén',
   AUDITOR: 'Auditor',

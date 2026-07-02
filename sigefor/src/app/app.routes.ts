@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { operationalGuard } from './core/guards/operational.guard';
 import { rolesGuard } from './core/guards/roles.guard';
+import { superAdminGuard } from './core/guards/super-admin.guard';
 import { ROLE_POLICY } from './core/security/role-policy';
 
 export const routes: Routes = [
@@ -22,8 +24,14 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canActivate: [authGuard],
+    canActivate: [authGuard, operationalGuard],
     children: [
+      {
+        path: 'qr-lotes',
+        canActivate: [superAdminGuard],
+        loadChildren: () =>
+          import('./features/qr-lotes/qr-lotes.routes').then((m) => m.QR_LOTES_ROUTES),
+      },
       {
         path: 'inicio',
         loadChildren: () =>

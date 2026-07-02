@@ -50,9 +50,10 @@ public sealed class QrService(
         ReprintQrForm form,
         CancellationToken cancellationToken = default)
     {
+        LoteQrService.ValidatePrintSettingsOrThrow(form.QrSizeCm, form.PaddingCm);
         var lote = await loteQrService.GetEntityAsync(loteId, cancellationToken);
         var codigos = loteQrService.ListCodigos(lote);
-        return qrPdfService.GeneratePdf(lote, codigos, form.QrSizeCm, form.PaddingCm, form.MostrarBordes);
+        return qrPdfService.GeneratePdf(lote, codigos, form.QrSizeCm, form.PaddingCm, form.LabelPosition, form.MostrarBordes);
     }
 
     public async Task<byte[]> ReprintZipAsync(
@@ -60,8 +61,9 @@ public sealed class QrService(
         ReprintQrForm form,
         CancellationToken cancellationToken = default)
     {
+        LoteQrService.ValidatePrintSettingsOrThrow(form.QrSizeCm, form.PaddingCm);
         var lote = await loteQrService.GetEntityAsync(loteId, cancellationToken);
         var codigos = loteQrService.ListCodigos(lote);
-        return qrZipService.GenerateZip(lote, codigos, form.QrSizeCm, form.PaddingCm, form.MostrarBordes);
+        return qrZipService.GenerateZip(lote, codigos, form.QrSizeCm, form.PaddingCm, form.LabelPosition, form.MostrarBordes);
     }
 }

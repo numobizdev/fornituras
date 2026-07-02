@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Fornituras.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.6" />
@@ -18,7 +22,8 @@
     <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="QuestPDF" Version="2025.7.0" />
     <!-- Saneo de imágenes y stripping de EXIF (017). 2.1.x es Apache-2.0. Ver ADR 0017. -->
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
     <!-- Exportación de reportes a Excel real (.xlsx). MIT. Ver ADR 0018. -->
     <PackageReference Include="ClosedXML" Version="0.104.2" />
   </ItemGroup>

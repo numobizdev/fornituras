@@ -39,4 +39,8 @@ describe('ROLE_POLICY (espejo de RolePolicy.cs)', () => {
   it('READ_AUDIT = ADMIN, AUDITOR', () => {
     expect([...ROLE_POLICY.READ_AUDIT].sort()).toEqual(['ADMIN', 'AUDITOR']);
   });
+
+  it('MANAGE_QR_LOTES = SUPER_ADMIN', () => {
+    expect([...ROLE_POLICY.MANAGE_QR_LOTES]).toEqual(['SUPER_ADMIN']);
+  });
 });

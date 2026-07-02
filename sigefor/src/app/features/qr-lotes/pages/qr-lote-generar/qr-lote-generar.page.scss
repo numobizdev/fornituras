@@ -1,0 +1,44 @@
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.intro {
+  color: var(--ion-color-medium);
+  margin-bottom: 1.25rem;
+}
+
+.field-hint {
+  display: block;
+  margin: 0 0 1rem 1rem;
+  font-size: 0.875rem;
+}
+
+.field-error {
+  margin: 0.25rem 0 0 1rem;
+  font-size: 0.875rem;
+}
+
+.submit-btn {
+  margin-top: 1.5rem;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 2rem;
+  text-align: center;
+}
+
+.loading-overlay p {
+  max-width: 20rem;
+  color: var(--ion-color-dark);
+}

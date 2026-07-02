@@ -11,5 +11,5 @@ export const guestGuard: CanActivateFn = async () => {
     return true;
   }
 
-  return router.createUrlTree(['/inicio']);
+  return router.createUrlTree([authService.getPostLoginRoute()]);
 };

@@ -25,6 +25,12 @@ export const APP_NAV_ITEMS: NavItem[] = [
     icon: 'megaphone',
     roles: [...ROLE_POLICY.MANAGE_LANDING],
   },
+  {
+    title: 'Lotes QR',
+    url: '/qr-lotes',
+    icon: 'qr-code',
+    roles: [...ROLE_POLICY.MANAGE_QR_LOTES],
+  },
   { title: 'Catálogo de Tipos', url: '/tipos', icon: 'pricetags' },
   { title: 'Almacenes', url: '/almacenes', icon: 'business' },
 ];

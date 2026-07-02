@@ -1,0 +1,112 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/qr-lotes" text="Lotes"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Generar lote</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (isSubmitting()) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>{{ loadingMessage }}</p>
+    </div>
+  }
+
+  <h1 class="page-title">Generar lote de QR Codes</h1>
+  <p class="intro">
+    Los códigos tendrán formato secuencial <strong>FOR-000001</strong>, <strong>FOR-000002</strong>, etc.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-input
+        label="Descripción del lote"
+        labelPlacement="stacked"
+        formControlName="descripcion"
+        maxlength="255"
+        placeholder="Ej. Códigos prendas Chiapas"
+        [clearInput]="true"
+      ></ion-input>
+    </ion-item>
+    @if (form.controls.descripcion.touched && form.controls.descripcion.invalid) {
+      <ion-text color="danger"><p class="field-error">La descripción es obligatoria.</p></ion-text>
+    }
+    <ion-note class="field-hint">Nombre o referencia para identificar este lote.</ion-note>
+
+    <ion-item>
+      <ion-input
+        label="¿Cuántos QR Codes desea generar?"
+        labelPlacement="stacked"
+        type="number"
+        formControlName="cantidad"
+        min="1"
+        [max]="maxBatchSize"
+      ></ion-input>
+    </ion-item>
+    <ion-note class="field-hint">Máximo {{ maxBatchSize }} códigos por lote.</ion-note>
+
+    <ion-item>
+      <ion-input
+        label="Tamaño del cuadrado (cm)"
+        labelPlacement="stacked"
+        type="number"
+        step="0.1"
+        formControlName="qrSizeCm"
+        min="1"
+        max="15"
+      ></ion-input>
+    </ion-item>
+    <ion-note class="field-hint">
+      Tamaño total del cuadrado de corte (borde incluido), sin contar la etiqueta legible.
+    </ion-note>
+
+    <ion-item>
+      <ion-input
+        label="Padding alrededor del QR (cm)"
+        labelPlacement="stacked"
+        type="number"
+        step="0.1"
+        formControlName="paddingCm"
+        min="0"
+        max="5"
+      ></ion-input>
+    </ion-item>
+    <ion-note class="field-hint">Margen blanco interno entre el borde y el QR, por cada lado.</ion-note>
+
+    <ion-item>
+      <ion-select label="Mostrar código legible" labelPlacement="stacked" formControlName="labelPosition">
+        @for (option of labelOptions; track option.value) {
+          <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-select label="Formato de descarga" labelPlacement="stacked" formControlName="exportFormat">
+        @for (format of exportFormats; track format.value) {
+          <ion-select-option [value]="format.value">{{ format.label }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <ion-note class="field-hint">Al finalizar, se descargará automáticamente el archivo en el formato elegido.</ion-note>
+
+    <ion-item>
+      <ion-select label="Imprimir bordes del código" labelPlacement="stacked" formControlName="mostrarBordes">
+        <ion-select-option [value]="true">Sí</ion-select-option>
+        <ion-select-option [value]="false">No</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-note class="field-hint">Los bordes marcan el área de corte incluyendo el padding configurado.</ion-note>
+
+    <ion-button expand="block" type="submit" [disabled]="isSubmitting()" class="submit-btn">
+      @if (isSubmitting()) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        {{ submitLabel }}
+      }
+    </ion-button>
+  </form>
+</ion-content>

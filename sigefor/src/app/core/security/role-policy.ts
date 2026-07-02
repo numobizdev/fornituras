@@ -18,4 +18,6 @@ export const ROLE_POLICY = {
   MANAGE_LANDING: ['ADMIN'],
   MANAGE_USERS: ['ADMIN'],
   READ_AUDIT: ['ADMIN', 'AUDITOR'],
+  /** Generación, consulta y exportación de lotes QR (ADR 0020). */
+  MANAGE_QR_LOTES: ['SUPER_ADMIN'],
 } as const satisfies Record<string, ReadonlyArray<UserRole>>;

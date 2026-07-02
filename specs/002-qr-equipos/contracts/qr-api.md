@@ -57,12 +57,12 @@ Body `ReprintQrForm` (mismos rangos que `GenerateQrForm`, sin `descripcion`/`can
 
 ## Notas
 
-- **Autenticación:** JWT obligatorio (`Bearer`). **Autorización por rol fino:** pendiente
-  (depende de la expansión de roles, spec 013; hoy `ADMIN`/`CAPTURISTA`).
+- **Autenticación:** JWT obligatorio (`Bearer`). **Autorización:** solo rol **`SUPER_ADMIN`**
+  (`RolePolicy.ManageQrLotes`, ADR 0020). Los roles operativos (`ADMIN`, `ALMACEN`, `CAPTURISTA`)
+  ya no tienen acceso a estos endpoints.
+- **UI:** módulo Ionic `/qr-lotes/**` (spec 021); la UI Thymeleaf Java (`/qr/**`) está obsoleta.
 - **Sin verificación de firma:** no existe `qr:verify`; los códigos no se firman (ADR 0005,
   divergencia de seguridad conocida respecto al Principio II).
-- **Auditoría:** recomendada para generación/export (feature 012) — verificar si ya se registra.
+- **Auditoría:** generación registrada como `GENERATE_QR_BATCH` (feature 012).
 - **Resolución `código → fornitura`:** NO vive aquí; ocurre al dar de alta/asignar la fornitura
   (specs 001/004) y al escanear (014), siempre server-side tras authn+authz.
-- También existe una **UI web Thymeleaf** (`QrWebController`, plantillas `templates/qr/`) para
-  generar/listar lotes fuera de la API REST; el frontend `sigefor/` puede consumir la API REST.

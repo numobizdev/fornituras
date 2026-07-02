@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/qr-lotes" text="Lotes"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Lote generado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (isDownloading()) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>{{ downloadMessage() }}</p>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="centered">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (lote(); as lote) {
+    <h1 class="page-title">Lote generado correctamente</h1>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Lote #{{ lote.id }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item>
+            <ion-label>
+              <p>Descripción</p>
+              <h3>{{ lote.descripcion }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Cantidad</p>
+              <h3>{{ lote.cantidad }} códigos</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Rango</p>
+              <h3>{{ formatRange(lote.consecutivoInicial, lote.consecutivoFinal) }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Fecha</p>
+              <h3>{{ lote.createdAt | date: 'dd/MM/yyyy HH:mm' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Configuración</p>
+              <h3>
+                Cuadrado {{ lote.qrSizeCm }} cm · Padding {{ lote.paddingCm }} cm/lado ·
+                {{ labelPositionLabels[lote.labelPosition] }} ·
+                {{ lote.mostrarBordes ? 'Con bordes' : 'Sin bordes' }}
+              </h3>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="actions">
+      <ion-button expand="block" (click)="downloadPdf()" [disabled]="isDownloading()">
+        Descargar PDF
+      </ion-button>
+      <ion-button expand="block" fill="outline" (click)="downloadZip()" [disabled]="isDownloading()">
+        Descargar ZIP (PNG)
+      </ion-button>
+      <ion-button expand="block" fill="clear" [routerLink]="['/qr-lotes', lote.id]">
+        Ver detalle y reimprimir
+      </ion-button>
+      <ion-button expand="block" fill="clear" routerLink="/qr-lotes/generar">
+        Generar otro lote
+      </ion-button>
+    </div>
+  }
+</ion-content>

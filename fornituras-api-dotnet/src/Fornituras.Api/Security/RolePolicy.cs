@@ -16,6 +16,8 @@ public static class RolePolicy
     public const string ManageLanding = "ADMIN";
     public const string ManageUsers = "ADMIN";
     public const string ReadAudit = "ADMIN,AUDITOR";
+    /// <summary>Generación, consulta y exportación de lotes QR (rol dedicado, ADR 0020).</summary>
+    public const string ManageQrLotes = "SUPER_ADMIN";
 
     private static readonly HashSet<string> FullPiiRoles =
         new(StringComparer.OrdinalIgnoreCase) { "ADMIN", "SUPERVISOR", "AUDITOR" };
