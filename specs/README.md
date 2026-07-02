@@ -24,8 +24,13 @@ de prenda tiene hoy un único valor, "Fornitura".
 | 013 | [usuarios](./013-usuarios/spec.md) — usuarios y roles (RBAC) | §8 Usuarios | Usuarios y Roles |
 | 014 | [escaneo-qr](./014-escaneo-qr/spec.md) — captura QR (lector/cámara/manual) | §1/§3/§5 (captura) | — (componente) |
 | 015 | [catalogos-sexo-sangre](./015-catalogos-sexo-sangre/spec.md) — migrar `SEXO`/`TIPO_SANGRE` a la estructura genérica (ADR 0007) | — (deuda técnica) | — (parte de Catálogos) |
+| 017 | [migracion-api-dotnet](./017-migracion-api-dotnet/spec.md) — **migración backend** Spring Boot → ASP.NET Core Web API (.NET 10); contrato transparente para Ionic | — (infraestructura) | — |
 
 ## Orden de implementación recomendado
+
+> **Migración de stack (017):** **COMPLETADA** (2026-07-01). Backend en
+> [`fornituras-api-dotnet/`](../fornituras-api-dotnet/); Java obsoleto. Ver
+> [spec 017](./017-migracion-api-dotnet/spec.md) y [ADR 0016](../docs/04-decisiones/0016-backend-aspnetcore.md).
 
 Derivado de las dependencias declaradas en cada `plan.md` (los puertos permiten desarrollar y
 testear antes de que existan las features de las que se depende):

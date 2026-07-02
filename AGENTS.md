@@ -39,11 +39,14 @@ Toda contribución de IA debe leer y respetar [`docs/02-seguridad.md`](./docs/02
 
 | Capa        | Tecnología                                                        |
 |-------------|-------------------------------------------------------------------|
-| Backend     | **Java + Spring Boot** (API REST)                                 |
+| Backend     | **ASP.NET Core Web API** (.NET 10) — ver [ADR 0016](./docs/04-decisiones/0016-backend-aspnetcore.md) |
 | Base de datos | **Microsoft SQL Server 2022**                                   |
 | Frontend    | **Ionic 8 + Angular**                                             |
 | Móvil/QR    | **Capacitor** (cámara) + soporte para **escáner manual** de QR    |
-| Repo        | **Monorepo**: `fornituras-api/` (backend) y `sigefor/` (frontend) |
+| Repo        | **Monorepo**: `fornituras-api-dotnet/` (backend) y `sigefor/` (frontend) |
+
+> **Nota:** `fornituras-api/` (Java Spring Boot) está **obsoleto**; se conserva como referencia
+> histórica hasta retirarlo por completo.
 
 No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 
@@ -59,7 +62,8 @@ No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 ├── docs/                     # Documentación viva (arquitectura, seguridad, datos)
 │   └── 04-decisiones/        # ADRs (registro de decisiones de arquitectura)
 ├── specs/                    # Especificaciones de features (spec-driven, .specify/)
-├── fornituras-api/           # API Spring Boot — IMPLEMENTADA (auth, usuarios, QR)
+├── fornituras-api-dotnet/    # API ASP.NET Core Web API (.NET 10) — BACKEND ACTUAL
+├── fornituras-api/           # API Spring Boot — OBSOLETA (referencia histórica)
 └── sigefor/                  # App Ionic 8 + Angular — auth implementada (login/JWT)
 ```
 
@@ -79,29 +83,32 @@ No cambiar el stack sin registrar una decisión en `docs/04-decisiones/`.
 5. **Documenta las decisiones importantes** como un ADR en `docs/04-decisiones/`.
 6. **Idioma:** documentación y comentarios en **español**; identificadores de código en
    **inglés** (convención estándar de Java/Angular).
-7. **El backend (`fornituras-api/`) ya está implementado.** Respeta su arquitectura por
-   módulos (`modules/<feature>/{controller,service,repository,entity,dto}`) y no rompas lo
-   existente. El **frontend `sigefor/`** ya existe con la **autenticación implementada**
-   (login por email/JWT, guards, interceptor); se extiende, no se reescribe.
+7. **El backend (`fornituras-api-dotnet/`) es la API REST actual.** Organización por capas
+   (Controllers / Services / Data / Dto / Security). El **frontend `sigefor/`** consume la API
+   vía JWT; se extiende, no se reescribe. No añadir features nuevas en `fornituras-api/` (Java).
 
 ## 6. Convenciones de código (cuando empiece la implementación)
 
-- **Backend:** Java idiomático, paquetes por feature, capas claras (controller / service /
-  repository). Validación de entrada en el borde. Spring Security para authn/authz.
+- **Backend:** C# idiomático, carpetas por feature/capa. Validación en el borde. JWT Bearer + RBAC.
 - **Frontend:** Angular con componentes standalone, servicios para acceso a API, nada de
   lógica de negocio sensible en el cliente.
-- **Base de datos:** migraciones versionadas (p. ej. Flyway/Liquibase) — nunca cambios
-  manuales sin migración.
+- **Base de datos:** migraciones EF Core versionadas — nunca cambios manuales sin migración.
 - **Commits:** mensajes claros en español, presente imperativo ("Agrega...", "Corrige...").
 
 ## 7. Comandos
 
-**Backend** (desde `fornituras-api/`, Maven wrapper incluido):
+**Backend** (desde `fornituras-api-dotnet/`):
 
 ```powershell
-.\mvnw.cmd spring-boot:run     # Levanta la API
-.\mvnw.cmd test                # Ejecuta los tests
-.\mvnw.cmd clean package       # Compila y empaqueta
+dotnet run --project src/Fornituras.Api    # Levanta la API (puerto 8080, path /sigefor)
+dotnet test                                 # Ejecuta los tests
+dotnet ef database update --project src/Fornituras.Api   # Aplica migraciones
+```
+
+**Backend Java (obsoleto)** — solo referencia, desde `fornituras-api/`:
+
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
 **Frontend** (desde `sigefor/`):
