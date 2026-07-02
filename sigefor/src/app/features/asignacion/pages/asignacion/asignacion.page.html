@@ -39,6 +39,9 @@
           <ion-label>
             <h2>{{ eq.codigoQr }}</h2>
             <p>{{ eq.descripcion }}@if (eq.tipoNombre) { · {{ eq.tipoNombre }} }</p>
+            @if (eq.almacenNombre) {
+              <ion-note color="medium">Almacén: {{ eq.almacenNombre }}</ion-note>
+            }
           </ion-label>
           @if (equipmentAvailable) {
             <ion-badge slot="end" color="success">Disponible</ion-badge>
@@ -48,7 +51,13 @@
         </ion-item>
         @if (!equipmentAvailable) {
           <ion-item lines="none">
-            <ion-note color="danger">Esta fornitura no está disponible; no se puede asignar.</ion-note>
+            <ion-note color="danger">
+              @if (equipment()?.status === 'ASIGNADA') {
+                Esta fornitura ya está asignada a un elemento; no está disponible en almacén.
+              } @else {
+                Esta fornitura no está disponible en almacén; no se puede asignar.
+              }
+            </ion-note>
           </ion-item>
         }
       }

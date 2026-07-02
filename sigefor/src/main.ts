@@ -13,7 +13,9 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { AuthService } from './app/core/services/auth.service';
-import { OpticalScanner, WebBarcodeDetectorScanner } from './app/core/qr-scan/optical-scanner';
+import { WebBarcodeDetectorScanner } from './app/core/qr-scan/optical-scanner';
+import { provideOpticalScanner } from './app/core/qr-scan/optical-scanner.provider';
+import { CapacitorBarcodeScannerService } from './app/core/qr-scan/capacitor-barcode-scanner';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -22,8 +24,9 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAppInitializer(() => inject(AuthService).restoreSession()),
-    // Enlaza el puerto de escaneo óptico (ADR 0008) con su implementación web; sin esto, los
-    // consumidores de <app-qr-scan> (asignación, fornituras...) fallan con NG0201.
-    { provide: OpticalScanner, useExisting: WebBarcodeDetectorScanner },
+    CapacitorBarcodeScannerService,
+    WebBarcodeDetectorScanner,
+    // Escaneo óptico: Capacitor barcode-scanner (019) con fallback BarcodeDetector web (ADR 0008).
+    provideOpticalScanner(),
   ],
 });

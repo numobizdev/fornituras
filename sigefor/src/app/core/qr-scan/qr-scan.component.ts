@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { IonButton, IonIcon, IonInput, IonNote } from '@ionic/angular/standalone';
+import { IonButton, IonIcon, IonInput, IonNote, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline, closeOutline } from 'ionicons/icons';
 import { HidDetector } from './hid-detector';
@@ -29,7 +29,7 @@ import { QrCapture, QrCaptureError } from './qr-scan.types';
   selector: 'app-qr-scan',
   templateUrl: './qr-scan.component.html',
   styleUrls: ['./qr-scan.component.scss'],
-  imports: [IonInput, IonButton, IonIcon, IonNote],
+  imports: [IonInput, IonButton, IonIcon, IonNote, IonSpinner],
 })
 export class QrScanComponent implements OnDestroy {
   private readonly service = inject(QrScanService);
@@ -57,6 +57,10 @@ export class QrScanComponent implements OnDestroy {
   readonly isScanning = signal(false);
   readonly formatError = signal(false);
   readonly cameraSupported = this.scanner.isSupported();
+
+  protected usesEmbeddedVideo(): boolean {
+    return this.scanner.usesEmbeddedVideo();
+  }
 
   readonly canSubmit = computed(() => this.value().trim().length > 0);
 
@@ -97,14 +101,12 @@ export class QrScanComponent implements OnDestroy {
     if (!this.cameraSupported || this.isScanning()) {
       return;
     }
-    const video = this.videoRef()?.nativeElement;
-    if (!video) {
-      return;
-    }
     this.isScanning.set(true);
     this.abortController = new AbortController();
     try {
-      const raw = await this.scanner.scan(video, this.abortController.signal);
+      const raw = this.scanner.usesEmbeddedVideo()
+        ? await this.scanWithEmbeddedVideo(this.abortController.signal)
+        : await this.scanner.scan(document.createElement('video'), this.abortController.signal);
       this.emit(raw, 'camera');
     } catch (error) {
       if ((error as QrCaptureError).reason !== 'scan-failed') {
@@ -113,6 +115,14 @@ export class QrScanComponent implements OnDestroy {
     } finally {
       this.stopCamera();
     }
+  }
+
+  private async scanWithEmbeddedVideo(signal: AbortSignal): Promise<string> {
+    const video = this.videoRef()?.nativeElement;
+    if (!video) {
+      throw { reason: 'scan-failed', message: 'Escaneo cancelado.' } satisfies QrCaptureError;
+    }
+    return this.scanner.scan(video, signal);
   }
 
   stopCamera(): void {
