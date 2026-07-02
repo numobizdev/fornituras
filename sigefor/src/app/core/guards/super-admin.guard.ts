@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
 export const QR_LOTES_HOME = '/qr-lotes';
 
 /**
- * Restringe rutas al rol SUPER_ADMIN (módulo de lotes QR, ADR 0020).
+ * Restringe rutas al rol SUPER_ADMIN (módulo de lotes QR, ADR 0021).
  * Complementa la autorización del backend.
  */
 export const superAdminGuard: CanActivateFn = async () => {

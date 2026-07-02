@@ -2,12 +2,12 @@
 
 **Input**: Design documents from `/specs/021-ui-lotes-qr/`
 
-**Prerequisites**: plan.md, spec.md, ADR 0020
+**Prerequisites**: plan.md, spec.md, ADR 0021
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 - [X] T001 Crear rama `021-ui-lotes-qr` desde `dev` y directorio `specs/021-ui-lotes-qr/`
-- [X] T002 Redactar `spec.md`, `plan.md`, checklist y ADR 0020
+- [X] T002 Redactar `spec.md`, `plan.md`, checklist y ADR 0021 (originalmente 0020; renumerado por colisión)
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
