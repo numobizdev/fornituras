@@ -74,8 +74,12 @@
         <ion-item>
           <ion-input label="RFC" labelPlacement="stacked" formControlName="rfc" maxlength="13" placeholder="12 o 13 caracteres"></ion-input>
         </ion-item>
-        <ion-item>
-          <ion-input label="URL de foto" labelPlacement="stacked" formControlName="fotoUrl" maxlength="500" placeholder="https://..."></ion-input>
+        <ion-item lines="none">
+          <ion-label position="stacked">Foto del elemento</ion-label>
+          <app-photo-picker
+            formControlName="fotoUrl"
+            context="officer"
+            [disabledReason]="photoDisabledReason"></app-photo-picker>
         </ion-item>
       </ion-list>
 

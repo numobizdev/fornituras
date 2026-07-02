@@ -128,8 +128,9 @@
         <ion-item>
           <ion-textarea label="Observaciones" labelPlacement="stacked" formControlName="observaciones" maxlength="500" [autoGrow]="true"></ion-textarea>
         </ion-item>
-        <ion-item>
-          <ion-input label="URL de foto" labelPlacement="stacked" formControlName="fotoUrl" maxlength="500" placeholder="https://..."></ion-input>
+        <ion-item lines="none">
+          <ion-label position="stacked">Foto</ion-label>
+          <app-photo-picker formControlName="fotoUrl" context="equipment"></app-photo-picker>
         </ion-item>
       </ion-list>
 

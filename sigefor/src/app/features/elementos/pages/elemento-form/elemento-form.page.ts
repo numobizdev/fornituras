@@ -22,8 +22,14 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { PhotoPickerComponent } from '../../../../core/media/photo-picker/photo-picker.component';
+import { AuthService } from '../../../../core/services/auth.service';
+import { UserRole } from '../../../../core/models/auth.model';
 import { OfficersService } from '../../data/officers.service';
 import { CatalogItem, OfficerCreateRequest } from '../../data/officer.model';
+
+/** Roles que pueden capturar la foto de un elemento (PII); coincide con la matriz del backend (ADR 0013). */
+const OFFICER_PHOTO_ROLES: readonly UserRole[] = ['ADMIN', 'SUPERVISOR', 'CAPTURISTA'];
 
 @Component({
   selector: 'app-elemento-form',
@@ -47,6 +53,7 @@ import { CatalogItem, OfficerCreateRequest } from '../../data/officer.model';
     IonSelectOption,
     IonButton,
     IonSpinner,
+    PhotoPickerComponent,
   ],
 })
 export class ElementoFormPage implements OnInit {
@@ -55,6 +62,12 @@ export class ElementoFormPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
+  private readonly authService = inject(AuthService);
+
+  /** La foto de elemento es PII: solo roles autorizados pueden capturarla (además del gating legal). */
+  readonly canCapturePhoto = OFFICER_PHOTO_ROLES.includes(
+    this.authService.currentUser()?.role as UserRole,
+  );
 
   readonly officerId = signal<number | null>(null);
   readonly isLoading = signal(false);
@@ -82,7 +95,17 @@ export class ElementoFormPage implements OnInit {
     return this.officerId() !== null;
   }
 
+  /** Mensaje mostrado cuando la captura de foto de elemento está deshabilitada por rol. */
+  get photoDisabledReason(): string | null {
+    return this.canCapturePhoto
+      ? null
+      : 'No tienes autorización para capturar la foto del elemento.';
+  }
+
   ngOnInit(): void {
+    if (!this.canCapturePhoto) {
+      this.form.controls.fotoUrl.disable();
+    }
     void this.bootstrap();
   }
 

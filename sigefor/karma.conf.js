@@ -38,6 +38,17 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
+    // Lanzador headless para CI/ejecución sin ventana. Sube los timeouts porque en Windows el
+    // ChromeHeadless a veces pierde el ping durante el teardown y desconecta pese a pasar los tests.
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+      },
+    },
+    browserDisconnectTimeout: 20000,
+    browserNoActivityTimeout: 60000,
+    pingTimeout: 20000,
     singleRun: false,
     restartOnFileChange: true
   });
