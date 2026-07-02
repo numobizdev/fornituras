@@ -173,13 +173,18 @@ public sealed class ReportService(
         var rows = await ActiveAssignmentRowsAsync(filter, cancellationToken);
         // Auditar la exportación (FR-005) sin volcar PII: solo el volumen exportado.
         await audit.RecordEventAsync("EXPORT_ACTIVE_ASSIGNMENTS", $"rows={rows.Count}", cancellationToken);
-        var lines = new List<string> { "QR,Elemento,Placa,CURP,RFC,Municipio,FechaAsignacion" };
-        foreach (var row in rows)
-        {
-            lines.Add($"{row.CodigoQr},{row.ElementoNombre},{row.Placa},{row.Curp},{row.Rfc},{row.Municipio},{row.FechaAsignacion:O}");
-        }
 
-        return System.Text.Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
+        string[] headers = ["QR", "Elemento", "Placa", "CURP", "RFC", "Municipio", "FechaAsignacion"];
+        return XlsxWriter.Build("Asignaciones activas", headers, rows, (row, r) =>
+        [
+            row.CodigoQr,
+            row.ElementoNombre,
+            row.Placa,
+            row.Curp,
+            row.Rfc,
+            row.Municipio,
+            row.FechaAsignacion.ToString("O")
+        ]);
     }
 
     public async Task<PageResult<EquipmentSummary>> FindPredefinedReportAsync(
@@ -240,13 +245,16 @@ public sealed class ReportService(
     {
         var page = await FindPredefinedReportAsync(tipo, new PaginationQuery { Page = 0, Size = 10_000 }, cancellationToken);
         await audit.RecordEventAsync("EXPORT_PREDEFINED_REPORT", tipo.ToString(), cancellationToken);
-        var lines = new List<string> { "Codigo,Descripcion,Tipo,Almacen,Status" };
-        foreach (var row in page.Content)
-        {
-            lines.Add($"{row.CodigoQr},{row.Descripcion},{row.TipoNombre},{row.AlmacenNombre},{row.Status}");
-        }
 
-        return System.Text.Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
+        string[] headers = ["Codigo", "Descripcion", "Tipo", "Almacen", "Status"];
+        return XlsxWriter.Build($"Reporte {tipo}", headers, page.Content, (row, r) =>
+        [
+            row.CodigoQr,
+            row.Descripcion,
+            row.TipoNombre,
+            row.AlmacenNombre,
+            row.Status.ToString()
+        ]);
     }
 
     private static string BuildOfficerName(Officer officer)

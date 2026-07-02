@@ -19,6 +19,8 @@
     <PackageReference Include="QuestPDF" Version="2025.7.0" />
     <!-- Saneo de imágenes y stripping de EXIF (017). 2.1.x es Apache-2.0. Ver ADR 0017. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
+    <!-- Exportación de reportes a Excel real (.xlsx). MIT. Ver ADR 0018. -->
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
   </ItemGroup>
 
 </Project>
