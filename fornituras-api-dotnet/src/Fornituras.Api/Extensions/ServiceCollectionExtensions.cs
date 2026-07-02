@@ -112,6 +112,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ImageSanitizer>();
         services.AddSingleton<IFileStorage, LocalEncryptedFileStorage>();
         services.AddScoped<IMediaService, MediaService>();
+        services.AddScoped<MediaCleanupService>();
+        services.AddHostedService<MediaCleanupHostedService>();
         services.AddScoped<DataSeeder>();
 
         // Límite de subida (multipart) acorde al peso máximo de foto, con holgura para el sobre.
