@@ -1,0 +1,55 @@
+<div class="photo-picker">
+  <div class="photo-picker__preview">
+    @if (localPreview()) {
+      <img class="photo-picker__image" [src]="localPreview()" alt="Vista previa de la foto" />
+    } @else if (value()) {
+      <app-secure-image [reference]="value()" alt="Foto"></app-secure-image>
+    } @else {
+      <div class="photo-picker__empty">
+        <ion-icon name="images-outline"></ion-icon>
+        <span>Sin foto</span>
+      </div>
+    }
+
+    @if (uploading()) {
+      <div class="photo-picker__overlay">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    }
+  </div>
+
+  @if (disabled()) {
+    @if (disabledReason()) {
+      <ion-note color="medium" class="photo-picker__hint">{{ disabledReason() }}</ion-note>
+    }
+  } @else {
+    <div class="photo-picker__actions">
+      <ion-button fill="outline" size="small" [disabled]="uploading()" (click)="takePhoto()">
+        <ion-icon slot="start" name="camera-outline"></ion-icon>
+        Tomar foto
+      </ion-button>
+      <ion-button fill="outline" size="small" [disabled]="uploading()" (click)="chooseFile()">
+        <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+        Elegir archivo
+      </ion-button>
+      @if (hasPhoto()) {
+        <ion-button fill="clear" color="danger" size="small" [disabled]="uploading()" (click)="remove()">
+          <ion-icon slot="start" name="trash-outline"></ion-icon>
+          Quitar
+        </ion-button>
+      }
+    </div>
+  }
+
+  @if (error()) {
+    <ion-note color="danger" class="photo-picker__error">{{ error() }}</ion-note>
+  }
+
+  <input
+    #fileInput
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    hidden
+    (change)="onFileSelected($event)"
+  />
+</div>

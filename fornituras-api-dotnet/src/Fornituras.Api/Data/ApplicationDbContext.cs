@@ -22,6 +22,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<DecommissionReason> DecommissionReasons => Set<DecommissionReason>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<LandingSection> LandingSections => Set<LandingSection>();
+    public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,6 +44,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         ConfigureDecommission(modelBuilder);
         ConfigureAuditLog(modelBuilder);
         ConfigureLandingSection(modelBuilder);
+        ConfigureMediaAsset(modelBuilder);
     }
 
     private static void ConfigureBaseEntityTimestamps(ModelBuilder modelBuilder)
@@ -423,6 +425,26 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasIndex(e => e.Accion).HasDatabaseName("idx_audit_accion");
             entity.HasIndex(e => new { e.Entidad, e.EntidadId }).HasDatabaseName("idx_audit_entidad");
             entity.HasIndex(e => e.OccurredAt).HasDatabaseName("idx_audit_occurred_at");
+        });
+    }
+
+    private static void ConfigureMediaAsset(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<MediaAsset>(entity =>
+        {
+            entity.ToTable("media_asset");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedNever();
+            entity.Property(e => e.StorageKey).HasColumnName("storage_key").HasMaxLength(200).IsRequired();
+            entity.Property(e => e.ContentType).HasColumnName("content_type").HasMaxLength(60).IsRequired();
+            entity.Property(e => e.SizeBytes).HasColumnName("size_bytes");
+            entity.Property(e => e.IsPii).HasColumnName("is_pii").HasDefaultValue(false);
+            entity.Property(e => e.Context).HasColumnName("context").HasMaxLength(20).HasConversion<string>();
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+
+            entity.HasIndex(e => e.StorageKey).IsUnique().HasDatabaseName("uk_media_asset_storage_key");
+            entity.HasIndex(e => e.IsPii).HasDatabaseName("idx_media_asset_is_pii");
         });
     }
 

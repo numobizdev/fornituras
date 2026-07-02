@@ -31,6 +31,12 @@ spring:
     locations: classpath:db/migration
   thymeleaf:
     check-template-location: true
+  servlet:
+    multipart:
+      # Límite de subida de fotos (017): coherente con app.media.max-size-bytes (5 MB). El request
+      # admite algo más para cubrir las partes de metadatos del multipart.
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 app:
   jwt:
@@ -44,6 +50,19 @@ app:
     # Cifrado de PII a nivel de aplicación (ADR 0006). Valores SOLO por entorno; nunca en el repo.
     encryption-key: ${PII_ENCRYPTION_KEY:}
     blind-index-key: ${OFFICER_BLIND_INDEX_KEY:}
+  media:
+    # Almacenamiento de fotos (017, ADR 0016). La ruta vive fuera del repo y llega por entorno
+    # (Principio III); nunca se versiona su valor. Objetos cifrados AES-256-GCM en disco.
+    storage-path: ${MEDIA_STORAGE_PATH:./data/media}
+    max-size-bytes: ${MEDIA_MAX_SIZE_BYTES:5242880}   # 5 MB
+    max-width: ${MEDIA_MAX_WIDTH:4096}
+    max-height: ${MEDIA_MAX_HEIGHT:4096}
+    allowed-types:
+      - image/jpeg
+      - image/png
+      - image/webp
+    # Gating de captura de foto de elemento (PII): deshabilitada hasta base legal ADR 0003 (FR-015).
+    officer-photo-enabled: ${MEDIA_OFFICER_PHOTO_ENABLED:false}
   seed:
     admin:
       enabled: true

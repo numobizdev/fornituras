@@ -22,6 +22,7 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { PhotoPickerComponent } from '../../../../core/media/photo-picker/photo-picker.component';
 import { QrScanComponent } from '../../../../core/qr-scan/qr-scan.component';
 import { QrCaptureError } from '../../../../core/qr-scan/qr-scan.types';
 import { EquipmentTypesService } from '../../../tipos/data/equipment-types.service';
@@ -61,6 +62,7 @@ import {
     IonButton,
     IonSpinner,
     QrScanComponent,
+    PhotoPickerComponent,
   ],
 })
 export class FornituraFormPage implements OnInit {

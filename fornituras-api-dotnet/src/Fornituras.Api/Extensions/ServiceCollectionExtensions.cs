@@ -105,7 +105,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<LandingService>();
         services.AddScoped<ILandingService, LandingServiceAdapter>();
+        services.AddSingleton<ImageSanitizer>();
+        services.AddSingleton<IFileStorage, LocalEncryptedFileStorage>();
+        services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<DataSeeder>();
+
+        // Límite de subida (multipart) acorde al peso máximo de foto, con holgura para el sobre.
+        var maxUploadBytes = appOptions.Media.MaxSizeBytes + (1L * 1024 * 1024);
+        services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
+        {
+            o.MultipartBodyLengthLimit = maxUploadBytes;
+        });
+        services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(o =>
+        {
+            o.Limits.MaxRequestBodySize = maxUploadBytes;
+        });
 
         services.AddControllers();
         services.AddOpenApi();

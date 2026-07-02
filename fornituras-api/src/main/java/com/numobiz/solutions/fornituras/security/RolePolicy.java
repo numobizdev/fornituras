@@ -53,9 +53,22 @@ public final class RolePolicy {
 	 */
 	private static final Set<String> FULL_PII_AUTHORITIES = Set.of("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_AUDITOR");
 
+	/** Autoridades que pueden capturar datos del padrón de elementos (alta/edición, {@link #WRITE_OFFICERS}). */
+	private static final Set<String> WRITE_OFFICER_AUTHORITIES = Set.of("ROLE_ADMIN", "ROLE_SUPERVISOR", "ROLE_CAPTURISTA");
+
 	/** {@code true} si el actor autenticado puede ver la PII sin enmascarar (regla 3). */
 	public static boolean canViewFullPii(Authentication authentication) {
 		return authentication != null && authentication.getAuthorities().stream()
 				.anyMatch(authority -> FULL_PII_AUTHORITIES.contains(authority.getAuthority()));
+	}
+
+	/**
+	 * {@code true} si el actor puede subir la foto de un elemento (PII). Coincide con quienes capturan
+	 * el padrón ({@link #WRITE_OFFICERS}); la <b>visualización</b> de la foto se rige por la regla 3
+	 * ({@link #canViewFullPii}), de modo que un capturista puede adjuntarla pero la ve enmascarada.
+	 */
+	public static boolean canUploadOfficerPhoto(Authentication authentication) {
+		return authentication != null && authentication.getAuthorities().stream()
+				.anyMatch(authority -> WRITE_OFFICER_AUTHORITIES.contains(authority.getAuthority()));
 	}
 }

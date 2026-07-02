@@ -10,6 +10,7 @@ public sealed class AppOptions
     public JwtOptions Jwt { get; set; } = new();
     public QrOptions Qr { get; set; } = new();
     public PiiOptions Pii { get; set; } = new();
+    public MediaOptions Media { get; set; } = new();
     public SeedOptions Seed { get; set; } = new();
     public CorsOptions Cors { get; set; } = new();
 }

@@ -24,6 +24,7 @@ import {
 import { addIcons } from 'ionicons';
 import { addOutline, trashOutline } from 'ionicons/icons';
 import { extractApiErrorMessage } from '../../../../core/utils/api-error.util';
+import { PhotoPickerComponent } from '../../../../core/media/photo-picker/photo-picker.component';
 import { EquipmentTypesService } from '../../data/equipment-types.service';
 import { SizeSummary } from '../../data/equipment-type.model';
 
@@ -48,6 +49,7 @@ import { SizeSummary } from '../../data/equipment-type.model';
     IonButton,
     IonIcon,
     IonSpinner,
+    PhotoPickerComponent,
   ],
 })
 export class TipoFormPage implements OnInit {

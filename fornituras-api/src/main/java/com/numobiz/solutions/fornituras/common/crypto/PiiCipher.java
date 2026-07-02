@@ -78,6 +78,55 @@ public final class PiiCipher {
 		}
 	}
 
+	/**
+	 * Cifra un flujo de bytes (p. ej. una imagen saneada) con la misma clave y algoritmo que la PII
+	 * de texto (ADR 0006/0016). Devuelve el objeto autocontenido {@code IV ‖ ciphertext ‖ tag}: el IV
+	 * aleatorio va al frente y el tag GCM queda anexado por la propia JCE al final del ciphertext, de
+	 * modo que el descifrado no necesita metadatos externos. El {@code IV_LENGTH} inicial permite a los
+	 * adaptadores de almacenamiento registrar el nonce por separado si lo requieren.
+	 */
+	public static byte[] encryptBytes(byte[] plain) {
+		if (plain == null) {
+			return null;
+		}
+		SecretKey currentKey = requireKey();
+		try {
+			byte[] iv = new byte[IV_LENGTH];
+			RANDOM.nextBytes(iv);
+			Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+			cipher.init(Cipher.ENCRYPT_MODE, currentKey, new GCMParameterSpec(TAG_BITS, iv));
+			byte[] ciphertext = cipher.doFinal(plain);
+			byte[] combined = new byte[iv.length + ciphertext.length];
+			System.arraycopy(iv, 0, combined, 0, iv.length);
+			System.arraycopy(ciphertext, 0, combined, iv.length, ciphertext.length);
+			return combined;
+		} catch (GeneralSecurityException e) {
+			throw new IllegalStateException("No se pudo cifrar el objeto binario", e);
+		}
+	}
+
+	/** Descifra un objeto {@code IV ‖ ciphertext ‖ tag} producido por {@link #encryptBytes(byte[])}. */
+	public static byte[] decryptBytes(byte[] combined) {
+		if (combined == null) {
+			return null;
+		}
+		SecretKey currentKey = requireKey();
+		try {
+			byte[] iv = Arrays.copyOfRange(combined, 0, IV_LENGTH);
+			byte[] ciphertext = Arrays.copyOfRange(combined, IV_LENGTH, combined.length);
+			Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+			cipher.init(Cipher.DECRYPT_MODE, currentKey, new GCMParameterSpec(TAG_BITS, iv));
+			return cipher.doFinal(ciphertext);
+		} catch (GeneralSecurityException e) {
+			throw new IllegalStateException("No se pudo descifrar el objeto binario", e);
+		}
+	}
+
+	/** Longitud del nonce/IV (bytes) que precede a cada objeto cifrado con {@link #encryptBytes}. */
+	public static int ivLength() {
+		return IV_LENGTH;
+	}
+
 	private static SecretKey requireKey() {
 		SecretKey currentKey = key;
 		if (currentKey == null) {

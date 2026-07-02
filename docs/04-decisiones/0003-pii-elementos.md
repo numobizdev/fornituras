@@ -28,7 +28,9 @@ base legal** (control de dotación e identificación inequívoca del resguardata
 controles **obligatorios**:
 
 1. **Always Encrypted** para nombre, apellidos, CURP, RFC y tipo de sangre; **foto** en storage
-   cifrado con acceso autorizado.
+   cifrado con acceso autorizado (mecanismo resuelto por
+   [ADR 0016](./0016-almacenamiento-de-fotos.md); su captura sigue condicionada a la base legal
+   de este ADR).
 2. **RBAC con enmascaramiento por defecto**: CURP/RFC/foto visibles solo a roles autorizados; el
    resto los ve enmascarados (ver spec **013-usuarios**).
 3. **Auditoría** de todo acceso a la ficha completa y de toda exportación (specs **012**, **011**).

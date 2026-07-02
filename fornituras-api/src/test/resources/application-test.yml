@@ -12,6 +12,12 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
   flyway:
     enabled: false
+  servlet:
+    multipart:
+      # Por encima de app.media.max-size-bytes para que el 413 lo produzca la validación de peso del
+      # servicio (determinista), no el resolver de multipart.
+      max-file-size: 10MB
+      max-request-size: 12MB
   mail:
     host: localhost
     port: 1025
@@ -34,3 +40,15 @@ app:
   pii:
     encryption-key: DCEUhley+zGGDQpInyELd/2hCM4iRgCQVPilR7i1au8=
     blind-index-key: test-blind-index-key
+  # Media (017): storage temporal para los tests de integración; peso máximo bajo para probar 413 sin
+  # arrays enormes. El gate de foto de elemento se habilita para poder ejercitar el flujo PII (US2).
+  media:
+    storage-path: ${java.io.tmpdir}/sigefor-media-test
+    max-size-bytes: 1048576   # 1 MB
+    max-width: 4096
+    max-height: 4096
+    allowed-types:
+      - image/jpeg
+      - image/png
+      - image/webp
+    officer-photo-enabled: true
