@@ -1,6 +1,6 @@
 # Feature Specification: Identidad del sistema — Sistema Integral de Gestión de Fornituras
 
-**Feature Branch**: `019-identidad-fornituras`
+**Feature Branch**: `020-identidad-fornituras`
 
 **Created**: 2026-07-01
 

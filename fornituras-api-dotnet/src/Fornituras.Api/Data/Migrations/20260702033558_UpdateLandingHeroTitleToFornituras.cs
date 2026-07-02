@@ -6,7 +6,7 @@ namespace Fornituras.Api.Data.Migrations
 {
     /// <summary>
     /// Actualiza el título del HERO público de la landing a la identidad oficial
-    /// "Sistema Integral de Gestión de Fornituras" (ADR 0019). Se acota al valor sembrado
+    /// "Sistema Integral de Gestión de Fornituras" (ADR 0020). Se acota al valor sembrado
     /// anterior exacto para no sobrescribir ediciones deliberadas del administrador; por el
     /// mismo filtro la operación es idempotente.
     /// </summary>

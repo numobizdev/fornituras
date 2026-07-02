@@ -21,7 +21,7 @@
 
 ## R2. Dirección del rebrand vs. decisión histórica
 
-- **Decision**: registrar **ADR 0019 — Identidad del sistema: Sistema Integral de Gestión de
+- **Decision**: registrar **ADR 0020 — Identidad del sistema: Sistema Integral de Gestión de
   Fornituras**, que revierte explícitamente la justificación del commit `6b99f21`
   (`fix/landing-hero-title`), el cual había fijado "Sistema de Gestión de Blindajes" como
   nombre canónico alineado a README/Planeación/constitución.

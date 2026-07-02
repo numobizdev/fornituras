@@ -2,7 +2,7 @@
 SYNC IMPACT REPORT
 Versión: 1.0.0 → 1.0.1
 Tipo de cambio: PATCH (corrección del título nominal del sistema a "Sistema Integral de
-Gestión de Fornituras (SIGEFOR)" conforme al ADR 0019; los principios no cambian)
+Gestión de Fornituras (SIGEFOR)" conforme al ADR 0020; los principios no cambian)
 
 --- Historial 1.0.0 ---
 Versión: (plantilla) → 1.0.0
