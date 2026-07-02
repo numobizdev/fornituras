@@ -23,4 +23,16 @@ public sealed class MediaOptions
     /// se rechaza aunque el rol esté autorizado. Se habilita solo con base legal confirmada.
     /// </summary>
     public bool OfficerPhotoEnabled { get; set; }
+
+    /// <summary>
+    /// Limpieza de fotos huérfanas (FR-016). Es un borrado destructivo de PII, por lo que está
+    /// **deshabilitado por defecto**: se activa por operación tras validar retención/ARCO.
+    /// </summary>
+    public bool OrphanCleanupEnabled { get; set; }
+
+    /// <summary>Horas que una foto sin asociar sobrevive antes de considerarse huérfana.</summary>
+    public int OrphanGraceHours { get; set; } = 24;
+
+    /// <summary>Periodo (horas) entre pasadas de limpieza cuando está habilitada.</summary>
+    public int CleanupIntervalHours { get; set; } = 6;
 }
