@@ -24,13 +24,19 @@ public sealed class AuthService(
         var email = request.Email.Trim();
         logger.LogInformation("Login attempt for email: {Email}", email);
 
-        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken)
-            ?? throw new UnauthorizedAppException("Invalid email or password");
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        if (user is null)
+        {
+            // Auditar el intento denegado (FR-006, spec 012) sin registrar el correo (Principio V).
+            await audit.RecordEventAsync("LOGIN_FAILED", "reason=unknown-user", cancellationToken);
+            throw new UnauthorizedAppException("Invalid email or password");
+        }
 
         loginAttempt.AssertNotLocked(user);
 
         if (!user.Enabled)
         {
+            await audit.RecordAsync("LOGIN_DENIED_DISABLED", user.Id, cancellationToken);
             throw new UnauthorizedAppException(
                 "La cuenta no está activada. Revise su correo para el código de activación.");
         }
@@ -39,6 +45,7 @@ public sealed class AuthService(
         {
             logger.LogWarning("Login failed: password mismatch for user id {UserId}", user.Id);
             await loginAttempt.OnFailedAttemptAsync(user.Id, cancellationToken);
+            await audit.RecordAsync("LOGIN_FAILED", user.Id, cancellationToken);
             throw new UnauthorizedAppException("Invalid email or password");
         }
 

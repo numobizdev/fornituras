@@ -14,7 +14,8 @@ namespace Fornituras.Api.Services;
 public sealed class ReportService(
     ApplicationDbContext db,
     BlindIndexer blindIndexer,
-    CurrentUserService currentUser) : IReportService
+    CurrentUserService currentUser,
+    IAuditWriter audit) : IReportService
 {
     private static readonly EntityIncidentStatus[] ActiveIncidents =
     [
@@ -170,6 +171,8 @@ public sealed class ReportService(
         CancellationToken cancellationToken = default)
     {
         var rows = await ActiveAssignmentRowsAsync(filter, cancellationToken);
+        // Auditar la exportación (FR-005) sin volcar PII: solo el volumen exportado.
+        await audit.RecordEventAsync("EXPORT_ACTIVE_ASSIGNMENTS", $"rows={rows.Count}", cancellationToken);
         var lines = new List<string> { "QR,Elemento,Placa,CURP,RFC,Municipio,FechaAsignacion" };
         foreach (var row in rows)
         {
@@ -236,6 +239,7 @@ public sealed class ReportService(
         CancellationToken cancellationToken = default)
     {
         var page = await FindPredefinedReportAsync(tipo, new PaginationQuery { Page = 0, Size = 10_000 }, cancellationToken);
+        await audit.RecordEventAsync("EXPORT_PREDEFINED_REPORT", tipo.ToString(), cancellationToken);
         var lines = new List<string> { "Codigo,Descripcion,Tipo,Almacen,Status" };
         foreach (var row in page.Content)
         {
