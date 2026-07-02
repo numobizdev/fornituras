@@ -1,60 +1,75 @@
-<ion-content class="auth-page" [fullscreen]="true">
-  <div class="auth-page__container">
-    <div class="auth-page__brand">
-      <h1 class="auth-page__brand-title">SIGEFOR</h1>
-      <div class="auth-page__brand-accent" aria-hidden="true"></div>
-      <p class="auth-page__subtitle">Inicie sesión para continuar</p>
-    </div>
+<ion-content class="auth-page login-split" [fullscreen]="true">
+  <div class="login-split__layout">
+    <!-- Panel institucional: colapsa a cabecera compacta en móvil -->
+    <aside class="login-split__brand-panel">
+      <div class="login-split__brand">
+        <img
+          class="login-split__emblem"
+          src="assets/img/escudo-sigefor.svg"
+          alt="Emblema del Sistema Integral de Gestión de Fornituras" />
+        <h1 class="login-split__title">SIGEFOR</h1>
+        <div class="login-split__accent" aria-hidden="true"></div>
+        <p class="login-split__system-name">Sistema Integral de Gestión de Fornituras</p>
+      </div>
+    </aside>
 
-    <form class="auth-page__form" [formGroup]="form" (ngSubmit)="onSubmit()">
-      <ion-item lines="full">
-        <ion-input
-          label="Correo electrónico"
-          labelPlacement="stacked"
-          type="email"
-          autocomplete="email"
-          formControlName="email"
-        ></ion-input>
-      </ion-item>
-      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
-        <ion-text class="auth-page__field-error">El correo es obligatorio.</ion-text>
-      }
-      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
-        <ion-text class="auth-page__field-error">Ingrese un correo válido.</ion-text>
-      }
+    <!-- Panel del formulario -->
+    <main class="login-split__form-panel">
+      <div class="login-split__form-container">
+        <h2 class="login-split__form-title">Iniciar sesión</h2>
+        <p class="auth-page__subtitle">Ingrese sus credenciales para continuar</p>
 
-      <ion-item lines="full">
-        <ion-input
-          label="Contraseña"
-          labelPlacement="stacked"
-          type="password"
-          autocomplete="current-password"
-          formControlName="password"
-        >
-          <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-        </ion-input>
-      </ion-item>
-      @if (form.controls.password.touched && form.controls.password.hasError('required')) {
-        <ion-text class="auth-page__field-error">La contraseña es obligatoria.</ion-text>
-      }
+        <form class="auth-page__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <ion-item lines="full">
+            <ion-input
+              label="Correo electrónico"
+              labelPlacement="stacked"
+              type="email"
+              autocomplete="email"
+              formControlName="email"
+            ></ion-input>
+          </ion-item>
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            <ion-text class="auth-page__field-error">El correo es obligatorio.</ion-text>
+          }
+          @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+            <ion-text class="auth-page__field-error">Ingrese un correo válido.</ion-text>
+          }
 
-      <ion-button
-        class="auth-page__submit"
-        expand="block"
-        type="submit"
-        color="primary"
-        [disabled]="isSubmitting()"
-      >
-        @if (isSubmitting()) {
-          <ion-spinner name="crescent"></ion-spinner>
-        } @else {
-          Iniciar sesión
-        }
-      </ion-button>
-    </form>
+          <ion-item lines="full">
+            <ion-input
+              label="Contraseña"
+              labelPlacement="stacked"
+              type="password"
+              autocomplete="current-password"
+              formControlName="password"
+            >
+              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+            </ion-input>
+          </ion-item>
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <ion-text class="auth-page__field-error">La contraseña es obligatoria.</ion-text>
+          }
 
-    <div class="auth-page__links">
-      <a routerLink="/forgot-password">¿Olvidó su contraseña?</a>
-    </div>
+          <ion-button
+            class="auth-page__submit"
+            expand="block"
+            type="submit"
+            color="primary"
+            [disabled]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Iniciar sesión
+            }
+          </ion-button>
+        </form>
+
+        <div class="auth-page__links">
+          <a routerLink="/forgot-password">¿Olvidó su contraseña?</a>
+        </div>
+      </div>
+    </main>
   </div>
 </ion-content>

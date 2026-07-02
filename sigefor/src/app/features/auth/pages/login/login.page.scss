@@ -1,0 +1,114 @@
+// Login split-screen institucional (021/US6), mobile-first: en móvil el panel guinda es
+// una cabecera compacta; desde 900px son dos paneles 50/50. `auth-page.scss` (compartido
+// con forgot/reset) no se toca: aquí solo vive lo específico del login.
+
+.login-split__layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.login-split__brand-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(255, 255, 255, 0.08), transparent 55%),
+    var(--gobmx-guinda);
+  color: #ffffff;
+  padding: 28px 24px;
+}
+
+.login-split__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.login-split__emblem {
+  width: 64px;
+  height: auto;
+}
+
+.login-split__title {
+  margin: 12px 0 0;
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.login-split__accent {
+  height: 4px;
+  width: 48px;
+  margin: 12px auto 0;
+  background: var(--gobmx-dorado);
+  border-radius: 2px;
+}
+
+.login-split__system-name {
+  margin: 10px 0 0;
+  max-width: 300px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.login-split__form-panel {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+.login-split__form-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-split__form-title {
+  margin: 0;
+  font-family: 'Patria', 'Noto Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--gobmx-guinda);
+}
+
+.login-split__form-container .auth-page__subtitle {
+  margin: 6px 0 24px;
+}
+
+// Escritorio / tablet ancha: dos paneles a pantalla completa.
+@media (min-width: 900px) {
+  .login-split__layout {
+    flex-direction: row;
+    min-height: 100vh;
+  }
+
+  .login-split__brand-panel {
+    flex: 1;
+    padding: 48px;
+  }
+
+  .login-split__emblem {
+    width: 110px;
+  }
+
+  .login-split__title {
+    font-size: 2.75rem;
+  }
+
+  .login-split__system-name {
+    font-size: 1.1rem;
+    max-width: 340px;
+  }
+
+  .login-split__form-panel {
+    flex: 1;
+    align-items: center;
+    background: var(--gobmx-fondo-suave);
+  }
+}
