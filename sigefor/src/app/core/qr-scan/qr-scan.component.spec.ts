@@ -8,13 +8,18 @@ import { QrCaptureError } from './qr-scan.types';
 /** Escáner óptico de prueba, configurable para resolver un valor o rechazar con un error. */
 class FakeOpticalScanner extends OpticalScanner {
   supported = true;
+  embeddedVideo = true;
   result: { code?: string; error?: QrCaptureError } = {};
+
+  usesEmbeddedVideo(): boolean {
+    return this.embeddedVideo;
+  }
 
   isSupported(): boolean {
     return this.supported;
   }
 
-  scan(): Promise<string> {
+  scan(_video: HTMLVideoElement, _signal: AbortSignal): Promise<string> {
     if (this.result.error) {
       return Promise.reject(this.result.error);
     }

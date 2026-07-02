@@ -33,7 +33,14 @@
     <ion-note color="danger" role="alert">El código no tiene el formato esperado (FOR-XXXXX).</ion-note>
   }
 
-  <div class="qr-scan__camera" [hidden]="!isScanning()">
+  @if (isScanning() && !usesEmbeddedVideo()) {
+    <p class="qr-scan__hint" aria-live="polite">
+      <ion-spinner name="crescent"></ion-spinner>
+      Abriendo escáner de cámara…
+    </p>
+  }
+
+  <div class="qr-scan__camera" [hidden]="!isScanning() || !usesEmbeddedVideo()">
     <div class="qr-scan__viewport">
       <video #video class="qr-scan__video" playsinline muted></video>
       <div class="qr-scan__frame" aria-hidden="true"></div>
