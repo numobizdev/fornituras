@@ -33,6 +33,29 @@ hs_err_pid*
 replay_pid*
 
 # ─────────────────────────────────────────────────────────────
+# .NET / ASP.NET Core
+# ─────────────────────────────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Tt]est[Rr]esult*/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+publish/
+.vs/
+*.DotSettings.user
+
+# ─────────────────────────────────────────────────────────────
 # Node / Angular / Ionic
 # ─────────────────────────────────────────────────────────────
 node_modules/
